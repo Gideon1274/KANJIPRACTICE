@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOCABULARY</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body.dark-mode {
+            background-color: #222;
+            color: #ddd;
+        }
+        #sidebar {
+            width: 350px;
+            padding: 20px;
+            background-color: #e8ecef;
+            overflow-y: auto;
+            border-right: 2px solid #ccc;
+        }
+        body.dark-mode #sidebar {
+            background-color: #333;
+            border-right: 2px solid #555;
+        }
+        #sidebar h3 {
+            margin-top: 0;
+            font-size: 1.5em;
+        }
+        #sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+        #sidebar li {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 1em;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        body.dark-mode #sidebar li {
+            box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+        }
+        .correct {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        body.dark-mode .correct {
+            background-color: #2e7d32;
+            color: #c8e6c9;
+        }
+        .incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        body.dark-mode .incorrect {
+            background-color: #c62828;
+            color: #ffcdd2;
+        }
+        .kanji {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .details {
+            flex-grow: 1;
+        }
+        #main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        #difficulty-switcher {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+        #difficulty-switcher select {
+            padding: 8px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            cursor: pointer;
+        }
+        body.dark-mode #difficulty-switcher select {
+            border: 1px solid #555;
+            background-color: #333;
+            color: #ddd;
+        }
+        #kanji-display {
+            font-size: 100px;
+            margin-bottom: 20px;
+        }
+        #answer-input {
+            padding: 10px;
+            font-size: 30px;
+            width: 200px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            color: #333;
+        }
+        body.dark-mode #answer-input {
+            border: 1px solid #555;
+            background-color: #333;
+            color: #ddd;
+        }
+        #feedback {
+            margin-top: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+        #level-selector {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        #level-selector div {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        body.dark-mode #level-selector div {
+            background: #333;
+            color: #ddd;
+        }
+        #level-selector select {
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            color: #333;
+        }
+        body.dark-mode #level-selector select {
+            border: 1px solid #555;
+            background-color: #333;
+            color: #ddd;
+        }
+        #level-selector button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+        }
+        body.dark-mode #level-selector button {
+            background-color: #1e90ff;
+        }
+        #theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            color: #333;
+            z-index: 1000;
+        }
+        body.dark-mode #theme-toggle {
+            border: 1px solid #555;
+            background-color: #333;
+            color: #ddd;
+        }
+        #stats-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        body.dark-mode #stats-container {
+            color: #ddd;
+        }
+        #correct-count {
+            text-align: left;
+        }
+        #total-count {
+            text-align: right;
+        }
+    </style>
+</head>
+<body class="dark-mode">
+    <button id="theme-toggle">Toggle Light Mode</button>
+    <div id="level-selector">
+        <div>
+            <h2>Select Kana Level</h2>
+            <select id="jlpt-level">
+                <option value="N5">N5 KANJI VOCABULARY</option>
+                <option value="N4">N4 KANJI VOCABULARY</option>
+                <option value="N3">N3 KANJI VOCABULARY</option>
+                <option value="N2">N2 KANJI VOCABULARY</option>
+                <option value="N1">N1 KANJI VOCABULARY</option>
+            </select>
+            <br>
+            <button id="start-btn">Start Quiz</button>
+        </div>
+    </div>
+    <div id="sidebar">
+        <h3>Previous 8 Attempts (History)</h3>
+        <div id="stats-container">
+            <span id="correct-count">Correct: 0</span>
+            <span id="total-count">Total: 0</span>
+            <span id="percentage">Percentage: 0％</span>
+        </div>
+        <ul id="history-list"></ul>
+    </div>
+    <div id="main-content">
+        <div id="difficulty-switcher">
+            <select id="difficulty-switch">
+                <option value="N5">N5 KANJI VOCABULARY</option>
+                <option value="N4">N4 KANJI VOCABULARY</option>
+                <option value="N3">N3 KANJI VOCABULARY</option>
+                <option value="N2">N2 KANJI VOCABULARY</option>
+                <option value="N1">N1 KANJI VOCABULARY</option>
+            </select>
+        </div>
+        <div id="kanji-display"></div>
+        <input type="text" id="answer-input" placeholder="Type character or romaji">
+        <div id="feedback"></div>
+    </div>
+<script src="vocabData.js"></script>
+    <script>
+        
+       
+        let currentLevel = 'Everything';
+        let currentKanjiList = [];
+        let currentKanjiIndex = 0;
+        let answerHistory = [];
+        let correctCount = 0; // Track correct answers
+        let totalCount = 0;   // Track total questions
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function displayKanji() {
+            if (currentKanjiList.length === 0) {
+                document.getElementById("kanji-display").textContent = "No more characters!";
+                document.getElementById("answer-input").style.display = "none";
+                document.getElementById("feedback").textContent = "Quiz completed!";
+                return;
+            }
+            const kanji = currentKanjiList[currentKanjiIndex];
+            document.getElementById("kanji-display").textContent = kanji.kanji;
+            document.getElementById("answer-input").value = "";
+            document.getElementById("feedback").textContent = "";
+            document.getElementById("answer-input").focus();
+        }
+
+        function updateHistory() {
+            const historyList = document.getElementById("history-list");
+            historyList.innerHTML = "";
+            answerHistory.slice(-6).forEach(entry => {
+                const li = document.createElement("li");
+                // li.innerHTML = `<span class="kanji">${entry.kanji}</span><span class="details">Input: ${entry.answer}<br>Meaning: ${entry.shortMeaning},${entry.shortMeaning1},${entry.shortMeaning2}<br>Readings: ${entry.readings.join(", ")}</span>`;
+                li.innerHTML = `
+                    <span class="kanji">${entry.kanji}</span>
+                    <span class="details">
+                        Input: ${entry.answer}<br>
+                        Meaning: ${entry.meanings.filter(m => m).join(", ") || "None"}<br>
+                        Readings: ${entry.readings.join(", ")}
+                    </span>`;
+                li.className = entry.result === "Correct" ? "correct" : "incorrect";
+                historyList.appendChild(li);
+            });
+            historyList.scrollTop = historyList.scrollHeight;
+        }
+
+        function updateStats() {
+            document.getElementById("correct-count").textContent = `Correct: ${correctCount}`;
+            document.getElementById("total-count").textContent = `Total: ${totalCount}`;
+            const percentage = totalCount > 0 ? (correctCount / totalCount * 100).toFixed(2) : 0.00;
+            document.getElementById("percentage").textContent = `Percentage: ${percentage}%`;
+        }
+
+        function checkAnswer() {
+            const userAnswer = document.getElementById("answer-input").value.trim();
+            const kanji = currentKanjiList[currentKanjiIndex];
+            const correctReadings = kanji.readings;
+            const correctMeanings = kanji.meanings;
+            const correctKanji = kanji.kanji;
+
+            let result;
+            if (userAnswer === correctKanji || correctReadings.includes(userAnswer) || correctMeanings.includes(userAnswer)) {
+                result = "Correct";
+                document.getElementById("feedback").textContent = "Correct!";
+                document.getElementById("feedback").style.color = "green";
+                correctCount++; // Increment correct answers
+            } else {
+                result = "Incorrect";
+                document.getElementById("feedback").textContent = 
+                    `Incorrect. Character: ${correctKanji}, Readings: ${correctReadings.join(", ")}, Meanings: ${correctMeanings.join(", ")}`;
+                document.getElementById("feedback").style.color = "red";
+            }
+
+            totalCount++; // Increment total questions
+            answerHistory.push({
+                kanji: kanji.kanji,
+                answer: userAnswer || "(empty)",
+                // shortMeaning: kanji.meanings[0],
+                meanings: kanji.meanings,
+                readings: kanji.readings,
+                result: result
+            });
+
+            updateHistory();
+            updateStats(); 
+
+            currentKanjiIndex++;
+            if (currentKanjiIndex >= currentKanjiList.length) {
+                currentKanjiIndex = 0;
+                currentKanjiList = shuffle([...kanjiData[currentLevel]]);
+            }
+            setTimeout(displayKanji, 50);
+        }
+
+        function startQuiz(level) {
+            currentLevel = level;
+            currentKanjiList = shuffle([...kanjiData[level]]);
+            currentKanjiIndex = 0;
+            answerHistory = [];
+            correctCount = 0; // Reset correct answers
+            totalCount = 0;   // Reset total questions
+            updateHistory();
+            updateStats();    // Reset stats display
+            document.getElementById("level-selector").style.display = "none";
+            document.getElementById("main-content").style.display = "flex";
+            document.getElementById("sidebar").style.display = "block";
+            document.getElementById("difficulty-switch").value = level;
+            displayKanji();
+        }
+
+        document.getElementById("difficulty-switch").addEventListener("change", function() {
+            const selectedLevel = this.value;
+            startQuiz(selectedLevel);
+        });
+
+        document.getElementById("start-btn").addEventListener("click", function() {
+            const selectedLevel = document.getElementById("jlpt-level").value;
+            startQuiz(selectedLevel);
+        });
+
+        document.getElementById("answer-input").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                checkAnswer();
+            }
+        });
+
+        document.getElementById("theme-toggle").addEventListener("click", function() {
+            document.body.classList.toggle("dark-mode");
+            this.textContent = document.body.classList.contains("dark-mode") ? 
+                "Toggle Light Mode" : "Toggle Dark Mode";
+        });
+
+        document.getElementById("main-content").style.display = "none";
+        document.getElementById("sidebar").style.display = "none";
+    </script>
+</body>
+</html>

@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanji</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body.dark-mode {
+            background-color: #222;
+            color: #ddd;
+        }
+        #sidebar {
+            width: 350px;
+            padding: 20px;
+            background-color: #e8ecef;
+            overflow-y: auto;
+            border-right: 2px solid #ccc;
+        }
+        body.dark-mode #sidebar {
+            background-color: #333;
+            border-right: 2px solid #555;
+        }
+        #sidebar h3 {
+            margin-top: 0;
+            font-size: 1.5em;
+        }
+        #sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+        #sidebar li {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 1em;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        body.dark-mode #sidebar li {
+            box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+        }
+        .correct {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        body.dark-mode .correct {
+            background-color: #2e7d32;
+            color: #c8e6c9;
+        }
+        .incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        body.dark-mode .incorrect {
+            background-color: #c62828;
+            color: #ffcdd2;
+        }
+        .kanji {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .details {
+            flex-grow: 1;
+        }
+        #main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        #difficulty-switcher {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+        #difficulty-switcher select {
+            padding: 8px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            cursor: pointer;
+        }
+        body.dark-mode #difficulty-switcher select {
+            border: 1px solid #555;
+            background-color: #333;
+            color: #ddd;
+        }
+        #kanji-display {
+            font-size: 100px;
+            margin-bottom: 20px;
+        }
+        #answer-input {
+            padding: 10px;
+            font-size: 18px;
+            width: 200px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            color: #333;
+        }
+        body.dark-mode #answer-input {
+            border: 1px solid #555;
+            background-color: #333;
+            color: #ddd;
+        }
+        #feedback {
+            margin-top: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+        #level-selector {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        #level-selector div {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        body.dark-mode #level-selector div {
+            background: #333;
+            color: #ddd;
+        }
+        #level-selector select {
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            color: #333;
+        }
+        body.dark-mode #level-selector select {
+            border: 1px solid #555;
+            background-color: #333;
+            color: #ddd;
+        }
+        #level-selector button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+        }
+        body.dark-mode #level-selector button {
+            background-color: #1e90ff;
+        }
+        #theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            color: #333;
+            z-index: 1000;
+        }
+        body.dark-mode #theme-toggle {
+            border: 1px solid #555;
+            background-color: #333;
+            color: #ddd;
+        }
+    </style>
+</head>
+<body class="dark-mode">
+    <button id="theme-toggle">Toggle Light Mode</button>
+    <div id="level-selector">
+        <div>
+            <h2>Select Kana Level</h2>
+            <select id="jlpt-level">
+                <option value="N5">N5 KANJI</option>
+                <option value="N4">N4 KANJI</option>
+                <option value="N3">N3 KANJI</option>
+                <option value="N2">N2 KANJI</option>
+                <option value="N1">N1 KANJI</option>
+            </select>
+            <br>
+            <button id="start-btn">Start Quiz</button>
+        </div>
+    </div>
+    <div id="sidebar">
+        <h3>Previous 8 Attempts (History)</h3>
+        <ul id="history-list"></ul>
+    </div>
+    <div id="main-content">
+        <div id="difficulty-switcher">
+            <select id="difficulty-switch">
+                <option value="N5">N5 KANJI</option>
+                <option value="N4">N4 KANJI</option>
+                <option value="N3">N3 KANJI</option>
+                <option value="N2">N2 KANJI</option>
+                <option value="N1">N1 KANJI</option>
+            </select>
+        </div>
+        <div id="kanji-display"></div>
+        <input type="text" id="answer-input" placeholder="Type character or romaji">
+        <div id="feedback"></div>
+    </div>
+
+    <script>
+        
+       
+        const kanjiData = {　
+            N5: [
+                
+                { kanji: "日", readings: ["にち", "じつ", "ひ", "nichi", "jitsu", "hi"], meanings: ["sun", "day", "Japan", "counter for days"] },
+                { kanji: "一", readings: ["いち", "いつ", "ひと", "ひとつ", "ichi", "itsu", "hito", "hitotsu"], meanings: ["one"] },
+                { kanji: "国", readings: ["こく", "くに", "koku", "kuni"], meanings: ["country"] },
+                { kanji: "人", readings: ["じん", "にん", "ひと", "jin", "nin", "hito"], meanings: ["person"] },
+                { kanji: "年", readings: ["ねん", "とし", "nen", "toshi"], meanings: ["year", "counter for years"] },
+                { kanji: "大", readings: ["だい", "たい", "おお", "おおきい", "dai", "tai", "oo", "ookii"], meanings: ["large", "big"] },
+                { kanji: "十", readings: ["じゅう", "じっ", "とお", "と", "juu", "jitsu", "too", "to"], meanings: ["ten"] },
+                { kanji: "二", readings: ["に", "じ", "ふた", "ふたつ", "ni", "ji", "futa", "futatsu"], meanings: ["two"] },
+                { kanji: "本", readings: ["ほん", "もと", "hon", "moto"], meanings: ["book", "present", "main", "origin", "true", "real", "counter for long cylindrical things"] },
+                { kanji: "中", readings: ["ちゅう", "なか", "うち", "chuu", "naka", "uchi"], meanings: ["in", "inside", "middle", "mean", "center"] },
+                { kanji: "長", readings: ["ちょう", "ながい", "chou", "nagai"], meanings: ["long", "leader", "superior", "senior"] },
+                { kanji: "出", readings: ["しゅつ", "でる", "だす", "shutsu", "deru", "dasu"], meanings: ["exit", "leave", "go out", "come out", "put out", "protrude"] },
+                { kanji: "三", readings: ["さん", "み", "みつ", "san", "mi", "mitsu"], meanings: ["three"] },
+                { kanji: "時", readings: ["じ", "とき", "ji", "toki"], meanings: ["time", "hour"] },
+                { kanji: "行", readings: ["こう", "ぎょう", "いく", "ゆく", "おこなう", "kou", "gyou", "iku", "yuku", "okonau"], meanings: ["going", "journey", "carry out", "conduct", "act", "line", "row", "bank"] },
+                { kanji: "見", readings: ["けん", "みる", "みえる", "ken", "miru", "mieru"], meanings: ["see", "hopes", "chances", "idea", "opinion", "look at", "visible"] },
+                { kanji: "月", readings: ["げつ", "がつ", "つき", "getsu", "gatsu", "tsuki"], meanings: ["month", "moon"] },
+                { kanji: "後", readings: ["ご", "こう", "のち", "うしろ", "あと", "go", "kou", "nochi", "ushiro", "ato"], meanings: ["behind", "back", "later"] },
+                { kanji: "前", readings: ["ぜん", "まえ", "zen", "mae"], meanings: ["in front", "before"] },
+                { kanji: "生", readings: ["せい", "しょう", "いきる", "うまれる", "うむ", "はえる", "sei", "shou", "ikiru", "umareru", "umu", "haeru"], meanings: ["life", "genuine", "birth"] },
+                { kanji: "五", readings: ["ご", "いつ", "いつつ", "go", "itsu", "itsutsu"], meanings: ["five"] },
+                { kanji: "間", readings: ["かん", "けん", "あいだ", "ま", "kan", "ken", "aida", "ma"], meanings: ["interval", "space"] },
+                { kanji: "上", readings: ["じょう", "うえ", "かみ", "あ príncipe", "のぼる", "jou", "ue", "kami", "ageru", "noboru"], meanings: ["above", "up"] },
+                { kanji: "東", readings: ["とう", "ひがし", "tou", "higashi"], meanings: ["east"] },
+                { kanji: "四", readings: ["し", "よ", "よつ", "よん", "shi", "yo", "yotsu", "yon"], meanings: ["four"] },
+                { kanji: "今", readings: ["こん", "きん", "いま", "kon", "kin", "ima"], meanings: ["now"] },
+                { kanji: "金", readings: ["きん", "こん", "かね", "kin", "kon", "kane"], meanings: ["gold", "money"] },
+                { kanji: "九", readings: ["きゅう", "く", "ここの", "ここのつ", "kyuu", "ku", "kokono", "kokonotsu"], meanings: ["nine"] },
+                { kanji: "入", readings: ["にゅう", "いる", "いれる", "はいる", "nyuu", "iru", "ireru", "hairu"], meanings: ["enter", "insert"] },
+                { kanji: "学", readings: ["がく", "まなぶ", "gaku", "manabu"], meanings: ["study", "learning", "science"] },
+                { kanji: "高", readings: ["こう", "たかい", "たか", "kou", "takai", "taka"], meanings: ["tall", "high", "expensive"] },
+                { kanji: "円", readings: ["えん", "まるい", "まる", "en", "marui", "maru"], meanings: ["circle", "yen", "round"] },
+                { kanji: "子", readings: ["し", "こ", "shi", "ko"], meanings: ["child", "sign of the rat"] },
+                { kanji: "外", readings: ["がい", "げ", "そと", "ほか", "gai", "ge", "soto", "hoka"], meanings: ["outside"] },
+                { kanji: "八", readings: ["はち", "や", "やつ", "hachi", "ya", "yatsu"], meanings: ["eight"] },
+                { kanji: "六", readings: ["ろく", "む", "むつ", "roku", "mu", "mutsu"], meanings: ["six"] },
+                { kanji: "下", readings: ["か", "げ", "した", "しも", "さげる", "さがる", "くだる", "ka", "ge", "shita", "shimo", "sageru", "sagaru", "kudaru"], meanings: ["below", "down", "descend", "give", "low", "inferior"] },
+                { kanji: "来", readings: ["らい", "くる", "きたる", "rai", "kuru", "kitaru"], meanings: ["come", "due", "next", "cause", "become"] },
+                { kanji: "気", readings: ["き", "け", "ki", "ke"], meanings: ["spirit", "mind", "air", "atmosphere", "mood"] },
+                { kanji: "小", readings: ["しょう", "ちいさい", "こ", "shou", "chiisai", "ko"], meanings: ["little", "small"] },
+                { kanji: "七", readings: ["しち", "なな", "ななつ", "shichi", "nana", "nanatsu"], meanings: ["seven"] },
+                { kanji: "山", readings: ["さん", "やま", "san", "yama"], meanings: ["mountain"] },
+                { kanji: "話", readings: ["わ", "はなす", "はなし", "wa", "hanasu", "hanashi"], meanings: ["tale", "talk"] },
+                { kanji: "女", readings: ["じょ", "にょ", "おんな", "jo", "nyo", "onna"], meanings: ["woman", "female"] },
+                { kanji: "北", readings: ["ほく", "きた", "hoku", "kita"], meanings: ["north"] },
+                { kanji: "午", readings: ["ご", "うま", "go", "uma"], meanings: ["noon", "sign of the horse"] },
+                { kanji: "百", readings: ["ひゃく", "hyaku"], meanings: ["hundred"] },
+                { kanji: "書", readings: ["しょ", "かく", "sho", "kaku"], meanings: ["write"] },
+                { kanji: "先", readings: ["せん", "さき", "sen", "saki"], meanings: ["before", "ahead", "previous", "future", "precedence"] },
+                { kanji: "名", readings: ["めい", "みょう", "な", "mei", "myou", "na"], meanings: ["name", "noted", "distinguished", "reputation"] },
+                { kanji: "川", readings: ["せん", "かわ", "セン", "カワ", "sen", "kawa"], meanings: ["stream", "river"] },
+                { kanji: "千", readings: ["せん", "ち", "セン", "チ", "sen", "chi"], meanings: ["thousand"] },
+                { kanji: "水", readings: ["すい", "みず", "スイ", "ミズ", "sui", "mizu"], meanings: ["water"] },
+                { kanji: "半", readings: ["はん", "なかば", "ハン", "ナカバ", "han", "nakaba"], meanings: ["half", "middle", "odd number", "semi-", "part-"] },
+                { kanji: "男", readings: ["だん", "なん", "おとこ", "ダン", "ナン", "オトコ", "dan", "nan", "otoko"], meanings: ["male"] },
+                { kanji: "西", readings: ["せい", "さい", "にし", "セイ", "サイ", "ニシ", "sei", "sai", "nishi"], meanings: ["west", "Spain"] },
+                { kanji: "電", readings: ["でん", "デン", "den"], meanings: ["electricity"] },
+                { kanji: "校", readings: ["こう", "きょう", "コウ", "キョウ", "kou", "kyou"], meanings: ["exam", "school", "printing", "proof", "correction"] },
+                { kanji: "語", readings: ["ご", "かたる", "ゴ", "カタル", "go", "kataru"], meanings: ["word", "speech", "language"] },
+                { kanji: "土", readings: ["ど", "と", "つち", "ド", "ト", "ツチ", "do", "to", "tsuchi"], meanings: ["soil", "earth", "ground", "Turkey"] },
+                { kanji: "木", readings: ["ぼく", "もく", "き", "ボク", "モク", "キ", "boku", "moku", "ki"], meanings: ["tree", "wood"] },
+                { kanji: "聞", readings: ["ぶん", "もん", "きく", "きこえる", "ブン", "モン", "キク", "キコエル", "bun", "mon", "kiku", "kikoeru"], meanings: ["hear", "ask", "listen"] },
+                { kanji: "食", readings: ["しょく", "じき", "くう", "たべる", "ショク", "ジキ", "クウ", "タベル", "shoku", "jiki", "kuu", "taberu"], meanings: ["eat", "food"] },
+                { kanji: "車", readings: ["しゃ", "くるま", "シャ", "クルマ", "sha", "kuruma"], meanings: ["car"] },
+                { kanji: "何", readings: ["か", "なに", "なん", "カ", "ナニ", "ナン", "ka", "nani", "nan"], meanings: ["what"] },
+                { kanji: "南", readings: ["なん", "みなみ", "ナン", "ミナミ", "nan", "minami"], meanings: ["south"] },
+                { kanji: "万", readings: ["まん", "ばん", "マン", "バン", "man", "ban"], meanings: ["ten thousand", "10,000"] },
+                { kanji: "毎", readings: ["まい", "ごと", "マイ", "ゴト", "mai", "goto"], meanings: ["every"] },
+                { kanji: "白", readings: ["はく", "びゃく", "しろ", "しろい", "ハク", "ビャク", "シロ", "シロイ", "haku", "byaku", "shiro", "shiroi"], meanings: ["white"] },
+                { kanji: "天", readings: ["てん", "あま", "テン", "アマ", "ten", "ama"], meanings: ["heavens", "sky", "imperial"] },
+                { kanji: "母", readings: ["ぼ", "はは", "ボ", "ハハ", "bo", "haha"], meanings: ["mother"] },
+                { kanji: "火", readings: ["か", "ひ", "カ", "ヒ", "ka", "hi"], meanings: ["fire"] },
+                { kanji: "右", readings: ["う", "ゆう", "みぎ", "ウ", "ユウ", "ミギ", "u", "yuu", "migi"], meanings: ["right"] },
+                { kanji: "読", readings: ["どく", "とく", "とう", "よむ", "ドク", "トク", "トウ", "ヨム", "doku", "toku", "tou", "yomu"], meanings: ["read"] },
+                { kanji: "友", readings: ["ゆう", "とも", "ユウ", "トモ", "yuu", "tomo"], meanings: ["friend"] },
+                { kanji: "左", readings: ["さ", "しゃ", "ひだり", "サ", "シャ", "ヒダリ", "sa", "sha", "hidari"], meanings: ["left"] },
+                { kanji: "休", readings: ["きゅう", "やすむ", "やすまる", "やすめる", "キュウ", "ヤスム", "ヤスマル", "ヤスメル", "kyuu", "yasumu", "yasumaru", "yasumeru"], meanings: ["rest", "day off", "retire", "sleep"] },
+                { kanji: "父", readings: ["ふ", "ちち", "フ", "チチ", "fu", "chichi"], meanings: ["father"] },
+                { kanji: "雨", readings: ["う", "あめ", "ウ", "アメ", "u", "ame"], meanings: ["rain"] }
+            ],
+            N4: [
+                { kanji: "会", readings: ["かい", "あう", "カイ", "アウ", "kai", "au"], meanings: ["meeting", "meet", "party", "association", "interview", "join"] },
+                { kanji: "同", readings: ["どう", "おなじ", "ドウ", "オナジ", "dou", "onaji"], meanings: ["same", "agree", "equal"] },
+                { kanji: "事", readings: ["じ", "こと", "ジ", "コト", "ji", "koto"], meanings: ["matter", "thing", "fact", "business", "reason", "possibly"] },
+                { kanji: "自", readings: ["じ", "し", "みずから", "ジ", "シ", "ミズカラ", "ji", "shi", "mizukara"], meanings: ["oneself"] },
+                { kanji: "社", readings: ["しゃ", "やしろ", "シャ", "ヤシロ", "sha", "yashiro"], meanings: ["company", "firm", "office", "association", "shrine"] },
+                { kanji: "発", readings: ["はつ", "ほつ", "たつ", "はなつ", "ハツ", "ホツ", "タツ", "ハナツ", "hatsu", "hotsu", "tatsu", "hanatsu"], meanings: ["departure", "discharge", "publish", "emit", "start from", "disclose", "counter for gunshots"] },
+                { kanji: "者", readings: ["しゃ", "もの", "シャ", "モノ", "sha", "mono"], meanings: ["someone", "person"] },
+                { kanji: "地", readings: ["ち", "じ", "チ", "ジ", "chi", "ji"], meanings: ["ground", "earth"] },
+                { kanji: "業", readings: ["ぎょう", "ごう", "わざ", "ギョウ", "ゴウ", "ワザ", "gyou", "gou", "waza"], meanings: ["business", "vocation", "arts", "performance"] },
+                { kanji: "方", readings: ["ほう", "かた", "ホウ", "カタ", "hou", "kata"], meanings: ["direction", "person", "alternative"] },
+                { kanji: "新", readings: ["しん", "あたらしい", "シン", "アタラシイ", "shin", "atarashii"], meanings: ["new"] },
+                { kanji: "場", readings: ["じょう", "ば", "ジョウ", "バ", "jou", "ba"], meanings: ["location", "place"] },
+                { kanji: "員", readings: ["いん", "イン", "in"], meanings: ["employee", "member", "number", "the one in charge"] },
+                { kanji: "立", readings: ["りつ", "りゅう", "たつ", "たてる", "リツ", "リュウ", "タツ", "タテル", "ritsu", "ryuu", "tatsu", "tateru"], meanings: ["stand up", "rise", "set up", "erect"] },
+                { kanji: "開", readings: ["かい", "ひらく", "ひらける", "あく", "あける", "カイ", "ヒラク", "ヒラケル", "アク", "アケル", "kai", "hiraku", "hirakeru", "aku", "akeru"], meanings: ["open", "unfold", "unseal"] },
+                { kanji: "手", readings: ["しゅ", "て", "シュ", "テ", "shu", "te"], meanings: ["hand"] },
+                { kanji: "力", readings: ["りょく", "りき", "ちから", "リョク", "リキ", "チカラ", "ryoku", "riki", "chikara"], meanings: ["power", "strength", "strong", "strain", "bear up", "exert"] },
+                { kanji: "問", readings: ["もん", "とう", "モン", "トウ", "mon", "tou"], meanings: ["question", "ask", "problem"] },
+                { kanji: "代", readings: ["だい", "たい", "かわる", "かえる", "ダイ", "タイ", "カワル", "カエル", "dai", "tai", "kawaru", "kaeru"], meanings: ["substitute", "change", "convert", "replace", "period", "age", "counter for decades of ages, eras, etc.", "generation", "charge", "rate", "fee"] },
+                { kanji: "明", readings: ["めい", "みょう", "あかり", "あかるい", "メイ", "ミョウ", "アカリ", "アカルイ", "mei", "myou", "akari", "akarui"], meanings: ["bright", "light"] },
+                { kanji: "動", readings: ["どう", "うごく", "うごかす", "ドウ", "ウゴク", "ウゴカス", "dou", "ugoku", "ugokasu"], meanings: ["move", "motion", "change", "confusion", "shift", "shake"] },
+                { kanji: "京", readings: ["きょう", "けい", "みやこ", "キョウ", "ケイ", "ミヤコ", "kyou", "kei", "miyako"], meanings: ["capital", "10**16"] },
+                { kanji: "目", readings: ["もく", "ぼく", "め", "モク", "ボク", "メ", "moku", "boku", "me"], meanings: ["eye", "class", "look", "insight", "experience", "care", "favor"] },
+                { kanji: "通", readings: ["つう", "とおる", "とおす", "かよう", "ツウ", "トオル", "トオス", "カヨウ", "tsuu", "tooru", "toosu", "kayou"], meanings: ["traffic", "pass through", "avenue", "commute", "counter for letters, notes, documents, etc."] },
+                { kanji: "言", readings: ["げん", "ごん", "いう", "こと", "ゲン", "ゴン", "イウ", "コト", "gen", "gon", "iu", "koto"], meanings: ["say", "word"] },
+                { kanji: "理", readings: ["り", "ことわり", "リ", "コトワリ", "ri", "kotowari"], meanings: ["logic", "arrangement", "reason", "justice", "truth"] },
+                { kanji: "体", readings: ["たい", "てい", "からだ", "かたち", "タイ", "テイ", "カラダ", "カタチ", "tai", "tei", "karada", "katachi"], meanings: ["body", "substance", "object", "reality", "counter for images"] },
+                { kanji: "田", readings: ["でん", "た", "デン", "タ", "den", "ta"], meanings: ["rice field", "rice paddy"] },
+                { kanji: "主", readings: ["しゅ", "ぬし", "おも", "シュ", "ヌシ", "オモ", "shu", "nushi", "omo"], meanings: ["lord", "chief", "master", "main thing", "principal"] },
+                { kanji: "題", readings: ["だい", "ダイ", "dai"], meanings: ["topic", "subject"] },
+                { kanji: "意", readings: ["い", "イ", "i"], meanings: ["idea", "mind", "heart", "taste", "thought", "desire", "care", "liking"] },
+                { kanji: "不", readings: ["ふ", "ぶ", "フ", "ブ", "fu", "bu"], meanings: ["negative", "non-", "bad", "ugly", "clumsy"] },
+                { kanji: "作", readings: ["さく", "さ", "つくる", "サク", "サ", "ツクル", "saku", "sa", "tsukuru"], meanings: ["make", "production", "prepare", "build"] },
+                { kanji: "用", readings: ["よう", "もちいる", "ヨウ", "モチイル", "you", "mochiiru"], meanings: ["utilize", "business", "service", "use", "employ"] },
+                { kanji: "度", readings: ["ど", "たく", "たび", "ド", "タク", "タビ", "do", "taku", "tabi"], meanings: ["degrees", "occurrence", "time", "counter for occurrences", "consider", "attitude"] },
+                { kanji: "強", readings: ["きょう", "ごう", "つよい", "キョウ", "ゴウ", "ツヨイ", "kyou", "gou", "tsuyoi"], meanings: ["strong"] },
+                { kanji: "公", readings: ["こう", "く", "おおやけ", "コウ", "ク", "オオヤケ", "kou", "ku", "ooyake"], meanings: ["public", "prince", "official", "governmental"] },
+                { kanji: "持", readings: ["じ", "もつ", "ジ", "モツ", "ji", "motsu"], meanings: ["hold", "have"] },
+                { kanji: "野", readings: ["や", "の", "ヤ", "ノ", "ya", "no"], meanings: ["plains", "field", "rustic", "civilian life"] },
+                { kanji: "以", readings: ["い", "もって", "イ", "モッテ", "i", "motte"], meanings: ["by means of", "because", "in view of", "compared with"] },
+                { kanji: "思", readings: ["し", "おもう", "シ", "オモウ", "shi", "omou"], meanings: ["think"] },
+                { kanji: "家", readings: ["か", "け", "いえ", "や", "カ", "ケ", "イエ", "ヤ", "ka", "ke", "ie", "ya"], meanings: ["house", "home", "family", "professional", "expert", "performer"] },
+                { kanji: "世", readings: ["せい", "せ", "よ", "セイ", "セ", "ヨ", "sei", "se", "yo"], meanings: ["generation", "world", "society", "public"] },
+                { kanji: "多", readings: ["た", "おおい", "タ", "オオイ", "ta", "ooi"], meanings: ["many", "frequent", "much"] },
+                { kanji: "正", readings: ["せい", "しょう", "ただしい", "セイ", "ショウ", "タダシイ", "sei", "shou", "tadashii"], meanings: ["correct", "justice", "righteous", "10**40"] },
+                { kanji: "安", readings: ["あん", "やすい", "アン", "ヤスイ", "an", "yasui"], meanings: ["relax", "cheap", "low", "quiet", "rested", "contented", "peaceful"] },
+                { kanji: "院", readings: ["いん", "イン", "in"], meanings: ["Inst.", "institution", "temple", "mansion", "school"] },
+                { kanji: "心", readings: ["しん", "こころ", "シン", "ココロ", "shin", "kokoro"], meanings: ["heart", "mind", "spirit"] },
+                { kanji: "界", readings: ["かい", "カイ", "kai"], meanings: ["world", "boundary"] },
+                { kanji: "教", readings: ["きょう", "おしえる", "キョウ", "オシエル", "kyou", "oshieru"], meanings: ["teach", "faith", "doctrine"] },
+                { kanji: "文", readings: ["ぶん", "もん", "ふみ", "ブン", "モン", "フミ", "bun", "mon", "fumi"], meanings: ["sentence", "literature", "style", "art", "decoration", "figures", "plan"] },
+                { kanji: "元", readings: ["げん", "がん", "もと", "ゲン", "ガン", "モト", "gen", "gan", "moto"], meanings: ["beginning", "former time", "origin"] },
+                { kanji: "重", readings: ["じゅう", "ちょう", "おもい", "かさねる", "ジュウ", "チョウ", "オモイ", "カサネル", "juu", "chou", "omoi", "kasaneru"], meanings: ["heavy", "important", "esteem", "respect", "heap up", "pile up", "nest of boxes", "-fold"] },
+                { kanji: "近", readings: ["きん", "こん", "ちかい", "キン", "コン", "チカイ", "kin", "kon", "chikai"], meanings: ["near", "early", "akin", "tantamount"] },
+                { kanji: "考", readings: ["こう", "かんがえる", "コウ", "カンガエル", "kou", "kangaeru"], meanings: ["consider", "think over"] },
+                { kanji: "画", readings: ["が", "かく", "えがく", "ガ", "カク", "エガク", "ga", "kaku", "egaku"], meanings: ["brush-stroke", "picture"] },
+                { kanji: "海", readings: ["かい", "うみ", "カイ", "ウミ", "kai", "umi"], meanings: ["sea", "ocean"] },
+                { kanji: "売", readings: ["ばい", "うる", "バイ", "ウル", "bai", "uru"], meanings: ["sell"] },
+                { kanji: "知", readings: ["ち", "しる", "チ", "シル", "chi", "shiru"], meanings: ["know", "wisdom"] },
+                { kanji: "道", readings: ["どう", "とう", "みち", "ドウ", "トウ", "ミチ", "dou", "tou", "michi"], meanings: ["road-way", "street", "district", "journey", "course", "moral", "teachings"] },
+                { kanji: "集", readings: ["しゅう", "あつまる", "あつめる", "シュウ", "アツマル", "アツメル", "shuu", "atsumaru", "atsumeru"], meanings: ["gather", "meet", "congregate", "swarm", "flock"] },
+                { kanji: "別", readings: ["べつ", "わかれる", "わける", "ベツ", "ワカレル", "ワケル", "betsu", "wakareru", "wakeru"], meanings: ["separate", "branch off", "diverge", "fork", "another", "extra", "specially"] },
+                { kanji: "物", readings: ["ぶつ", "もつ", "もの", "ブツ", "モツ", "モノ", "butsu", "motsu", "mono"], meanings: ["thing", "object", "matter"] },
+                { kanji: "使", readings: ["し", "つかう", "シ", "ツカウ", "shi", "tsukau"], meanings: ["use", "send on a mission", "order", "messenger", "envoy", "ambassador", "cause"] },
+                { kanji: "品", readings: ["ひん", "ほん", "しな", "ヒン", "ホン", "シナ", "hin", "hon", "shina"], meanings: ["goods", "refinement", "dignity", "article", "counter for meal courses"] },
+                { kanji: "計", readings: ["けい", "はかる", "ケイ", "ハカル", "kei", "hakaru"], meanings: ["plot", "plan", "scheme", "measure"] },
+                { kanji: "死", readings: ["し", "しぬ", "シ", "シヌ", "shi", "shinu"], meanings: ["death", "die"] },
+                { kanji: "特", readings: ["とく", "トク", "toku"], meanings: ["special"] },
+                { kanji: "私", readings: ["し", "わたくし", "わたし", "シ", "ワタクシ", "ワタシ", "shi", "watakushi", "watashi"], meanings: ["private", "I", "me"] },
+                { kanji: "始", readings: ["し", "はじめる", "はじまる", "シ", "ハジメル", "ハジマル", "shi", "hajimeru", "hajimaru"], meanings: ["commence", "begin"] },
+                { kanji: "朝", readings: ["ちょう", "あさ", "チョウ", "アサ", "chou", "asa"], meanings: ["morning", "dynasty", "regime", "epoch", "period", "(North) Korea"] },
+                { kanji: "運", readings: ["うん", "はこぶ", "ウン", "ハコブ", "un", "hakobu"], meanings: ["carry", "luck", "destiny", "fate", "lot", "transport", "progress", "advance"] },
+                { kanji: "終", readings: ["しゅう", "おわる", "おえる", "シュウ", "オワル", "オエル", "shuu", "owaru", "oeru"], meanings: ["end", "finish"] },
+                { kanji: "台", readings: ["だい", "たい", "うてな", "ダイ", "タイ", "ウテナ", "dai", "tai", "utena"], meanings: ["pedestal", "a stand", "counter for machines and vehicles"] },
+                { kanji: "広", readings: ["こう", "ひろい", "ひろめる", "コウ", "ヒロイ", "ヒロメル", "kou", "hiroi", "hiromeru"], meanings: ["wide", "broad", "spacious"] },
+                { kanji: "住", readings: ["じゅう", "すむ", "ジュウ", "スム", "juu", "sumu"], meanings: ["dwell", "reside", "live", "inhabit"] },
+                { kanji: "真", readings: ["しん", "ま", "シン", "マ", "shin", "ma"], meanings: ["true", "reality", "Buddhist sect"] },
+                { kanji: "有", readings: ["ゆう", "う", "ある", "ユウ", "ウ", "アル", "yuu", "u", "aru"], meanings: ["possess", "have", "exist", "happen", "occur", "approx"] },
+                { kanji: "口", readings: ["こう", "くち", "コウ", "クチ", "kou", "kuchi"], meanings: ["mouth"] },
+                { kanji: "少", readings: ["しょう", "すくない", "すこし", "ショウ", "スクナイ", "スコシ", "shou", "sukunai", "sukoshi"], meanings: ["few", "little"] },
+                { kanji: "町", readings: ["ちょう", "まち", "チョウ", "マチ", "chou", "machi"], meanings: ["town", "village", "block", "street"] },
+                { kanji: "料", readings: ["りょう", "リョウ", "ryou"], meanings: ["fee", "materials"] },
+                { kanji: "工", readings: ["こう", "く", "コウ", "ク", "kou", "ku"], meanings: ["craft", "construction"] },
+                { kanji: "建", readings: ["けん", "こん", "たてる", "たつ", "ケン", "コン", "タテル", "タツ", "ken", "kon", "tateru", "tatsu"], meanings: ["build"] },
+                { kanji: "空", readings: ["くう", "そら", "あく", "から", "クウ", "ソラ", "アク", "カラ", "kuu", "sora", "aku", "kara"], meanings: ["empty", "sky", "void", "vacant", "vacuum"] },
+                { kanji: "急", readings: ["きゅう", "いそぐ", "キュウ", "イソグ", "kyuu", "isogu"], meanings: ["hurry", "emergency", "sudden", "steep"] },
+                { kanji: "止", readings: ["し", "とまる", "とめる", "シ", "トマル", "トメル", "shi", "tomaru", "tomeru"], meanings: ["stop", "halt"] },
+                { kanji: "送", readings: ["そう", "おくる", "ソウ", "オクル", "sou", "okuru"], meanings: ["escort", "send"] },
+                { kanji: "切", readings: ["せつ", "さい", "きる", "セツ", "サイ", "キル", "setsu", "sai", "kiru"], meanings: ["cut", "cutoff", "be sharp"] },
+                { kanji: "転", readings: ["てん", "ころがる", "ころげる", "テン", "コロガル", "コロゲル", "ten", "korogaru", "korogeru"], meanings: ["revolve", "turn around", "change"] },
+                { kanji: "研", readings: ["けん", "とぐ", "ケン", "トグ", "ken", "togu"], meanings: ["polish", "study of", "sharpen"] },
+                { kanji: "足", readings: ["そく", "あし", "たりる", "ソク", "アシ", "タリル", "soku", "ashi", "tariru"], meanings: ["leg", "foot", "be sufficient", "counter for pairs of footwear"] },
+                { kanji: "究", readings: ["きゅう", "く", "きわめる", "キュウ", "ク", "キワメル", "kyuu", "ku", "kiwameru"], meanings: ["research", "study"] },
+                { kanji: "楽", readings: ["がく", "らく", "たのしい", "ガク", "ラク", "タノシイ", "gaku", "raku", "tanoshii"], meanings: ["music", "comfort", "ease"] },
+                { kanji: "起", readings: ["き", "おきる", "おこす", "キ", "オキル", "オコス", "ki", "okiru", "okosu"], meanings: ["rouse", "wake up", "get up"] },
+                { kanji: "着", readings: ["ちゃく", "きる", "つく", "チャク", "キル", "ツク", "chaku", "kiru", "tsuku"], meanings: ["don", "arrive", "wear", "counter for suits of clothing"] },
+                { kanji: "店", readings: ["てん", "みせ", "テン", "ミセ", "ten", "mise"], meanings: ["store", "shop"] },
+                { kanji: "病", readings: ["びょう", "へい", "やむ", "やまい", "ビョウ", "ヘイ", "ヤム", "ヤマイ", "byou", "hei", "yamu", "yamai"], meanings: ["ill", "sick"] },
+                { kanji: "質", readings: ["しつ", "しち", "たち", "シツ", "シチ", "タチ", "shitsu", "shichi", "tachi"], meanings: ["substance", "quality", "matter", "temperament"] },
+                { kanji: "待", readings: ["たい", "まつ", "タイ", "マツ", "tai", "matsu"], meanings: ["wait", "depend on"] }
+            ],
+            N3: [
+                { kanji: "走", readings: ["そう", "はし"], meanings: ["run"] },
+                { kanji: "近", readings: ["きん", "ちか"], meanings: ["near"] },
+                { kanji: "茶", readings: ["ちゃ", "さ"], meanings: ["tea"] },
+                { kanji: "低", readings: ["てい", "ひく"], meanings: ["low"] },
+                { kanji: "味", readings: ["み", "あじ"], meanings: ["taste"] },
+                { kanji: "洋", readings: ["よう"], meanings: ["ocean", "Western"] },
+                { kanji: "薬", readings: ["やく", "くすり"], meanings: ["medicine"] },
+                { kanji: "銀", readings: ["ぎん"], meanings: ["silver"] },
+                { kanji: "橋", readings: ["きょう", "はし"], meanings: ["bridge"] },
+                { kanji: "店", readings: ["てん", "みせ"], meanings: ["shop"] }
+            ],
+            N2: [
+                { kanji: "漢", readings: ["かん"], meanings: ["Chinese character"] },
+                { kanji: "険", readings: ["けん"], meanings: ["danger"] },
+                { kanji: "坂", readings: ["はん", "さか"], meanings: ["slope"] },
+                { kanji: "歯", readings: ["し", "は"], meanings: ["tooth"] },
+                { kanji: "速", readings: ["そく", "はや"], meanings: ["fast"] },
+                { kanji: "港", readings: ["こう", "みなと"], meanings: ["harbor"] },
+                { kanji: "票", readings: ["ひょう"], meanings: ["vote", "ticket"] },
+                { kanji: "鉄", readings: ["てつ"], meanings: ["iron"] },
+                { kanji: "箱", readings: ["はこ"], meanings: ["box"] },
+                { kanji: "詩", readings: ["し"], meanings: ["poem"] }
+            ],
+            N1: [
+                { kanji: "議", readings: ["ぎ"], meanings: ["discussion"] },
+                { kanji: "債", readings: ["さい"], meanings: ["debt"] },
+                { kanji: "微", readings: ["び"], meanings: ["subtle"] },
+                { kanji: "脳", readings: ["のう"], meanings: ["brain"] },
+                { kanji: "臓", readings: ["ぞう"], meanings: ["organ"] },
+                { kanji: "派", readings: ["は"], meanings: ["faction"] },
+                { kanji: "鑑", readings: ["かん"], meanings: ["appraisal"] },
+                { kanji: "覇", readings: ["は"], meanings: ["hegemony"] },
+                { kanji: "漂", readings: ["ひょう", "ただよ"], meanings: ["drift"] },
+                { kanji: "露", readings: ["ろ", "つゆ"], meanings: ["dew", "expose"] }
+            ]
+        };
+    
+
+        
+        let currentLevel = 'Everything';
+        let currentKanjiList = [];
+        let currentKanjiIndex = 0;
+        let answerHistory = [];
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function displayKanji() {
+            if (currentKanjiList.length === 0) {
+                document.getElementById("kanji-display").textContent = "No more characters!";
+                document.getElementById("answer-input").style.display = "none";
+                document.getElementById("feedback").textContent = "Quiz completed!";
+                return;
+            }
+            const kanji = currentKanjiList[currentKanjiIndex];
+            document.getElementById("kanji-display").textContent = kanji.kanji;
+            document.getElementById("answer-input").value = "";
+            document.getElementById("feedback").textContent = "";
+            document.getElementById("answer-input").focus();
+        }
+
+        function updateHistory() {
+            const historyList = document.getElementById("history-list");
+            historyList.innerHTML = "";
+            answerHistory.slice(-8).forEach(entry => {
+                const li = document.createElement("li");
+                li.innerHTML = `<span class="kanji">${entry.kanji}</span><span class="details">Input: ${entry.answer}<br>Meaning: ${entry.shortMeaning}<br>Readings: ${entry.readings.join(", ")}</span>`;
+                li.className = entry.result === "Correct" ? "correct" : "incorrect";
+                historyList.appendChild(li);
+            });
+            historyList.scrollTop = historyList.scrollHeight;
+        }
+
+        function checkAnswer() {
+            const userAnswer = document.getElementById("answer-input").value.trim();
+            const kanji = currentKanjiList[currentKanjiIndex];
+            const correctReadings = kanji.readings;
+            const correctMeanings = kanji.meanings;
+            const correctKanji = kanji.kanji;
+
+            let result;
+            if (userAnswer === correctKanji || correctReadings.includes(userAnswer) || correctMeanings.includes(userAnswer)) {
+                result = "Correct";
+                document.getElementById("feedback").textContent = "Correct!";
+                document.getElementById("feedback").style.color = "green";
+            } else {
+                result = "Incorrect";
+                document.getElementById("feedback").textContent = 
+                    `Incorrect. Character: ${correctKanji}, Readings: ${correctReadings.join(", ")}, Meanings: ${correctMeanings.join(", ")}`;
+                document.getElementById("feedback").style.color = "red";
+            }
+
+            answerHistory.push({
+                kanji: kanji.kanji,
+                answer: userAnswer || "(empty)",
+                shortMeaning: kanji.meanings[0],
+                readings: kanji.readings,
+                result: result
+            });
+
+            updateHistory();
+
+            currentKanjiIndex++;
+            if (currentKanjiIndex >= currentKanjiList.length) {
+                currentKanjiIndex = 0;
+                currentKanjiList = shuffle([...kanjiData[currentLevel]]);
+            }
+            setTimeout(displayKanji, 50);
+        }
+
+        function startQuiz(level) {
+            currentLevel = level;
+            currentKanjiList = shuffle([...kanjiData[level]]);
+            currentKanjiIndex = 0;
+            answerHistory = [];
+            updateHistory();
+            document.getElementById("level-selector").style.display = "none";
+            document.getElementById("main-content").style.display = "flex";
+            document.getElementById("sidebar").style.display = "block";
+            document.getElementById("difficulty-switch").value = level;
+            displayKanji();
+        }
+
+        document.getElementById("difficulty-switch").addEventListener("change", function() {
+            const selectedLevel = this.value;
+            startQuiz(selectedLevel);
+        });
+
+        document.getElementById("start-btn").addEventListener("click", function() {
+            const selectedLevel = document.getElementById("jlpt-level").value;
+            startQuiz(selectedLevel);
+        });
+
+        document.getElementById("answer-input").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                checkAnswer();
+            }
+        });
+
+        document.getElementById("theme-toggle").addEventListener("click", function() {
+            document.body.classList.toggle("dark-mode");
+            this.textContent = document.body.classList.contains("dark-mode") ? 
+                "Toggle Light Mode" : "Toggle Dark Mode";
+        });
+
+        document.getElementById("main-content").style.display = "none";
+        document.getElementById("sidebar").style.display = "none";
+    </script>
+</body>
+</html>
