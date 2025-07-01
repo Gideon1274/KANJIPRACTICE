@@ -4,260 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VOCABULARY</title>
+    <link rel="stylesheet" href="styles.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            height: 100vh;
-            margin: 0;
-            background-color: #f4f4f4;
-            color: #333;
-            transition: background-color 0.3s, color 0.3s;
+        @font-face {
+            font-family: 'Tegaki';
+            src: url('tegaki.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
         }
-        body.dark-mode {
-            background-color: #222;
-            color: #ddd;
-        }
-        #sidebar {
-            width: 350px;
-            padding: 20px;
-            background-color: #e8ecef;
-            overflow-y: auto;
-            border-right: 2px solid #ccc;
-        }
-        body.dark-mode #sidebar {
-            background-color: #333;
-            border-right: 2px solid #555;
-        }
-        #sidebar h3 {
-            margin-top: 0;
-            font-size: 1.5em;
-        }
-        #sidebar ul {
-            list-style: none;
-            padding: 0;
-        }
-        #sidebar li {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 1em;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        body.dark-mode #sidebar li {
-            box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
-        }
-        .correct {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        body.dark-mode .correct {
-            background-color: #2e7d32;
-            color: #c8e6c9;
-        }
-        .incorrect {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        body.dark-mode .incorrect {
-            background-color: #c62828;
-            color: #ffcdd2;
-        }
-        .kanji {
-            font-size: 1.5em;
-            font-weight: bold;
-            margin-right: 10px;
-        }
-        .details {
-            flex-grow: 1;
-        }
-        #main-content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        #difficulty-switcher {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        #timer {
-            font-size: 1em;
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            background-color: #fff;
-            color: #333;
-        }
-        body.dark-mode #timer {
-            border: 1px solid #555;
-            background-color: #333;
-            color: #ddd;
-        }
-        #difficulty-switcher select {
-            padding: 8px;
-            font-size: 1em;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            background-color: #fff;
-            cursor: pointer;
-        }
-        body.dark-mode #difficulty-switcher select {
-            border: 1px solid #555;
-            background-color: #333;
-            color: #ddd;
-        }
-        #kanji-display {
-            font-size: 100px;
-            margin-bottom: 20px;
-        }
-        #answer-input {
-            padding: 10px;
-            font-size: 30px;
-            width: 200px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            background-color: #fff;
-            color: #333;
-        }
-        body.dark-mode #answer-input {
-            border: 1px solid #555;
-            background-color: #333;
-            color: #ddd;
-        }
-        #feedback {
-            margin-top: 20px;
-            font-size: 24px;
-            text-align: center;
-        }
-        #level-selector {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-        #level-selector div {
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            text-align: center;
-        }
-        body.dark-mode #level-selector div {
-            background: #333;
-            color: #ddd;
-        }
-        #level-selector select {
-            padding: 10px;
-            font-size: 16px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            background-color: #fff;
-            color: #333;
-        }
-        body.dark-mode #level-selector select {
-            border: 1px solid #555;
-            background-color: #333;
-            color: #ddd;
-        }
-        #level-selector button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-        }
-        body.dark-mode #level-selector button {
-            background-color: #1e90ff;
-        }
-        #theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 8px 16px;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            background-color: #fff;
-            color: #333;
-            z-index: 1000;
-        }
-        body.dark-mode #theme-toggle {
-            border: 1px solid #555;
-            background-color: #333;
-            color: #ddd;
-        }
-        #stats-container {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            font-size: 1.1em;
-            font-weight: bold;
-        }
-        body.dark-mode #stats-container {
-            color: #ddd;
-        }
-        #correct-count {
-            text-align: left;
-        }
-        #total-count {
-            text-align: right;
-        }
-        #reset-button {
-            position: absolute;
-            top: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 8px 16px;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            z-index: 10;
-        }
-        body.dark-mode #reset-button {
-            background-color: #ff4d4d;
-        }
-        .stat-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            margin: 5px 0;
-            background-color: #e0e0e0;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        body.dark-mode .stat-item {
-            background-color: #444;
-            box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
-            color: #ddd;
+        .tegaki-font {
+            font-family: 'Tegaki', sans-serif;
         }
     </style>
 </head>
 <body class="dark-mode">
     <button id="theme-toggle">Toggle Light Mode</button>
+    <div id="volume-control">
+        <button id="volume-toggle">Mute</button>
+        <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="1">
+    </div>
     <div id="level-selector">
         <div>
             <h2>Select Kana Level</h2>
@@ -268,6 +33,13 @@
                 <option value="N2">N2 KANJI VOCABULARY</option>
                 <option value="N1">N1 KANJI VOCABULARY</option>
             </select>
+            <h2>Select Mode</h2>
+            <select id="quiz-mode">
+                <option value="normal">Normal (Complete All)</option>
+                <option value="endless">Endless (Repeat)</option>
+            </select>
+            <h2>Voice Input</h2>
+            <label><input type="checkbox" id="voice-input-toggle-start"> Enable Voice Input (Japanese)</label>
             <br>
             <button id="start-btn">Start Quiz</button>
         </div>
@@ -275,9 +47,9 @@
     <div id="sidebar">
         <h3>Previous 6 Attempts (History)</h3>
         <div id="stats-container">
+            <span id="current-mode">Mode: </span>
             <span id="correct-count">Correct: 0</span>
-            <span id="total-count">Total: 0</span>
-            <span id="remaining-count">Remaining: 0</span>
+            <span id="remaining-count">All: 0</span>
         </div>
         <ul id="history-list"></ul>
     </div>
@@ -291,14 +63,34 @@
                 <option value="N2">N2 KANJI VOCABULARY</option>
                 <option value="N1">N1 KANJI VOCABULARY</option>
             </select>
+            <select id="mode-switch">
+                <option value="normal">Normal (Complete All)</option>
+                <option value="endless">Endless (Repeat)</option>
+            </select>
+            <label><input type="checkbox" id="voice-input-toggle"> Voice Input (Japanese)</label>
+            <button id="speak-now-btn">Speak Now</button>
+            <select id="font-switch">
+                <option value="default">Default Font</option>
+                <option value="tegaki">Tegaki Font</option>
+            </select>
         </div>
         <button id="reset-button">Reset Quiz</button>
         <div id="kanji-display"></div>
         <input type="text" id="answer-input" placeholder="Type character or romaji">
         <div id="feedback"></div>
+        <div id="font-size-control">
+            <button id="decrease-font">-</button>
+            <button id="increase-font">+</button>
+        </div>
     </div>
-    <script src="vocabData.js"></script>
-    <!-- <script src="hardvocab.js"></script> -->
+    <audio id="correct-sound" src="soundeffects/correct.mp3"></audio>
+    <audio id="wrong-sound" src="soundeffects/wrong.mp3"></audio>
+
+    <script src="Data/hardvocab.js"></script>
+    <!-- <script src="Data/n5.js"></script> -->
+    <!-- <script src="Data/n4.js"></script> -->
+
+    <!-- <script src="Data/JPsentence.js"></script> -->
     <script>
         let currentLevel = 'N5';
         let currentKanjiList = [];
@@ -309,8 +101,35 @@
         let correctlyAnswered = new Set();
         let timerInterval = null;
         let elapsedTime = 0;
+        let isMuted = false;
+        let quizMode = 'normal';
+        let isVoiceInputEnabled = false;
+        let fontSize = 120; 
+
+        const correctSound = document.getElementById('correct-sound');
+        const wrongSound = document.getElementById('wrong-sound');
+
+        // Voice recognition setup
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ja-JP'; // Set to Japanese
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            console.log('SpeechRecognition initialized with lang: ja-JP');
+        } else {
+            document.getElementById('voice-input-toggle-start').disabled = true;
+            document.getElementById('voice-input-toggle-start').title = 'Voice input not supported in this browser';
+            document.getElementById('voice-input-toggle').disabled = true;
+            document.getElementById('voice-input-toggle').title = 'Voice input not supported in this browser';
+            document.getElementById('speak-now-btn').disabled = true;
+            document.getElementById('speak-now-btn').title = 'Voice input not supported in this browser';
+            console.log('SpeechRecognition not supported in this browser');
+        }
 
         function shuffle(array) {
+            console.log('Shuffling array of length:', array.length);
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [array[i], array[j]] = [array[j], array[i]];
@@ -330,6 +149,7 @@
                 elapsedTime++;
                 document.getElementById('timer').textContent = `Time: ${formatTime(elapsedTime)}`;
             }, 1000);
+            console.log('Timer started');
         }
 
         function stopTimer() {
@@ -337,34 +157,63 @@
                 clearInterval(timerInterval);
                 timerInterval = null;
             }
+            console.log('Timer stopped');
         }
 
         function resetTimer() {
             stopTimer();
             elapsedTime = 0;
             document.getElementById('timer').textContent = `Time: ${formatTime(elapsedTime)}`;
+            console.log('Timer reset');
+        }
+
+        function playSound(type) {
+            console.log(`Attempting to play ${type} sound, muted: ${isMuted}`);
+            if (!isMuted) {
+                const sound = type === 'correct' ? correctSound : wrongSound;
+                sound.currentTime = 0;
+                sound.play().catch(error => console.error('Error playing sound:', error));
+            }
         }
 
         function displayKanji() {
-            if (currentKanjiList.length === 0) {
-                const percentage = totalCount > 0 ? (correctCount / totalCount * 100).toFixed(2) : 0.00;
-                document.getElementById("kanji-display").textContent = `Answered: ${percentage}%`;
+            console.log('Displaying kanji, quizMode:', quizMode, 'kanjiList length:', currentKanjiList.length);
+            if (quizMode === 'normal' && currentKanjiList.length === 0) {
+                const percentage = totalCount > 0 ? (correctCount / totalCount * 100).toFixed(0) : 0.00;
+                document.getElementById("kanji-display").textContent = `${percentage}%`;
                 document.getElementById("answer-input").style.display = "none";
+                document.getElementById("voice-input-toggle").style.display = "none";
+                document.getElementById("speak-now-btn").style.display = "none";
+                document.getElementById("font-switch").style.display = "none";
+                document.getElementById("font-size-control").style.display = "none";
                 document.getElementById("feedback").textContent = "Quiz completed!";
                 stopTimer();
+                if (recognition && isVoiceInputEnabled) {
+                    recognition.stop();
+                }
                 return;
+            }
+            if (quizMode === 'endless' && currentKanjiList.length === 0) {
+                currentKanjiList = shuffle([...kanjiData[currentLevel]]);
+                currentKanjiIndex = 0;
+                console.log('Endless mode: Reset kanji list');
             }
             const kanji = currentKanjiList[currentKanjiIndex];
             document.getElementById("kanji-display").textContent = kanji.kanji;
+            document.getElementById("kanji-display").style.fontSize = `${fontSize}px`;
             document.getElementById("answer-input").value = "";
             document.getElementById("feedback").textContent = "";
             document.getElementById("answer-input").focus();
+            document.getElementById("speak-now-btn").style.display = isVoiceInputEnabled ? "inline-block" : "none";
+            document.getElementById("font-switch").style.display = "inline-block";
+            document.getElementById("font-size-control").style.display = "block";
         }
 
         function updateHistory() {
+            console.log('Updating history, answerHistory length:', answerHistory.length);
             const historyList = document.getElementById("history-list");
             historyList.innerHTML = "";
-            answerHistory.slice(-6).forEach(entry => {
+            answerHistory.slice(-5).forEach(entry => {
                 const li = document.createElement("li");
                 li.innerHTML = `
                     <span class="kanji">${entry.kanji}</span>
@@ -380,35 +229,51 @@
         }
 
         function updateStats() {
+            document.getElementById("current-mode").textContent = `Current Mode: ${quizMode}`;
             document.getElementById("correct-count").textContent = `Correct: ${correctCount}`;
-            document.getElementById("total-count").textContent = `Total: ${totalCount}`;
-            document.getElementById("remaining-count").textContent = `Remaining: ${currentKanjiList.length}`;
+            document.getElementById("remaining-count").textContent = `All: ${currentKanjiList.length}`;
+            console.log('Stats updated: Mode:', quizMode, 'Correct:', correctCount, 'Remaining:', currentKanjiList.length);
         }
 
-        function checkAnswer() {
-            const userAnswer = document.getElementById("answer-input").value.trim();
+        function normalizeInput(input) {
+            return input.replace(/[\s.,!?;:'"()、。・？]/g, '').trim();
+        }
+
+        function checkAnswer(userAnswer, isVoiceInput = false) {
+            console.log('Checking answer:', userAnswer, 'isVoiceInput:', isVoiceInput);
             const kanji = currentKanjiList[currentKanjiIndex];
-            const correctReadings = kanji.readings;
-            const correctMeanings = kanji.meanings;
-            const correctKanji = kanji.kanji;
+            const correctReadings = kanji.readings.map(normalizeInput);
+            const correctMeanings = kanji.meanings.map(normalizeInput);
+            const correctKanji = normalizeInput(kanji.kanji);
+            const normalizedUserAnswer = normalizeInput(userAnswer);
 
             let result;
-            if (userAnswer === correctKanji || correctReadings.includes(userAnswer) || correctMeanings.includes(userAnswer)) {
+            const isCorrect = isVoiceInput 
+                ? (normalizedUserAnswer === correctKanji || correctReadings.includes(normalizedUserAnswer))
+                : (normalizedUserAnswer === correctKanji || correctReadings.includes(normalizedUserAnswer) || correctMeanings.includes(normalizedUserAnswer));
+            
+            if (isCorrect) {
                 result = "Correct";
                 document.getElementById("feedback").textContent = "Correct!";
                 document.getElementById("feedback").style.color = "green";
                 correctCount++;
                 correctlyAnswered.add(kanji.kanji);
-                currentKanjiList.splice(currentKanjiIndex, 1);
-                if (currentKanjiIndex >= currentKanjiList.length) {
-                    currentKanjiIndex = 0;
+                if (quizMode === 'normal') {
+                    currentKanjiList.splice(currentKanjiIndex, 1);
+                    if (currentKanjiIndex >= currentKanjiList.length) {
+                        currentKanjiIndex = 0;
+                    }
+                } else {
+                    currentKanjiIndex = (currentKanjiIndex + 1) % currentKanjiList.length;
                 }
+                playSound('correct');
             } else {
                 result = "Incorrect";
                 document.getElementById("feedback").textContent = 
                     `Incorrect. Character: ${correctKanji}, Readings: ${correctReadings.join(", ")}, Meanings: ${correctMeanings.join(", ")}`;
                 document.getElementById("feedback").style.color = "red";
                 currentKanjiIndex = (currentKanjiIndex + 1) % currentKanjiList.length;
+                playSound('wrong');
             }
 
             totalCount++;
@@ -423,10 +288,11 @@
             updateHistory();
             updateStats();
 
-            setTimeout(displayKanji, 50);
+            setTimeout(displayKanji, 1);
         }
 
         function resetQuiz() {
+            console.log('Resetting quiz');
             currentKanjiList = shuffle([...kanjiData[currentLevel]]);
             currentKanjiIndex = 0;
             answerHistory = [];
@@ -436,13 +302,24 @@
             updateHistory();
             updateStats();
             document.getElementById("answer-input").style.display = "block";
+            document.getElementById("voice-input-toggle").style.display = "inline-block";
+            document.getElementById("speak-now-btn").style.display = isVoiceInputEnabled ? "inline-block" : "none";
+            document.getElementById("font-switch").style.display = "inline-block";
+            document.getElementById("font-size-control").style.display = "block";
             resetTimer();
             startTimer();
             displayKanji();
         }
 
-        function startQuiz(level) {
+        function startQuiz(level, mode) {
+            console.log('Starting quiz with level:', level, 'mode:', mode);
             currentLevel = level;
+            quizMode = mode;
+            isVoiceInputEnabled = document.getElementById("voice-input-toggle-start").checked;
+            document.getElementById("voice-input-toggle").checked = isVoiceInputEnabled;
+            document.getElementById("speak-now-btn").style.display = isVoiceInputEnabled ? "inline-block" : "none";
+            document.getElementById("font-switch").style.display = "inline-block";
+            document.getElementById("font-size-control").style.display = "block";
             currentKanjiList = shuffle([...kanjiData[level]]);
             currentKanjiIndex = 0;
             answerHistory = [];
@@ -455,24 +332,166 @@
             document.getElementById("main-content").style.display = "flex";
             document.getElementById("sidebar").style.display = "block";
             document.getElementById("difficulty-switch").value = level;
+            document.getElementById("mode-switch").value = mode;
             resetTimer();
             startTimer();
             displayKanji();
         }
 
+        // Font switch handling
+        document.getElementById("font-switch").addEventListener("change", function() {
+            const selectedFont = this.value;
+            console.log('Font changed to:', selectedFont);
+            const kanjiDisplay = document.getElementById("kanji-display");
+            if (selectedFont === 'tegaki') {
+                kanjiDisplay.classList.add('tegaki-font');
+            } else {
+                kanjiDisplay.classList.remove('tegaki-font');
+            }
+        });
+
+        // Font size control handling
+        document.getElementById("increase-font").addEventListener("click", function() {
+            fontSize += 20;
+            document.getElementById("kanji-display").style.fontSize = `${fontSize}px`;
+            console.log('Font size increased to:', fontSize);
+        });
+
+        document.getElementById("decrease-font").addEventListener("click", function() {
+            fontSize = Math.max(16, fontSize - 4); // Prevent font size from going too small
+            document.getElementById("kanji-display").style.fontSize = `${fontSize}px`;
+            console.log('Font size decreased to:', fontSize);
+        });
+
+        // Voice input handling
+        if (recognition) {
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript.trim();
+                console.log('Voice input received:', transcript);
+                document.getElementById("answer-input").value = transcript;
+                document.getElementById("feedback").textContent = "";
+                checkAnswer(transcript, true);
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Voice input error:', event.error);
+                document.getElementById("feedback").textContent = "Voice input error: " + event.error;
+                document.getElementById("feedback").style.color = "red";
+                if (isVoiceInputEnabled) {
+                    setTimeout(() => {
+                        try {
+                            recognition.start();
+                            document.getElementById("feedback").textContent = "Listening for Japanese...";
+                            document.getElementById("feedback").style.color = "blue";
+                        } catch (error) {
+                            console.error('Error restarting voice recognition:', error);
+                        }
+                    }, 500);
+                }
+            };
+
+            recognition.onend = function() {
+                console.log('Voice recognition ended');
+                document.getElementById("feedback").textContent = "";
+                if (isVoiceInputEnabled && currentKanjiList.length > 0) {
+                    setTimeout(() => {
+                        try {
+                            recognition.start();
+                            document.getElementById("feedback").textContent = "Listening for Japanese...";
+                            document.getElementById("feedback").style.color = "blue";
+                        } catch (error) {
+                            console.error('Error restarting voice recognition:', error);
+                        }
+                    }, 500);
+                }
+            };
+
+            document.getElementById("voice-input-toggle").addEventListener("change", function() {
+                isVoiceInputEnabled = this.checked;
+                console.log('Voice input toggle changed:', isVoiceInputEnabled);
+                document.getElementById("speak-now-btn").style.display = isVoiceInputEnabled ? "inline-block" : "none";
+                if (!isVoiceInputEnabled && recognition) {
+                    recognition.stop();
+                    document.getElementById("feedback").textContent = "";
+                } else if (isVoiceInputEnabled && recognition && currentKanjiList.length > 0) {
+                    try {
+                        recognition.start();
+                        document.getElementById("feedback").textContent = "Listening for Japanese...";
+                        document.getElementById("feedback").style.color = "blue";
+                    } catch (error) {
+                        console.error('Error starting voice recognition:', error);
+                    }
+                }
+            });
+
+            document.getElementById("voice-input-toggle-start").addEventListener("change", function() {
+                isVoiceInputEnabled = this.checked;
+                console.log('Voice input toggle (start) changed:', isVoiceInputEnabled);
+            });
+
+            document.getElementById("speak-now-btn").addEventListener("click", function() {
+                if (isVoiceInputEnabled && recognition && currentKanjiList.length > 0) {
+                    try {
+                        recognition.start();
+                        document.getElementById("feedback").textContent = "Listening for Japanese...";
+                        document.getElementById("feedback").style.color = "blue";
+                        console.log('Manual voice recognition started');
+                    } catch (error) {
+                        console.error('Error starting voice recognition:', error);
+                        document.getElementById("feedback").textContent = "Voice input error: " + error.message;
+                        document.getElementById("feedback").style.color = "red";
+                    }
+                }
+            });
+        }
+
         document.getElementById("difficulty-switch").addEventListener("change", function() {
             const selectedLevel = this.value;
-            startQuiz(selectedLevel);
+            console.log('Difficulty changed to:', selectedLevel);
+            startQuiz(selectedLevel, quizMode);
+        });
+
+        document.getElementById("mode-switch").addEventListener("change", function() {
+            quizMode = this.value;
+            console.log('Mode changed to:', quizMode);
+            if (quizMode === 'endless' && currentKanjiList.length === 0) {
+                currentKanjiList = shuffle([...kanjiData[currentLevel]]);
+                currentKanjiIndex = 0;
+                document.getElementById("answer-input").style.display = "block";
+                document.getElementById("voice-input-toggle").style.display = "inline-block";
+                document.getElementById("speak-now-btn").style.display = isVoiceInputEnabled ? "inline-block" : "none";
+                document.getElementById("font-switch").style.display = "inline-block";
+                document.getElementById("font-size-control").style.display = "block";
+                document.getElementById("feedback").textContent = "";
+                startTimer();
+                displayKanji();
+            } else if (quizMode === 'normal' && currentKanjiList.length === 0) {
+                const percentage = totalCount > 0 ? (correctCount / totalCount * 100).toFixed(0) : 0.00;
+                document.getElementById("kanji-display").textContent = `${percentage}%`;
+                document.getElementById("answer-input").style.display = "none";
+                document.getElementById("voice-input-toggle").style.display = "none";
+                document.getElementById("speak-now-btn").style.display = "none";
+                document.getElementById("font-switch").style.display = "none";
+                document.getElementById("font-size-control").style.display = "none";
+                document.getElementById("feedback").textContent = "Quiz completed!";
+                stopTimer();
+            }
         });
 
         document.getElementById("start-btn").addEventListener("click", function() {
             const selectedLevel = document.getElementById("jlpt-level").value;
-            startQuiz(selectedLevel);
+            const selectedMode = document.getElementById("quiz-mode").value;
+            console.log('Start button clicked, level:', selectedLevel, 'mode:', selectedMode);
+            startQuiz(selectedLevel, selectedMode);
         });
 
         document.getElementById("answer-input").addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
-                checkAnswer();
+                if (isVoiceInputEnabled && recognition) {
+                    recognition.stop();
+                    console.log('Voice input stopped due to text input');
+                }
+                checkAnswer(this.value.trim(), false);
             }
         });
 
@@ -480,17 +499,39 @@
             document.body.classList.toggle("dark-mode");
             this.textContent = document.body.classList.contains("dark-mode") ? 
                 "Toggle Light Mode" : "Toggle Dark Mode";
+            console.log('Theme toggled, dark-mode:', document.body.classList.contains("dark-mode"));
         });
 
         document.getElementById("reset-button").addEventListener("click", function() {
+            if (isVoiceInputEnabled && recognition) {
+                recognition.stop();
+                console.log('Voice input stopped due to reset');
+            }
             resetQuiz();
+        });
+
+        document.getElementById("volume-toggle").addEventListener("click", function() {
+            isMuted = !isMuted;
+            this.textContent = isMuted ? "Unmute" : "Mute";
+            correctSound.volume = isMuted ? 0 : document.getElementById("volume-slider").value;
+            wrongSound.volume = isMuted ? 0 : document.getElementById("volume-slider").value;
+            console.log('Volume toggle changed, muted:', isMuted);
+        });
+
+        document.getElementById("volume-slider").addEventListener("input", function() {
+            const volume = this.value;
+            correctSound.volume = isMuted ? 0 : volume;
+            wrongSound.volume = isMuted ? 0 : volume;
+            console.log('Volume slider changed:', volume);
         });
         
         document.addEventListener("keydown", function(event) {
-            if (event.key === "Enter" && currentKanjiList.length === 0) {
+            if (event.key === "Enter" && quizMode === 'normal' && currentKanjiList.length === 0) {
                 resetQuiz();
+                console.log('Quiz reset via Enter key');
             }
         });
+
         document.getElementById("main-content").style.display = "none";
         document.getElementById("sidebar").style.display = "none";
     </script>
