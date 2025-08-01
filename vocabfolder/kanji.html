@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VOCABULARY</title>
+    <title>Kanji</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -108,7 +108,7 @@
         }
         #answer-input {
             padding: 10px;
-            font-size: 30px;
+            font-size: 18px;
             width: 200px;
             border-radius: 5px;
             border: 1px solid #ccc;
@@ -191,22 +191,6 @@
             background-color: #333;
             color: #ddd;
         }
-        #stats-container {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            font-size: 1.1em;
-            font-weight: bold;
-        }
-        body.dark-mode #stats-container {
-            color: #ddd;
-        }
-        #correct-count {
-            text-align: left;
-        }
-        #total-count {
-            text-align: right;
-        }
     </style>
 </head>
 <body class="dark-mode">
@@ -215,11 +199,11 @@
         <div>
             <h2>Select Kana Level</h2>
             <select id="jlpt-level">
-                <option value="N5">N5 KANJI VOCABULARY</option>
-                <option value="N4">N4 KANJI VOCABULARY</option>
-                <option value="N3">N3 KANJI VOCABULARY</option>
-                <option value="N2">N2 KANJI VOCABULARY</option>
-                <option value="N1">N1 KANJI VOCABULARY</option>
+                <option value="N5">N5 KANJI</option>
+                <option value="N4">N4 KANJI</option>
+                <option value="N3">N3 KANJI</option>
+                <option value="N2">N2 KANJI</option>
+                <option value="N1">N1 KANJI</option>
             </select>
             <br>
             <button id="start-btn">Start Quiz</button>
@@ -227,43 +211,59 @@
     </div>
     <div id="sidebar">
         <h3>Previous 8 Attempts (History)</h3>
-        <div id="stats-container">
-            <span id="correct-count">Correct: 0</span>
-            <span id="total-count">Total: 0</span>
-            <span id="percentage">Percentage: 0％</span>
-        </div>
         <ul id="history-list"></ul>
     </div>
     <div id="main-content">
         <div id="difficulty-switcher">
             <select id="difficulty-switch">
-                <option value="N5">N5 KANJI VOCABULARY</option>
-                <option value="N4">N4 KANJI VOCABULARY</option>
-                <option value="N3">N3 KANJI VOCABULARY</option>
-                <option value="N2">N2 KANJI VOCABULARY</option>
-                <option value="N1">N1 KANJI VOCABULARY</option>
+                <option value="N5">N5 KANJI</option>
+                <option value="N4">N4 KANJI</option>
+                <option value="N3">N3 KANJI</option>
+                <option value="N2">N2 KANJI</option>
+                <option value="N1">N1 KANJI</option>
             </select>
         </div>
         <div id="kanji-display"></div>
         <input type="text" id="answer-input" placeholder="Type character or romaji">
         <div id="feedback"></div>
     </div>
-<script src="vocabData.js"></script>
+
     <script>
         
        
+        const kanjiData = {　
+            N5: [
+                
+                { kanji: "日", readings: ["にち", "じつ", "ひ", "nichi", "jitsu", "hi"], meanings: ["sun", "day", "Japan", "counter for days"] },
+                
+            ],
+            N4: [
+                { kanji: "会", readings: ["かい", "あう", "カイ", "アウ", "kai", "au"], meanings: ["meeting", "meet", "party", "association", "interview", "join"] },
+                
+            ],
+            N3: [
+                { kanji: "走", readings: ["そう", "はし"], meanings: ["run"] },
+            ],
+            N2: [
+                { kanji: "漢", readings: ["かん"], meanings: ["Chinese character"] },
+            ],
+            N1: [
+                { kanji: "議", readings: ["ぎ"], meanings: ["discussion"] },
+            ]
+        };
+    
+
+        
         let currentLevel = 'Everything';
         let currentKanjiList = [];
         let currentKanjiIndex = 0;
         let answerHistory = [];
-        let correctCount = 0; // Track correct answers
-        let totalCount = 0;   // Track total questions
 
         function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
+            // for (let i = array.length - 1; i > 0; i--) {
+            //     const j = Math.floor(Math.random() * (i + 1));
+            //     [array[i], array[j]] = [array[j], array[i]];
+            // }
             return array;
         }
 
@@ -284,27 +284,13 @@
         function updateHistory() {
             const historyList = document.getElementById("history-list");
             historyList.innerHTML = "";
-            answerHistory.slice(-6).forEach(entry => {
+            answerHistory.slice(-8).forEach(entry => {
                 const li = document.createElement("li");
-                // li.innerHTML = `<span class="kanji">${entry.kanji}</span><span class="details">Input: ${entry.answer}<br>Meaning: ${entry.shortMeaning},${entry.shortMeaning1},${entry.shortMeaning2}<br>Readings: ${entry.readings.join(", ")}</span>`;
-                li.innerHTML = `
-                    <span class="kanji">${entry.kanji}</span>
-                    <span class="details">
-                        Input: ${entry.answer}<br>
-                        Meaning: ${entry.meanings.filter(m => m).join(", ") || "None"}<br>
-                        Readings: ${entry.readings.join(", ")}
-                    </span>`;
+                li.innerHTML = `<span class="kanji">${entry.kanji}</span><span class="details">Input: ${entry.answer}<br>Meaning: ${entry.shortMeaning}<br>Readings: ${entry.readings.join(", ")}</span>`;
                 li.className = entry.result === "Correct" ? "correct" : "incorrect";
                 historyList.appendChild(li);
             });
             historyList.scrollTop = historyList.scrollHeight;
-        }
-
-        function updateStats() {
-            document.getElementById("correct-count").textContent = `Correct: ${correctCount}`;
-            document.getElementById("total-count").textContent = `Total: ${totalCount}`;
-            const percentage = totalCount > 0 ? (correctCount / totalCount * 100).toFixed(2) : 0.00;
-            document.getElementById("percentage").textContent = `Percentage: ${percentage}%`;
         }
 
         function checkAnswer() {
@@ -319,7 +305,6 @@
                 result = "Correct";
                 document.getElementById("feedback").textContent = "Correct!";
                 document.getElementById("feedback").style.color = "green";
-                correctCount++; // Increment correct answers
             } else {
                 result = "Incorrect";
                 document.getElementById("feedback").textContent = 
@@ -327,18 +312,15 @@
                 document.getElementById("feedback").style.color = "red";
             }
 
-            totalCount++; // Increment total questions
             answerHistory.push({
                 kanji: kanji.kanji,
                 answer: userAnswer || "(empty)",
-                // shortMeaning: kanji.meanings[0],
-                meanings: kanji.meanings,
+                shortMeaning: kanji.meanings[0],
                 readings: kanji.readings,
                 result: result
             });
 
             updateHistory();
-            updateStats(); 
 
             currentKanjiIndex++;
             if (currentKanjiIndex >= currentKanjiList.length) {
@@ -353,10 +335,7 @@
             currentKanjiList = shuffle([...kanjiData[level]]);
             currentKanjiIndex = 0;
             answerHistory = [];
-            correctCount = 0; // Reset correct answers
-            totalCount = 0;   // Reset total questions
             updateHistory();
-            updateStats();    // Reset stats display
             document.getElementById("level-selector").style.display = "none";
             document.getElementById("main-content").style.display = "flex";
             document.getElementById("sidebar").style.display = "block";

@@ -1,10 +1,16 @@
+    
         const kanjiData = {
             N5: [
-         { kanji: "間", readings: ["あいだ", "aida", "あわい", "awai"], meanings: ["space", "period", "between", "among", "relations"] },
-         { kanji: "合う", readings: ["あう", "au"], meanings: ["to meet", "to fit", "to be profitable", "to do together"] },
-         { kanji: "赤ちゃん", readings: ["あかちゃん", "akachan"], meanings: ["baby", "infant"] },
 
-            ],
+
+
+
+
+
+
+
+
+         ],
             N4: [
                 { kanji: "会う", readings: ["あう", "au"], meanings: ["to meet", "to encounter", "to see", "to have an accident", "to have a bad experience"] },
             ],
