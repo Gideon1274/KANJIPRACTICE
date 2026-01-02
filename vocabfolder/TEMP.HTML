@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Basic</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>TEMP</title>
+    <link rel="stylesheet" href="css/Sstyles.css">
     <style>
         @font-face {
             font-family: 'Tegaki';
@@ -44,15 +44,6 @@
             <button id="start-btn">Start Quiz</button>
         </div>
     </div>
-    <div id="sidebar">
-        <h3>Previous 6 Attempts (History)</h3>
-        <div id="stats-container">
-            <span id="current-mode">Mode: </span>
-            <span id="correct-count">Correct: 0</span>
-            <span id="remaining-count">All: 0</span>
-        </div>
-        <ul id="history-list"></ul>
-    </div>
     <div id="main-content">
         <div id="difficulty-switcher">
             <span id="timer">Time: 00:00</span>
@@ -79,15 +70,24 @@
         <input type="text" id="answer-input" placeholder="Type character or romaji">
         <div id="feedback"></div>
         <div id="font-size-control">
-            <button id="decrease-font">-</button>
-            <button id="increase-font">+</button>
+            <!-- <button id="decrease-font">-</button>
+            <button id="increase-font">+</button> -->
         </div>
+    </div>
+    <div id="sidebar">
+        <h3>Previous 6 Attempts (History)</h3>
+        <div id="stats-container">
+            <span id="current-mode">Mode: </span>
+            <span id="correct-count">Correct: 0</span>
+            <span id="remaining-count">All: 0</span>
+        </div>
+        <ul id="history-list"></ul>
     </div>
     <audio id="correct-sound" src="soundeffects/correct.mp3"></audio>
     <audio id="wrong-sound" src="soundeffects/wrong.mp3"></audio>
 
-    
-    <script src="Data/asd.js"></script>
+    <script src="Data/temp.js"></script>
+
     
     <script>
         let currentLevel = 'N5';
@@ -102,7 +102,7 @@
         let isMuted = false;
         let quizMode = 'normal';
         let isVoiceInputEnabled = false;
-        let fontSize = 120; 
+        let fontSize = 100; 
 
         const correctSound = document.getElementById('correct-sound');
         const wrongSound = document.getElementById('wrong-sound');
@@ -127,11 +127,11 @@
         }
 
         function shuffle(array) {
-            // console.log('Shuffling array of length:', array.length);
-            // for (let i = array.length - 1; i > 0; i--) {
-            //     const j = Math.floor(Math.random() * (i + 1));
-            //     [array[i], array[j]] = [array[j], array[i]];
-            // }
+            console.log('Shuffling array of length:', array.length);
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
             return array;
         }
 
@@ -211,14 +211,14 @@
             console.log('Updating history, answerHistory length:', answerHistory.length);
             const historyList = document.getElementById("history-list");
             historyList.innerHTML = "";
-            answerHistory.slice(-5).forEach(entry => {
+            answerHistory.slice(-2).forEach(entry => {
                 const li = document.createElement("li");
                 li.innerHTML = `
                     <span class="kanji">${entry.kanji}</span>
                     <span class="details">
-                        Input: ${entry.answer}<br>
-                        Meaning: ${entry.meanings.filter(m => m).join(", ") || "None"}<br>
-                        Readings: ${entry.readings.join(", ")}
+                        ${entry.answer}<br>
+                        <b>${entry.meanings.filter(m => m).join("<br>") || "None"}<br>
+                        ${entry.readings.join(", ")}<b>
                     </span>`;
                 li.className = entry.result === "Correct" ? "correct" : "incorrect";
                 historyList.appendChild(li);
@@ -235,6 +235,7 @@
 
         function normalizeInput(input) {
             return input.replace(/[\s.,!?;:'"()、。・？]/g, '').trim();
+            
         }
 
         function checkAnswer(userAnswer, isVoiceInput = false) {
@@ -348,18 +349,18 @@
             }
         });
 
-        // Font size control handling
-        document.getElementById("increase-font").addEventListener("click", function() {
-            fontSize += 20;
-            document.getElementById("kanji-display").style.fontSize = `${fontSize}px`;
-            console.log('Font size increased to:', fontSize);
-        });
+        // // Font size control handling
+        // document.getElementById("increase-font").addEventListener("click", function() {
+        //     fontSize += 20;
+        //     document.getElementById("kanji-display").style.fontSize = `${fontSize}px`;
+        //     console.log('Font size increased to:', fontSize);
+        // });
 
-        document.getElementById("decrease-font").addEventListener("click", function() {
-            fontSize = Math.max(16, fontSize - 4); // Prevent font size from going too small
-            document.getElementById("kanji-display").style.fontSize = `${fontSize}px`;
-            console.log('Font size decreased to:', fontSize);
-        });
+        // document.getElementById("decrease-font").addEventListener("click", function() {
+        //     fontSize = Math.max(16, fontSize - 4); // Prevent font size from going too small
+        //     document.getElementById("kanji-display").style.fontSize = `${fontSize}px`;
+        //     console.log('Font size decreased to:', fontSize);
+        // });
 
         // Voice input handling
         if (recognition) {

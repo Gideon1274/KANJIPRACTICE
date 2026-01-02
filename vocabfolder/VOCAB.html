@@ -27,8 +27,8 @@
         <div>
             <h2>Select Kana Level</h2>
             <select id="jlpt-level">
-                <option value="N5">N5 KANJI VOCABULARY</option>
-                <option value="N4">N4 KANJI VOCABULARY</option>
+                <!-- <option value="N5">N5 KANJI VOCABULARY</option> -->
+                <!-- <option value="N4">N4 KANJI VOCABULARY</option> -->
                 <option value="N3">N3 KANJI VOCABULARY</option>
                 <option value="N2">N2 KANJI VOCABULARY</option>
                 <option value="N1">N1 KANJI VOCABULARY</option>
@@ -87,9 +87,11 @@
     <audio id="wrong-sound" src="soundeffects/wrong.mp3"></audio>
 
     <!-- <script src="Data/asd.js"></script> -->
+    <script src="Data/n5.js"></script>
     <script src="Data/n4.js"></script>
-    <!-- <script src="Data/n5.js"></script> -->
-    <!-- <script src="Data/n3.js"></script> -->
+    <script src="Data/n3.js"></script>
+    <script src="Data/n2.js"></script>
+    <script src="Data/n1.js"></script>
 
     <!-- <script src="Data/all.js"></script> -->
     
@@ -106,7 +108,7 @@
         let isMuted = false;
         let quizMode = 'normal';
         let isVoiceInputEnabled = false;
-        let fontSize = 120; 
+        let fontSize = 140; 
 
         const correctSound = document.getElementById('correct-sound');
         const wrongSound = document.getElementById('wrong-sound');
@@ -196,7 +198,7 @@
                 return;
             }
             if (quizMode === 'endless' && currentKanjiList.length === 0) {
-                currentKanjiList = shuffle([...kanjiData[currentLevel]]);
+                currentKanjiList = shuffle([...getKanjiDataForLevel(currentLevel)]);
                 currentKanjiIndex = 0;
                 console.log('Endless mode: Reset kanji list');
             }
@@ -293,9 +295,19 @@
             setTimeout(displayKanji, 1);
         }
 
+        function getKanjiDataForLevel(level) {
+            const data = window.kanjiData || {};
+            const list = data[level];
+            if (!Array.isArray(list)) {
+                console.warn('No kanji data found for level:', level);
+                return [];
+            }
+            return list;
+        }
+
         function resetQuiz() {
             console.log('Resetting quiz');
-            currentKanjiList = shuffle([...kanjiData[currentLevel]]);
+            currentKanjiList = shuffle([...getKanjiDataForLevel(currentLevel)]);
             currentKanjiIndex = 0;
             answerHistory = [];
             correctCount = 0;
@@ -322,7 +334,7 @@
             document.getElementById("speak-now-btn").style.display = isVoiceInputEnabled ? "inline-block" : "none";
             document.getElementById("font-switch").style.display = "inline-block";
             document.getElementById("font-size-control").style.display = "block";
-            currentKanjiList = shuffle([...kanjiData[level]]);
+            currentKanjiList = shuffle([...getKanjiDataForLevel(level)]);
             currentKanjiIndex = 0;
             answerHistory = [];
             correctCount = 0;
@@ -457,7 +469,7 @@
             quizMode = this.value;
             console.log('Mode changed to:', quizMode);
             if (quizMode === 'endless' && currentKanjiList.length === 0) {
-                currentKanjiList = shuffle([...kanjiData[currentLevel]]);
+                currentKanjiList = shuffle([...getKanjiDataForLevel(currentLevel)]);
                 currentKanjiIndex = 0;
                 document.getElementById("answer-input").style.display = "block";
                 document.getElementById("voice-input-toggle").style.display = "inline-block";
@@ -536,6 +548,11 @@
 
         document.getElementById("main-content").style.display = "none";
         document.getElementById("sidebar").style.display = "none";
+
+        // Basic sanity check so a missing data file fails loudly in console.
+        if (!(window.kanjiData && (window.kanjiData.N5 || window.kanjiData.N4 || window.kanjiData.N3))) {
+            console.warn('window.kanjiData is missing or empty. Check Data/n5.js, Data/n4.js, Data/n3.js paths.');
+        }
     </script>
 </body>
 </html>
