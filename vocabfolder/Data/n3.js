@@ -108,7 +108,6 @@ window.kanjiData = window.kanjiData || {}; window.kanjiData.N3 = [
     // { kanji: "行く", readings: ["いく", "iku"], meanings: ["to go", "to proceed", "to pass"] },
     // { kanji: "育児", readings: ["いくじ", "ikuji"], meanings: ["childcare", "upbringing"] },
     // { kanji: "池", readings: ["いけ", "ike"], meanings: ["pond"] },
-<<<<<<< HEAD
     // { kanji: "いけない", readings: ["いけない", "ikenai"], meanings: ["bad", "must not", "hopeless", "unfortunate"] },
     // { kanji: "意見", readings: ["いけん", "iken"], meanings: ["opinion", "scolding"] },
     // { kanji: "以後", readings: ["いご", "igo"], meanings: ["henceforth", "thereafter"] },
@@ -119,18 +118,6 @@ window.kanjiData = window.kanjiData || {}; window.kanjiData.N3 = [
     // { kanji: "維持", readings: ["いじ", "iji"], meanings: ["maintenance", "preservation"] },
     // { kanji: "意識", readings: ["いしき", "ishiki"], meanings: ["consciousness", "awareness"] },
     // { kanji: "苛める", readings: ["いじめる", "ijimeru"], meanings: ["to bully", "to treat harshly"] },
-=======
-    { kanji: "いけない", readings: ["いけない", "ikenai"], meanings: ["bad", "must not", "hopeless", "unfortunate"] },
-    { kanji: "意見", readings: ["いけん", "iken"], meanings: ["opinion", "scolding"] },
-    { kanji: "以後", readings: ["いご", "igo"], meanings: ["henceforth", "thereafter"] },
-    { kanji: "イコール", readings: ["イコール", "ikōru"], meanings: ["equal", "equals sign"] },
-    { kanji: "石", readings: ["いし", "ishi"], meanings: ["stone", "jewel", "stone (game)", "calculus"] },
-    { kanji: "医師", readings: ["いし", "ishi"], meanings: ["doctor", "physician"] },
-    { kanji: "意思", readings: ["いし", "ishi"], meanings: ["intention", "purpose"] },
-    { kanji: "維持", readings: ["いじ", "iji"], meanings: ["maintenance", "preservation"] },
-    { kanji: "意識", readings: ["いしき", "ishiki"], meanings: ["consciousness", "awareness"] },
-    { kanji: "苛める", readings: ["いじめる", "ijimeru"], meanings: ["to bully", "to treat harshly"] },
->>>>>>> 24d1938eac84f3fcfdf68dbad78692ccc787fc73
     // { kanji: "医者", readings: ["いしゃ", "isha"], meanings: ["doctor", "physician"] },
     // { kanji: "異常", readings: ["いじょう", "ijō"], meanings: ["abnormal", "unusual"] },
     // { kanji: "泉", readings: ["いずみ", "izumi"], meanings: ["spring", "fountain"] },
@@ -208,11 +195,7 @@ window.kanjiData = window.kanjiData || {}; window.kanjiData.N3 = [
     // { kanji: "岩", readings: ["いわ", "iwa"], meanings: ["rock", "crag"] },
     // { kanji: "祝い", readings: ["いわい", "iwai"], meanings: ["congratulation", "celebratory gift"] },
     // { kanji: "言わば", readings: ["いわば", "iwaba"], meanings: ["so to speak", "as it were"] },
-<<<<<<< HEAD
     // { kanji: "所謂", readings: ["いわゆる", "iwayuru"], meanings: ["so-called", "what is called"] },
-=======
-    // { kanji: "いわゆる", readings: ["いわゆる", "iwayuru"], meanings: ["so-called", "what is called"] },
->>>>>>> 24d1938eac84f3fcfdf68dbad78692ccc787fc73
     // { kanji: "インク", readings: ["インク", "inku"], meanings: ["ink"] },
     // { kanji: "印刷", readings: ["いんさつ", "insatsu"], meanings: ["printing"] },
     // { kanji: "印象", readings: ["いんしょう", "inshō"], meanings: ["impression"] },
@@ -259,11 +242,7 @@ window.kanjiData = window.kanjiData || {}; window.kanjiData.N3 = [
     // { kanji: "売り切れる", readings: ["うりきれる", "urikireru"], meanings: ["to be sold out"] },
     // { kanji: "売り場", readings: ["うりば", "uriba"], meanings: ["selling area", "good time to sell"] },
     // { kanji: "売る", readings: ["うる", "uru"], meanings: ["to sell", "to betray", "to make known"] },
-<<<<<<< HEAD
     // { kanji: "煩い", readings: ["うるさい", "urusai"], meanings: ["noisy", "annoying", "fussy", "shut up"] },
-=======
-    // { kanji: "うるさい", readings: ["うるさい", "urusai"], meanings: ["noisy", "annoying", "fussy", "shut up"] },
->>>>>>> 24d1938eac84f3fcfdf68dbad78692ccc787fc73
     // { kanji: "嬉しい", readings: ["うれしい", "ureshii"], meanings: ["happy", "delighted"] },
     // { kanji: "売れ行き", readings: ["うれゆき", "ureyuki"], meanings: ["sales", "demand"] },
     // { kanji: "売れる", readings: ["うれる", "ureru"], meanings: ["to sell well", "to be popular"] },
@@ -279,7 +258,6 @@ window.kanjiData = window.kanjiData || {}; window.kanjiData.N3 = [
     // { kanji: "営業", readings: ["えいぎょう", "eigyō"], meanings: ["business", "sales"] },
     // { kanji: "英語", readings: ["えいご", "eigo"], meanings: ["English language"] },
     // { kanji: "衛星", readings: ["えいせい", "eisei"], meanings: ["satellite", "moon"] },
-<<<<<<< HEAD
     { kanji: "栄養", readings: ["えいよう", "eiyō"], meanings: ["nutrition", "nourishment"] },
     { kanji: "ええ", readings: ["ええ", "ē"], meanings: ["yes", "um", "good"] },
     { kanji: "えっと", readings: ["えっと", "etto"], meanings: ["let me see", "err"] },
@@ -290,18 +268,6 @@ window.kanjiData = window.kanjiData || {}; window.kanjiData.N3 = [
     { kanji: "枝", readings: ["えだ", "eda"], meanings: ["branch", "twig"] },
     { kanji: "エチケット", readings: ["エチケット", "echiketto"], meanings: ["etiquette", "wine label"] },
     { kanji: "エネルギー", readings: ["エネルギー", "enerugī"], meanings: ["energy", "stamina", "energy source"] },
-=======
-    // { kanji: "栄養", readings: ["えいよう", "eiyō"], meanings: ["nutrition", "nourishment"] },
-    // { kanji: "ええ", readings: ["ええ", "ē"], meanings: ["yes", "um", "good"] },
-    // { kanji: "えっと", readings: ["えっと", "etto"], meanings: ["let me see", "err"] },
-    // { kanji: "笑顔", readings: ["えがお", "egao"], meanings: ["smiling face", "smile"] },
-    // { kanji: "描く", readings: ["えがく", "egaku"], meanings: ["to draw", "to depict", "to imagine"] },
-    // { kanji: "駅", readings: ["えき", "eki"], meanings: ["railway station", "staging post"] },
-    // { kanji: "エスカレーター", readings: ["エスカレーター", "esukarētā"], meanings: ["escalator"] },
-    // { kanji: "枝", readings: ["えだ", "eda"], meanings: ["branch", "twig"] },
-    // { kanji: "エチケット", readings: ["エチケット", "echiketto"], meanings: ["etiquette", "wine label"] },
-    // { kanji: "エネルギー", readings: ["エネルギー", "enerugī"], meanings: ["energy", "stamina", "energy source"] },
->>>>>>> 24d1938eac84f3fcfdf68dbad78692ccc787fc73
     // { kanji: "エプロン", readings: ["エプロン", "epuron"], meanings: ["apron", "apron stage"] },
     // { kanji: "選ぶ", readings: ["えらぶ", "erabu"], meanings: ["to choose", "to select"] },
     // { kanji: "エレベーター", readings: ["エレベーター", "erebētā"], meanings: ["elevator", "lift"] },
