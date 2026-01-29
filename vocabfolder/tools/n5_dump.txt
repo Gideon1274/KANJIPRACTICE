@@ -1,0 +1,5 @@
+Paste your N5 “Ready-made Contributed” dump below this line, then run:
+
+  node tools/build_n5_from_dump.js --input tools/n5_dump.txt
+
+N3 is used as the comparison baseline; anything already in N3 will be excluded.

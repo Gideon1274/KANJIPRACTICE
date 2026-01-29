@@ -1,0 +1,20 @@
+Correct commands (PowerShell/Windows)
+
+
+N4: node [build_n4_from_dump.js](http://_vscodecontentref_/3) --input .\tools\n4_dump.txt
+N3: node .\tools\build_n3_from_dump.js --input .\tools\n3_dump.txt
+N2: node [build_n2_from_dump.js](http://_vscodecontentref_/1) --input .\tools\n2_dump.txt
+N1: node [build_n1_from_dump.js](http://_vscodecontentref_/2) --input .\tools\n1_dump.txt
+
+If you want to run them without specifying --input, these also work (they default to the right dump file):
+
+
+node .\vocabfolder\tools\build_n4_from_dump.js
+node .\vocabfolder\tools\build_n3_from_dump.js
+node .\vocabfolder\tools\build_n2_from_dump.js
+node .\vocabfolder\tools\build_n1_from_dump.js
+
+
+
+node .\vocabfolder\tools4kanjionly\build_Nkanji2_from_dump.js
+node .\vocabfolder\tools4kanjionly\build_Nkanji3_from_dump.js

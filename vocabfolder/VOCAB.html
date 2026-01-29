@@ -8,13 +8,35 @@
     <style>
         @font-face {
             font-family: 'Tegaki';
-            src: url('tegaki.ttf') format('truetype');
+            src: url('font/tegaki.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
         .tegaki-font {
             font-family: 'Tegaki', sans-serif;
         }
+
+        @font-face {
+            font-family: 'mincho';
+            src: url('font/mincho.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        .mincho-font {
+            font-family: 'mincho', serif;
+        }
+        @font-face {
+            font-family: 'marugothic';
+            src: url('font/marugothic.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        .marugothic-font {
+            font-family: 'marugothic', sans-serif;
+        }
+        
+        
+        
     </style>
 </head>
 <body class="dark-mode">
@@ -70,12 +92,15 @@
             <label><input type="checkbox" id="voice-input-toggle"> Voice Input (Japanese)</label>
             <button id="speak-now-btn">Speak Now</button>
             <select id="font-switch">
+                <option value="mincho" selected>Mincho Font</option>
                 <option value="default">Default Font</option>
+                <option value="marugothic">Maru Gothic Font</option>
                 <option value="tegaki">Tegaki Font</option>
+                
             </select>
         </div>
         <button id="reset-button">Reset Quiz</button>
-        <div id="kanji-display"></div>
+        <div id="kanji-display" class="mincho-font"></div>
         <input type="text" id="answer-input" placeholder="Type character or romaji">
         <div id="feedback"></div>
         <div id="font-size-control">
@@ -87,11 +112,11 @@
     <audio id="wrong-sound" src="soundeffects/wrong.mp3"></audio>
 
     <!-- <script src="Data/asd.js"></script> -->
-    <script src="Data/n5.js"></script>
-    <script src="Data/n4.js"></script>
-    <script src="Data/n3.js"></script>
-    <script src="Data/n2.js"></script>
-    <script src="Data/n1.js"></script>
+    <script src="Data/vocab/n5.js"></script>
+    <script src="Data/vocab/n4.js"></script>
+    <script src="Data/vocab/n3.js"></script>
+    <script src="Data/vocab/n2.js"></script>
+    <script src="Data/vocab/n1.js"></script>
 
     <!-- <script src="Data/all.js"></script> -->
     
@@ -108,7 +133,11 @@
         let isMuted = false;
         let quizMode = 'normal';
         let isVoiceInputEnabled = false;
-        let fontSize = 140; 
+        let fontSize = 90; 
+
+        // Endless mode: track the last completed cycle order so the next shuffle
+        // can't repeat the exact same sequence.
+        let lastEndlessOrderKey = null;
 
         const correctSound = document.getElementById('correct-sound');
         const wrongSound = document.getElementById('wrong-sound');
@@ -139,6 +168,46 @@
                 [array[i], array[j]] = [array[j], array[i]];
             }
             return array;
+        }
+
+        function getOrderKey(list) {
+            return (list || []).map(item => item && item.kanji ? item.kanji : '').join('|');
+        }
+
+        function reshuffleEndlessCycle() {
+            const base = getKanjiDataForLevel(currentLevel);
+            if (base.length === 0) {
+                currentKanjiList = [];
+                currentKanjiIndex = 0;
+                lastEndlessOrderKey = null;
+                correctlyAnswered.clear();
+                return;
+            }
+
+            const maxAttempts = 30;
+            let nextList = null;
+            let nextKey = null;
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                const candidate = shuffle([...base]);
+                const candidateKey = getOrderKey(candidate);
+                if (base.length <= 1 || candidateKey !== lastEndlessOrderKey) {
+                    nextList = candidate;
+                    nextKey = candidateKey;
+                    break;
+                }
+            }
+
+            // Fallback (very small chance): accept the last candidate.
+            if (!nextList) {
+                nextList = shuffle([...base]);
+                nextKey = getOrderKey(nextList);
+            }
+
+            currentKanjiList = nextList;
+            currentKanjiIndex = 0;
+            correctlyAnswered.clear();
+            lastEndlessOrderKey = nextKey;
+            console.log('Endless mode: New cycle reshuffled');
         }
 
         function formatTime(seconds) {
@@ -198,8 +267,7 @@
                 return;
             }
             if (quizMode === 'endless' && currentKanjiList.length === 0) {
-                currentKanjiList = shuffle([...getKanjiDataForLevel(currentLevel)]);
-                currentKanjiIndex = 0;
+                reshuffleEndlessCycle();
                 console.log('Endless mode: Reset kanji list');
             }
             const kanji = currentKanjiList[currentKanjiIndex];
@@ -217,7 +285,7 @@
             console.log('Updating history, answerHistory length:', answerHistory.length);
             const historyList = document.getElementById("history-list");
             historyList.innerHTML = "";
-            answerHistory.slice(-5).forEach(entry => {
+            answerHistory.slice(-6).forEach(entry => {
                 const li = document.createElement("li");
                 li.innerHTML = `
                     <span class="kanji">${entry.kanji}</span>
@@ -268,7 +336,12 @@
                         currentKanjiIndex = 0;
                     }
                 } else {
-                    currentKanjiIndex = (currentKanjiIndex + 1) % currentKanjiList.length;
+                    const totalInLevel = getKanjiDataForLevel(currentLevel).length;
+                    if (totalInLevel > 0 && correctlyAnswered.size >= totalInLevel) {
+                        reshuffleEndlessCycle();
+                    } else {
+                        currentKanjiIndex = (currentKanjiIndex + 1) % currentKanjiList.length;
+                    }
                 }
                 playSound('correct');
             } else {
@@ -309,6 +382,7 @@
             console.log('Resetting quiz');
             currentKanjiList = shuffle([...getKanjiDataForLevel(currentLevel)]);
             currentKanjiIndex = 0;
+            lastEndlessOrderKey = getOrderKey(currentKanjiList);
             answerHistory = [];
             correctCount = 0;
             totalCount = 0;
@@ -336,6 +410,7 @@
             document.getElementById("font-size-control").style.display = "block";
             currentKanjiList = shuffle([...getKanjiDataForLevel(level)]);
             currentKanjiIndex = 0;
+            lastEndlessOrderKey = getOrderKey(currentKanjiList);
             answerHistory = [];
             correctCount = 0;
             totalCount = 0;
@@ -355,14 +430,21 @@
         // Font switch handling
         document.getElementById("font-switch").addEventListener("change", function() {
             const selectedFont = this.value;
+            
             console.log('Font changed to:', selectedFont);
             const kanjiDisplay = document.getElementById("kanji-display");
-            if (selectedFont === 'tegaki') {
+            kanjiDisplay.classList.remove('marugothic-font', 'mincho-font', 'tegaki-font');
+            if (selectedFont === 'marugothic') {
+                kanjiDisplay.classList.add('marugothic-font');
+            } else if (selectedFont === 'mincho') {
+                kanjiDisplay.classList.add('mincho-font');
+            } else if (selectedFont === 'tegaki') {
                 kanjiDisplay.classList.add('tegaki-font');
-            } else {
-                kanjiDisplay.classList.remove('tegaki-font');
             }
         });
+
+        // Apply default font (Mincho) on load.
+        document.getElementById("font-switch").dispatchEvent(new Event('change'));
 
         // Font size control handling
         document.getElementById("increase-font").addEventListener("click", function() {
@@ -469,8 +551,7 @@
             quizMode = this.value;
             console.log('Mode changed to:', quizMode);
             if (quizMode === 'endless' && currentKanjiList.length === 0) {
-                currentKanjiList = shuffle([...getKanjiDataForLevel(currentLevel)]);
-                currentKanjiIndex = 0;
+                reshuffleEndlessCycle();
                 document.getElementById("answer-input").style.display = "block";
                 document.getElementById("voice-input-toggle").style.display = "inline-block";
                 document.getElementById("speak-now-btn").style.display = isVoiceInputEnabled ? "inline-block" : "none";
@@ -501,6 +582,16 @@
 
         document.getElementById("answer-input").addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
+                if (event.ctrlKey) {
+                    event.preventDefault();
+                    if (isVoiceInputEnabled && recognition) {
+                        recognition.stop();
+                        console.log('Voice input stopped due to Ctrl+Enter reset');
+                    }
+                    resetQuiz();
+                    console.log('Quiz reset via Ctrl+Enter (input)');
+                    return;
+                }
                 if (isVoiceInputEnabled && recognition) {
                     recognition.stop();
                     console.log('Voice input stopped due to text input');
@@ -540,18 +631,28 @@
         });
         
         document.addEventListener("keydown", function(event) {
+            if (event.key === "Enter" && event.ctrlKey) {
+                event.preventDefault();
+                if (isVoiceInputEnabled && recognition) {
+                    recognition.stop();
+                    console.log('Voice input stopped due to Ctrl+Enter reset');
+                }
+                resetQuiz();
+                console.log('Quiz reset via Ctrl+Enter');
+                return;
+            }
             if (event.key === "Enter" && quizMode === 'normal' && currentKanjiList.length === 0) {
                 resetQuiz();
                 console.log('Quiz reset via Enter key');
             }
-        });
+        }, true);
 
         document.getElementById("main-content").style.display = "none";
         document.getElementById("sidebar").style.display = "none";
 
         // Basic sanity check so a missing data file fails loudly in console.
         if (!(window.kanjiData && (window.kanjiData.N5 || window.kanjiData.N4 || window.kanjiData.N3))) {
-            console.warn('window.kanjiData is missing or empty. Check Data/n5.js, Data/n4.js, Data/n3.js paths.');
+            console.warn('window.kanjiData is missing or empty. Check Data/vocab/n5.js, Data/vocab/n4.js, Data/vocab/n3.js paths.');
         }
     </script>
 </body>

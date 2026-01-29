@@ -3,29 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SENTECE</title>
+    <title>Sentence Practice</title>
     <link rel="stylesheet" href="css/Sstyles.css">
     <style>
         @font-face {
             font-family: 'Tegaki';
-            src: url('tegaki.ttf') format('truetype');
+            src: url('font/tegaki.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
         .tegaki-font {
             font-family: 'Tegaki', sans-serif;
         }
+
+        @font-face {
+            font-family: 'ZenOldMincho';
+            src: url('font/ZenOldMincho-Regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        .mincho-font {
+            font-family: 'ZenOldMincho', serif;
+        }
+
+        @font-face {
+            font-family: 'ZenMaruGothic';
+            src: url('font/ZenMaruGothic-Regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        .marugothic-font {
+            font-family: 'ZenMaruGothic', sans-serif;
+        }
+
+        /* Bottom + horizontal history panel */
+        body {
+            overflow-x: hidden;
+        }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        #main-content {
+            flex: 1 1 auto;
+            /* Disable reserved space for the old fixed sidebar */
+            padding-bottom: 0 !important;
+        }
+
+        #sidebar {
+            width: 100%;
+            box-sizing: border-box;
+            max-height: 260px;
+            overflow: hidden;
+            /* Disable old fixed/sticky sidebar layout from Sstyles.css */
+            position: static !important;
+            height: auto !important;
+        }
+
+        #stats-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 16px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        #history-list {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #history-list li {
+            flex: 0 0 auto;
+            width: min(520px, 86vw);
+            box-sizing: border-box;
+        }
+
+        #history-list li .kanji,
+        #history-list li .details {
+            word-break: break-word;
+        }
+
+        /* Sstyles.css switches body into a 2-column grid on wide screens.
+           Our history is nested under #app, so that grid leaves an empty right column.
+           Force normal flow on wide screens. */
+        @media (min-width: 900px) {
+            body {
+                display: block !important;
+            }
+        }
     </style>
 </head>
 <body class="dark-mode">
-    <button id="theme-toggle">Toggle Light Mode</button>
-    <div id="volume-control">
-        <button id="volume-toggle">Mute</button>
-        <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="1">
-    </div>
-    <div id="level-selector">
+    <header id="top-bar" aria-label="App controls">
+        <button id="theme-toggle" type="button">Toggle Light Mode</button>
+        <div id="volume-control" aria-label="Volume controls">
+            <button id="volume-toggle" type="button">Mute</button>
+            <label class="sr-only" for="volume-slider">Volume</label>
+            <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="1" aria-label="Volume">
+        </div>
+    </header>
+    <div id="level-selector" role="dialog" aria-modal="true" aria-label="Quiz setup">
         <div>
-            <h2>Select Kana Level</h2>
+            <h2>Select JLPT Level</h2>
             <select id="jlpt-level">
                 <option value="N5">N5 KANJI VOCABULARY</option>
                 <option value="N4">N4 KANJI VOCABULARY</option>
@@ -41,9 +132,10 @@
             <h2>Voice Input</h2>
             <label><input type="checkbox" id="voice-input-toggle-start"> Enable Voice Input (Japanese)</label>
             <br>
-            <button id="start-btn">Start Quiz</button>
+            <button id="start-btn" type="button">Start Quiz</button>
         </div>
     </div>
+    <div id="app">
     <div id="main-content">
         <div id="difficulty-switcher">
             <span id="timer">Time: 00:00</span>
@@ -59,23 +151,26 @@
                 <option value="endless">Endless (Repeat)</option>
             </select>
             <label><input type="checkbox" id="voice-input-toggle"> Voice Input (Japanese)</label>
-            <button id="speak-now-btn">Speak Now</button>
+            <button id="speak-now-btn" type="button">Speak Now</button>
             <select id="font-switch">
+                <option value="mincho" selected>Mincho Font</option>
                 <option value="default">Default Font</option>
+                <option value="marugothic">Maru Gothic Font</option>
                 <option value="tegaki">Tegaki Font</option>
             </select>
         </div>
-        <button id="reset-button">Reset Quiz</button>
+        <button id="reset-button" type="button">Reset Quiz</button>
         <div id="kanji-display"></div>
-        <input type="text" id="answer-input" placeholder="Type character or romaji">
-        <div id="feedback"></div>
+        <input type="text" id="answer-input" placeholder="Type kanji / kana / meaning" aria-label="Answer" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <p id="answer-help">Tip: You can answer with the exact sentence, a reading (かな), or a meaning (JP/EN). Press Enter to submit.</p>
+        <div id="feedback" aria-live="polite" aria-atomic="true"></div>
         <div id="font-size-control">
             <!-- <button id="decrease-font">-</button>
             <button id="increase-font">+</button> -->
         </div>
     </div>
     <div id="sidebar">
-        <h3>Previous 6 Attempts (History)</h3>
+        <h3>Last 2 Attempts</h3>
         <div id="stats-container">
             <span id="current-mode">Mode: </span>
             <span id="correct-count">Correct: 0</span>
@@ -83,10 +178,16 @@
         </div>
         <ul id="history-list"></ul>
     </div>
+    </div>
     <audio id="correct-sound" src="soundeffects/correct.mp3"></audio>
     <audio id="wrong-sound" src="soundeffects/wrong.mp3"></audio>
 
-    <script src="Data/JPsentence.js"></script>
+    <script src="Data/sentences/JPsentence.js"></script>
+    <script src="Data/sentences/n5sentence.js"></script>
+    <script src="Data/sentences/n4sentence.js"></script>
+    <script src="Data/sentences/n3sentence.js"></script>
+    <script src="Data/sentences/n2sentence.js"></script>
+    <script src="Data/sentences/n1sentence.js"></script>
 
     
     <script>
@@ -102,7 +203,7 @@
         let isMuted = false;
         let quizMode = 'normal';
         let isVoiceInputEnabled = false;
-        let fontSize = 60; 
+        const fontSize = 60;
 
         const correctSound = document.getElementById('correct-sound');
         const wrongSound = document.getElementById('wrong-sound');
@@ -174,6 +275,10 @@
             }
         }
 
+        function stripHtml(s) {
+            return String(s || '').replace(/<[^>]*>/g, '');
+        }
+
         function displayKanji() {
             console.log('Displaying kanji, quizMode:', quizMode, 'kanjiList length:', currentKanjiList.length);
             if (quizMode === 'normal' && currentKanjiList.length === 0) {
@@ -197,33 +302,52 @@
                 console.log('Endless mode: Reset kanji list');
             }
             const kanji = currentKanjiList[currentKanjiIndex];
-            document.getElementById("kanji-display").textContent = kanji.kanji;
+            // Sentences may contain simple markup (e.g., <b>word</b>)
+            document.getElementById("kanji-display").innerHTML = kanji.kanji;
             document.getElementById("kanji-display").style.fontSize = `${fontSize}px`;
             document.getElementById("answer-input").value = "";
             document.getElementById("feedback").textContent = "";
             document.getElementById("answer-input").focus();
             document.getElementById("speak-now-btn").style.display = isVoiceInputEnabled ? "inline-block" : "none";
             document.getElementById("font-switch").style.display = "inline-block";
-            document.getElementById("font-size-control").style.display = "block";
+            // Sentence mode keeps a fixed font size.
+            document.getElementById("font-size-control").style.display = "none";
         }
 
         function updateHistory() {
             console.log('Updating history, answerHistory length:', answerHistory.length);
             const historyList = document.getElementById("history-list");
-            historyList.innerHTML = "";
+            historyList.textContent = "";
+            // Sentences: show only last 2 attempts.
             answerHistory.slice(-2).forEach(entry => {
                 const li = document.createElement("li");
-                li.innerHTML = `
-                    <span class="kanji">${entry.kanji}</span>
-                    <span class="details">
-                        ${entry.answer}<br>
-                        <b>${entry.meanings.filter(m => m).join("<br>") || "None"}<br>
-                        ${entry.readings.join(", ")}<b>
-                    </span>`;
                 li.className = entry.result === "Correct" ? "correct" : "incorrect";
+
+                const kanjiSpan = document.createElement("span");
+                kanjiSpan.className = "kanji";
+                // Preserve sentence markup (e.g., <b>word</b>)
+                kanjiSpan.innerHTML = entry.kanji;
+
+                const detailsSpan = document.createElement("span");
+                detailsSpan.className = "details";
+
+                const readingsSpan = document.createElement("span");
+                readingsSpan.className = "readings";
+                readingsSpan.textContent = entry.kana ? `Reading: ${entry.kana}` : "Reading: (missing)";
+
+                const englishSpan = document.createElement("span");
+                englishSpan.className = "meanings";
+                englishSpan.textContent = entry.english ? `EN: ${entry.english}` : "EN: (missing)";
+
+                detailsSpan.appendChild(readingsSpan);
+                detailsSpan.appendChild(document.createElement("br"));
+                detailsSpan.appendChild(englishSpan);
+
+                li.appendChild(kanjiSpan);
+                li.appendChild(detailsSpan);
                 historyList.appendChild(li);
             });
-            historyList.scrollTop = historyList.scrollHeight;
+            historyList.scrollLeft = historyList.scrollWidth;
         }
 
         function updateStats() {
@@ -234,8 +358,9 @@
         }
 
         function normalizeInput(input) {
-            return input.replace(/[\s.,!?;:'"()、。・？]/g, '').trim();
-            
+            // Remove markup so users never need to type tags
+            const noHtml = stripHtml(input);
+            return noHtml.replace(/[\s.,!?;:'"()、。・？]/g, '').trim();
         }
 
         function checkAnswer(userAnswer, isVoiceInput = false) {
@@ -276,11 +401,13 @@
             }
 
             totalCount++;
+            const kanaReading = (kanji.meanings && kanji.meanings[1]) || ((kanji.readings || [])[0] || "");
+            const englishMeaning = (kanji.meanings && (kanji.meanings[2] || kanji.meanings[kanji.meanings.length - 1])) || "";
+
             answerHistory.push({
                 kanji: kanji.kanji,
-                answer: userAnswer || "(empty)",
-                meanings: kanji.meanings,
-                readings: kanji.readings,
+                kana: stripHtml(kanaReading),
+                english: stripHtml(englishMeaning),
                 result: result
             });
 
@@ -319,6 +446,11 @@
             document.getElementById("speak-now-btn").style.display = isVoiceInputEnabled ? "inline-block" : "none";
             document.getElementById("font-switch").style.display = "inline-block";
             document.getElementById("font-size-control").style.display = "block";
+            if (!kanjiData || !kanjiData[level] || !Array.isArray(kanjiData[level]) || kanjiData[level].length === 0) {
+                document.getElementById("feedback").textContent = `No sentences loaded for ${level}. Check your Data/*.js script tags.`;
+                document.getElementById("feedback").style.color = "red";
+                return;
+            }
             currentKanjiList = shuffle([...kanjiData[level]]);
             currentKanjiIndex = 0;
             answerHistory = [];
@@ -342,12 +474,18 @@
             const selectedFont = this.value;
             console.log('Font changed to:', selectedFont);
             const kanjiDisplay = document.getElementById("kanji-display");
-            if (selectedFont === 'tegaki') {
+            kanjiDisplay.classList.remove('marugothic-font', 'mincho-font', 'tegaki-font');
+            if (selectedFont === 'marugothic') {
+                kanjiDisplay.classList.add('marugothic-font');
+            } else if (selectedFont === 'mincho') {
+                kanjiDisplay.classList.add('mincho-font');
+            } else if (selectedFont === 'tegaki') {
                 kanjiDisplay.classList.add('tegaki-font');
-            } else {
-                kanjiDisplay.classList.remove('tegaki-font');
             }
         });
+
+        // Apply default font (Mincho) on load.
+        document.getElementById("font-switch").dispatchEvent(new Event('change'));
 
         // // Font size control handling
         // document.getElementById("increase-font").addEventListener("click", function() {

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grammar Practice</title>
+  <link rel="stylesheet" href="css/Sstyles.css" />
+  <style>
+    /* Keep the same overall look as SENTENCE.html */
+    body { overflow-x: hidden; }
+    #app { display: flex; flex-direction: column; min-height: 100vh; width: 100%; }
+    #main-content { flex: 1 1 auto; padding-bottom: 0 !important; }
+    #sidebar { width: 100%; box-sizing: border-box; max-height: 260px; overflow: hidden; position: static !important; height: auto !important; }
+    #stats-container { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin-bottom: 8px; }
+    #history-list { display: flex; flex-direction: row; gap: 10px; padding: 0; margin: 0; list-style: none; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
+    #history-list li { flex: 0 0 auto; width: min(520px, 86vw); box-sizing: border-box; }
+    #history-list li .kanji, #history-list li .details { word-break: break-word; }
+    @media (min-width: 900px) { body { display: block !important; } }
+  </style>
+</head>
+<body class="dark-mode">
+  <header id="top-bar" aria-label="App controls">
+    <button id="theme-toggle" type="button">Toggle Light Mode</button>
+  </header>
+
+  <div id="level-selector" role="dialog" aria-modal="true" aria-label="Quiz setup">
+    <div>
+      <h2>Select JLPT Level</h2>
+      <select id="jlpt-level">
+        <option value="N5">N5 GRAMMAR</option>
+        <option value="N4">N4 GRAMMAR</option>
+        <option value="N3">N3 GRAMMAR</option>
+        <option value="N2">N2 GRAMMAR</option>
+        <option value="N1">N1 GRAMMAR</option>
+      </select>
+      <h2>Select Mode</h2>
+      <select id="quiz-mode">
+        <option value="normal">Normal (Complete All)</option>
+        <option value="endless">Endless (Repeat)</option>
+      </select>
+      <button id="start-btn" type="button">Start Quiz</button>
+    </div>
+  </div>
+
+  <div id="app">
+    <div id="main-content">
+      <div id="difficulty-switcher">
+        <span id="timer">Time: 00:00</span>
+        <select id="difficulty-switch">
+          <option value="N5">N5 GRAMMAR</option>
+          <option value="N4">N4 GRAMMAR</option>
+          <option value="N3">N3 GRAMMAR</option>
+          <option value="N2">N2 GRAMMAR</option>
+          <option value="N1">N1 GRAMMAR</option>
+        </select>
+        <select id="mode-switch">
+          <option value="normal">Normal (Complete All)</option>
+          <option value="endless">Endless (Repeat)</option>
+        </select>
+      </div>
+
+      <button id="reset-button" type="button">Reset Quiz</button>
+      <div id="kanji-display"></div>
+      <input type="text" id="answer-input" placeholder="Type what goes in the blank" aria-label="Answer" autocomplete="off" autocapitalize="off" spellcheck="false" />
+      <p id="answer-help">Tip: Type the missing grammar (e.g., particles, という, によって, ことがあります). Press Enter to submit.</p>
+      <div id="feedback" aria-live="polite" aria-atomic="true"></div>
+    </div>
+
+    <div id="sidebar">
+      <h3>Last 2 Attempts</h3>
+      <div id="stats-container">
+        <span id="current-mode">Mode: </span>
+        <span id="correct-count">Correct: 0</span>
+        <span id="remaining-count">All: 0</span>
+      </div>
+      <ul id="history-list"></ul>
+    </div>
+  </div>
+
+  <audio id="correct-sound" src="soundeffects/correct.mp3"></audio>
+  <audio id="wrong-sound" src="soundeffects/wrong.mp3"></audio>
+
+  <script src="Data/grammar/JPgrammar.js"></script>
+  <script src="Data/grammar/n5grammar.js"></script>
+  <script src="Data/grammar/n4grammar.js"></script>
+  <script src="Data/grammar/n3grammar.js"></script>
+  <script src="Data/grammar/n2grammar.js"></script>
+  <script src="Data/grammar/n1grammar.js"></script>
+
+  <script>
+    let currentLevel = 'N5';
+    let currentList = [];
+    let currentIndex = 0;
+    let answerHistory = [];
+    let correctCount = 0;
+    let totalCount = 0;
+    let timerInterval = null;
+    let elapsedTime = 0;
+    let quizMode = 'normal';
+
+    const fontSize = 60;
+
+    const correctSound = document.getElementById('correct-sound');
+    const wrongSound = document.getElementById('wrong-sound');
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+      const secs = (seconds % 60).toString().padStart(2, '0');
+      return `${mins}:${secs}`;
+    }
+
+    function startTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        elapsedTime++;
+        document.getElementById('timer').textContent = `Time: ${formatTime(elapsedTime)}`;
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+    }
+
+    function stripHtml(s) {
+      return String(s || '').replace(/<[^>]*>/g, '');
+    }
+
+    function normalizeInput(input) {
+      const noHtml = stripHtml(input);
+      return noHtml.replace(/[\s.,!?;:'"()、。・？]/g, '').trim();
+    }
+
+    function displayPrompt() {
+      if (quizMode === 'normal' && currentList.length === 0) {
+        const percentage = totalCount > 0 ? (correctCount / totalCount * 100).toFixed(0) : '0';
+        document.getElementById('kanji-display').textContent = `${percentage}%`;
+        document.getElementById('answer-input').style.display = 'none';
+        document.getElementById('feedback').textContent = 'Quiz completed!';
+        stopTimer();
+        return;
+      }
+
+      if (quizMode === 'endless' && currentList.length === 0) {
+        currentList = shuffle([...(grammarData[currentLevel] || [])]);
+        currentIndex = 0;
+      }
+
+      const item = currentList[currentIndex];
+      document.getElementById('kanji-display').innerHTML = item.prompt;
+      document.getElementById('kanji-display').style.fontSize = `${fontSize}px`;
+      document.getElementById('answer-input').value = '';
+      document.getElementById('feedback').textContent = '';
+      document.getElementById('answer-input').focus();
+    }
+
+    function updateHistory() {
+      const historyList = document.getElementById('history-list');
+      historyList.textContent = '';
+
+      answerHistory.slice(-2).forEach(entry => {
+        const li = document.createElement('li');
+        li.className = entry.result === 'Correct' ? 'correct' : 'incorrect';
+
+        const kanjiSpan = document.createElement('span');
+        kanjiSpan.className = 'kanji';
+        kanjiSpan.innerHTML = entry.prompt;
+
+        const detailsSpan = document.createElement('span');
+        detailsSpan.className = 'details';
+
+        const kanaSpan = document.createElement('span');
+        kanaSpan.className = 'readings';
+        kanaSpan.textContent = `Kana: ${entry.kana}`;
+
+        const enSpan = document.createElement('span');
+        enSpan.className = 'meanings';
+        enSpan.textContent = `EN: ${entry.en}`;
+
+        const answerSpan = document.createElement('span');
+        answerSpan.className = 'readings';
+        answerSpan.textContent = `Answer: ${entry.answer}`;
+
+        detailsSpan.appendChild(kanaSpan);
+        detailsSpan.appendChild(document.createElement('br'));
+        detailsSpan.appendChild(enSpan);
+        detailsSpan.appendChild(document.createElement('br'));
+        detailsSpan.appendChild(answerSpan);
+
+        li.appendChild(kanjiSpan);
+        li.appendChild(detailsSpan);
+        historyList.appendChild(li);
+      });
+
+      historyList.scrollLeft = historyList.scrollWidth;
+    }
+
+    function updateStats() {
+      document.getElementById('current-mode').textContent = `Current Mode: ${quizMode}`;
+      document.getElementById('correct-count').textContent = `Correct: ${correctCount}`;
+      document.getElementById('remaining-count').textContent = `All: ${currentList.length}`;
+    }
+
+    function checkAnswer(userAnswer) {
+      const item = currentList[currentIndex];
+
+      const expected = normalizeInput(item.answer);
+      const actual = normalizeInput(userAnswer);
+
+      const isCorrect = actual === expected;
+
+      answerHistory.push({
+        prompt: item.prompt,
+        kana: stripHtml(item.kana),
+        en: stripHtml(item.en),
+        answer: stripHtml(item.answer),
+        result: isCorrect ? 'Correct' : 'Incorrect',
+      });
+
+      if (isCorrect) {
+        correctCount++;
+        document.getElementById('feedback').textContent = 'Correct!';
+        document.getElementById('feedback').style.color = 'green';
+        correctSound.currentTime = 0;
+        correctSound.play().catch(() => {});
+      } else {
+        document.getElementById('feedback').textContent = `Incorrect. Answer: ${stripHtml(item.answer)}`;
+        document.getElementById('feedback').style.color = 'red';
+        wrongSound.currentTime = 0;
+        wrongSound.play().catch(() => {});
+      }
+
+      currentList.splice(currentIndex, 1);
+      updateHistory();
+      updateStats();
+
+      if (currentList.length > 0) {
+        currentIndex = currentIndex % currentList.length;
+        displayPrompt();
+      } else {
+        displayPrompt();
+      }
+    }
+
+    function startQuiz(level, mode) {
+      currentLevel = level;
+      quizMode = mode;
+      correctCount = 0;
+      totalCount = (grammarData[level] || []).length;
+      elapsedTime = 0;
+      document.getElementById('timer').textContent = 'Time: 00:00';
+
+      currentList = shuffle([...(grammarData[level] || [])]);
+      currentIndex = 0;
+      answerHistory = [];
+
+      document.getElementById('level-selector').style.display = 'none';
+      document.getElementById('answer-input').style.display = 'block';
+
+      updateHistory();
+      updateStats();
+      startTimer();
+      displayPrompt();
+    }
+
+    document.getElementById('start-btn').addEventListener('click', () => {
+      startQuiz(
+        document.getElementById('jlpt-level').value,
+        document.getElementById('quiz-mode').value
+      );
+    });
+
+    document.getElementById('difficulty-switch').addEventListener('change', (e) => {
+      startQuiz(e.target.value, quizMode);
+    });
+
+    document.getElementById('mode-switch').addEventListener('change', (e) => {
+      startQuiz(currentLevel, e.target.value);
+    });
+
+    document.getElementById('reset-button').addEventListener('click', () => {
+      document.getElementById('level-selector').style.display = 'flex';
+      stopTimer();
+    });
+
+    document.getElementById('answer-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        checkAnswer(e.target.value);
+      }
+    });
+
+    document.getElementById('theme-toggle').addEventListener('click', function () {
+      document.body.classList.toggle('dark-mode');
+      document.body.classList.toggle('light-mode');
+      this.textContent = document.body.classList.contains('dark-mode') ? 'Toggle Light Mode' : 'Toggle Dark Mode';
+    });
+  </script>
+</body>
+</html>

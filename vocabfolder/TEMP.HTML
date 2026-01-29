@@ -8,12 +8,32 @@
     <style>
         @font-face {
             font-family: 'Tegaki';
-            src: url('tegaki.ttf') format('truetype');
+            src: url('font/tegaki.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
         .tegaki-font {
             font-family: 'Tegaki', sans-serif;
+        }
+
+        @font-face {
+            font-family: 'ZenOldMincho';
+            src: url('font/ZenOldMincho-Regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        .mincho-font {
+            font-family: 'ZenOldMincho', serif;
+        }
+
+        @font-face {
+            font-family: 'ZenMaruGothic';
+            src: url('font/ZenMaruGothic-Regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        .marugothic-font {
+            font-family: 'ZenMaruGothic', sans-serif;
         }
     </style>
 </head>
@@ -61,12 +81,14 @@
             <label><input type="checkbox" id="voice-input-toggle"> Voice Input (Japanese)</label>
             <button id="speak-now-btn">Speak Now</button>
             <select id="font-switch">
+                <option value="mincho" selected>Mincho Font</option>
                 <option value="default">Default Font</option>
+                <option value="marugothic">Maru Gothic Font</option>
                 <option value="tegaki">Tegaki Font</option>
             </select>
         </div>
         <button id="reset-button">Reset Quiz</button>
-        <div id="kanji-display"></div>
+        <div id="kanji-display" class="mincho-font"></div>
         <input type="text" id="answer-input" placeholder="Type character or romaji">
         <div id="feedback"></div>
         <div id="font-size-control">
@@ -342,12 +364,18 @@
             const selectedFont = this.value;
             console.log('Font changed to:', selectedFont);
             const kanjiDisplay = document.getElementById("kanji-display");
-            if (selectedFont === 'tegaki') {
+            kanjiDisplay.classList.remove('marugothic-font', 'mincho-font', 'tegaki-font');
+            if (selectedFont === 'marugothic') {
+                kanjiDisplay.classList.add('marugothic-font');
+            } else if (selectedFont === 'mincho') {
+                kanjiDisplay.classList.add('mincho-font');
+            } else if (selectedFont === 'tegaki') {
                 kanjiDisplay.classList.add('tegaki-font');
-            } else {
-                kanjiDisplay.classList.remove('tegaki-font');
             }
         });
+
+        // Apply default font (Mincho) on load.
+        document.getElementById("font-switch").dispatchEvent(new Event('change'));
 
         // // Font size control handling
         // document.getElementById("increase-font").addEventListener("click", function() {

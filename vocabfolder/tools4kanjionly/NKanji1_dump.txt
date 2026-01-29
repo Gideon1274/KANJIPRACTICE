@@ -1,0 +1,211 @@
+Paste your N3 “Ready-made Contributed” dump below this line, then run:
+
+  node tools/build_n3_from_dump.js --input tools/n3_dump.txt
+
+N3 is the baseline, so no overlap checks are performed.
+
+Ready-made Contributed
+
+Kanji N1 (advanced)
+Page 1 2 3 … 23 24 25
+氏
+シ, うじ, -うじ
+family name, surname, clan
+See more >
+統
+トウ, す.べる
+overall, relationship, ruling, governing
+See more >
+保
+ホ, ホウ, たも.つ
+protect, guarantee, keep, preserve, sustain, support
+See more >
+第
+ダイ, テイ
+No., residence
+See more >
+結
+ケツ, ケチ, むす.ぶ, ゆ.う, ゆ.わえる
+tie, bind, contract, join, organize, do up hair, fasten
+See more >
+派
+ハ
+faction, group, party, clique, sect, school
+See more >
+案
+アン, つくえ
+plan, suggestion, draft, ponder, fear, proposition, idea, expectation, worry, table, bench
+See more >
+策
+サク
+scheme, plan, policy, step, means
+See more >
+基
+キ, もと, もとい
+fundamentals, radical (chem), counter for machines, foundation
+See more >
+価
+カ, ケ, あたい
+value, price
+See more >
+提
+テイ, チョウ, ダイ, さ.げる
+propose, take along, carry in hand
+See more >
+挙
+キョ, あ.げる, あ.がる, こぞ.る
+raise, plan, project, behavior, actions
+See more >
+応
+オウ, ヨウ, -ノウ, あた.る, まさに, こた.える
+apply, answer, yes, OK, reply, accept
+See more >
+企
+キ, くわだ.てる, たくら.む
+undertake, scheme, design, attempt, plan
+See more >
+検
+ケン, しら.べる
+examination, investigate
+See more >
+藤
+トウ, ドウ, ふじ
+wisteria
+See more >
+沢
+タク, さわ, うるお.い, うるお.す, つや
+swamp, marsh, brilliance, grace
+See more >
+裁
+サイ, た.つ, さば.く
+tailor, judge, decision, cut out (pattern)
+See more >
+証
+ショウ, あかし
+evidence, proof, certificate
+See more >
+援
+エン
+abet, help, save
+See more >
+施
+シ, セ, ほどこ.す
+give, bestow, perform, alms
+See more >
+井
+セイ, ショウ, い
+well, well crib, town, community
+See more >
+護
+ゴ, まも.る
+safeguard, protect
+See more >
+展
+テン
+unfold, expand
+See more >
+態
+タイ, わざ.と
+attitude, condition, figure, appearance, voice (of verbs)
+See more >
+鮮
+セン, あざ.やか
+fresh, vivid, clear, brilliant, Korea
+See more >
+視
+シ, み.る
+inspection, regard as, see, look at
+See more >
+条
+ジョウ, チョウ, デキ, えだ, すじ
+article, clause, counter for articles, clauses, paragraphs, etc., twig, item, stripe, streak
+See more >
+幹
+カン, みき
+tree trunk, main part, talent, capability
+See more >
+独
+ドク, トク, ひと.り
+single, alone, spontaneously, Germany
+See more >
+宮
+キュウ, グウ, ク, クウ, みや
+Shinto shrine, constellations, palace, princess
+See more >
+率
+ソツ, リツ, シュツ, ひき.いる
+ratio, rate, proportion, %, factor, lead, spearhead, command
+See more >
+衛
+エイ, エ
+defense, protection
+See more >
+張
+チョウ, は.る, -は.り, -ば.り
+counter for bows & stringed instruments, stretch, spread, put up (tent)
+See more >
+監
+カン
+oversee, official, govt office, rule, administer
+See more >
+環
+カン, わ
+ring, circle, loop
+See more >
+審
+シン, つまび.らか, つぶさ.に
+hearing, judge, trial
+See more >
+義
+ギ
+righteousness, justice, morality, honor, loyalty, meaning
+See more >
+訴
+ソ, うった.える
+accusation, sue, complain of pain, appeal to
+See more >
+株
+シュ, かぶ
+stocks, stump, shares, stock, counter for small plants
+See more >
+姿
+シ, すがた
+figure, form, shape
+See more >
+閣
+カク
+tower, tall building, palace
+See more >
+衆
+シュウ, シュ, おお.い
+masses, great numbers, multitude, populace
+See more >
+評
+ヒョウ
+evaluate, criticism, comment
+See more >
+影
+エイ, かげ
+shadow, silhouette, phantom
+See more >
+松
+ショウ, まつ
+pine tree
+See more >
+撃
+ゲキ, う.つ
+beat, attack, defeat, conquer
+See more >
+佐
+サ
+assistant, help
+See more >
+核
+カク
+nucleus, core, kernel
+See more >
+整
+セイ, ととの.える, ととの.う
+organize, arranging, tune, tone, meter, key (music)
+See more >
+Page 1 2 3 … 23 24 25

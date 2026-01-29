@@ -1,0 +1,13 @@
+vocabfolder/Data/sentences/n4sentence.js filter=lfs diff=lfs merge=lfs -text
+vocabfolder/Data/sentences/n5sentence.js filter=lfs diff=lfs merge=lfs -text
+vocabfolder/Data/grammar/n1grammar.js filter=lfs diff=lfs merge=lfs -text
+vocabfolder/Data/grammar/n2grammar.js filter=lfs diff=lfs merge=lfs -text
+vocabfolder/Data/other/temp.js filter=lfs diff=lfs merge=lfs -text
+vocabfolder/Data/sentences/n1sentence.js filter=lfs diff=lfs merge=lfs -text
+vocabfolder/Data/sentences/n3sentence.js filter=lfs diff=lfs merge=lfs -text
+vocabfolder/Data/sentences/n2sentence.js filter=lfs diff=lfs merge=lfs -text
+vocabfolder/Data/grammar/n3grammar.js filter=lfs diff=lfs merge=lfs -text
+vocabfolder/Data/grammar/n4grammar.js filter=lfs diff=lfs merge=lfs -text
+vocabfolder/Data/grammar/n5grammar.js filter=lfs diff=lfs merge=lfs -text
+vocabfolder/Data/other/all.js filter=lfs diff=lfs merge=lfs -text
+vocabfolder/Data/sentences/JPsentence.js filter=lfs diff=lfs merge=lfs -text

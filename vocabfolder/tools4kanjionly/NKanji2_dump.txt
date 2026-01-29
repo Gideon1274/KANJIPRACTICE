@@ -1,0 +1,1598 @@
+Paste your N3 “Ready-made Contributed” dump below this line, then run:
+
+  node tools/build_n3_from_dump.js --input tools/n3_dump.txt
+
+N3 is the baseline, so no overlap checks are performed.
+
+Ready-made Contributed
+
+Kanji N2 (almost there)
+Page 1 2 3 … 6 7 8
+党
+トウ, なかま, むら
+party, faction, clique
+See more >
+協
+キョウ
+co-, cooperation
+See more >
+総
+ソウ, す.べて, すべ.て, ふさ
+general, whole, all, full, total
+See more >
+区
+ク, オウ, コウ
+ward, district
+See more >
+領
+リョウ, えり
+jurisdiction, dominion, territory, fief, reign
+See more >
+県
+ケン, か.ける
+prefecture
+See more >
+設
+セツ, もう.ける
+establishment, provision, prepare
+See more >
+改
+カイ, あらた.める, あらた.まる
+reformation, change, modify, mend, renew, examine, inspect, search
+See more >
+府
+フ
+borough, urban prefecture, govt office, representative body, storehouse
+See more >
+査
+サ
+investigate
+See more >
+委
+イ, ゆだ.ねる
+committee, entrust to, leave to, devote, discard
+See more >
+軍
+グン, いくさ
+army, force, troops, war, battle
+See more >
+団
+ダン, トン, かたまり, まる.い
+group, association
+See more >
+各
+カク, おのおの
+each, every, either
+See more >
+島
+トウ, しま
+island
+See more >
+革
+カク, かわ
+leather, skin, reform, become serious
+See more >
+村
+ソン, むら
+village, town
+See more >
+勢
+セイ, ゼイ, いきお.い, はずみ
+forces, energy, military strength
+See more >
+減
+ゲン, へ.る, へ.らす
+dwindle, decrease, reduce, decline, curtail, get hungry
+See more >
+再
+サイ, サ, ふたた.び
+again, twice, second time
+See more >
+税
+ゼイ
+tax, duty
+See more >
+営
+エイ, いとな.む, いとな.み
+camp, perform, build, conduct (business)
+See more >
+比
+ヒ, くら.べる
+compare, race, ratio, Philippines
+See more >
+防
+ボウ, ふせ.ぐ
+ward off, defend, protect, resist
+See more >
+補
+ホ, おぎな.う
+supplement, supply, make good, offset, compensate, assistant, learner
+See more >
+境
+キョウ, ケイ, さかい
+boundary, border, region
+See more >
+導
+ドウ, みちび.く
+guidance, leading, conduct, usher
+See more >
+副
+フク
+vice-, assistant, aide, duplicate, copy
+See more >
+算
+サン, そろ
+calculate, divining, number, abacus, probability
+See more >
+輸
+ユ, シュ
+transport, send, be inferior
+See more >
+述
+ジュツ, の.べる
+mention, state, speak, relate
+See more >
+線
+セン, すじ
+line, track
+See more >
+農
+ノウ
+agriculture, farmers
+See more >
+州
+シュウ, ス, す
+state, province
+See more >
+武
+ブ, ム, たけ, たけ.し
+warrior, military, chivalry, arms
+See more >
+象
+ショウ, ゾウ, かたど.る
+elephant, pattern after, imitate, image, shape, sign (of the times)
+See more >
+域
+イキ
+range, region, limits, stage, level
+See more >
+額
+ガク, ひたい
+forehead, tablet, plaque, framed picture, sum, amount, volume
+See more >
+欧
+オウ, うた.う, は.く
+Europe
+See more >
+担
+タン, かつ.ぐ, にな.う
+shouldering, carry, raise, bear
+See more >
+準
+ジュン, じゅん.じる, じゅん.ずる, なぞら.える, のり, ひと.しい, みずもり
+semi-, correspond to, proportionate to, conform, imitate
+See more >
+賞
+ショウ, ほ.める
+prize, reward, praise
+See more >
+辺
+ヘン, あた.り, ほと.り, -べ
+environs, boundary, border, vicinity
+See more >
+造
+ゾウ, つく.る, つく.り, -づく.り
+create, make, structure, physique
+See more >
+被
+ヒ, こうむ.る, おお.う, かぶ.る, かぶ.せる
+incur, cover, veil, brood over, shelter, wear, put on, be exposed (film), receiving
+See more >
+技
+ギ, わざ
+skill, art, craft, ability, feat, performance, vocation, arts
+See more >
+低
+テイ, ひく.い, ひく.める, ひく.まる
+lower, short, humble
+See more >
+復
+フク, また
+restore, return to, revert, resume
+See more >
+移
+イ, うつ.る, うつ.す
+shift, move, change, drift, catch (cold, fire), pass into
+See more >
+個
+コ, カ
+individual, counter for articles
+See more >
+Page 1 2 3 … 6 7 8
+TAKOBOTO
+go light | downloadManage
+Japanese dictionary & Nihongo study tool.
+dictionary lists grammar apps
+Ready-made Contributed
+
+Kanji N2 (almost there)
+Page 1 2 3 4 5 6 7 8
+門
+モン, かど, と
+gate, counter for cannons
+See more >
+課
+カ
+chapter, lesson, section, department, division, counter for chapters (of a book)
+See more >
+脳
+ノウ, ドウ, のうずる
+brain, memory
+See more >
+極
+キョク, ゴク, きわ.める, きわ.まる, きわ.まり, きわ.み, き.める, -ぎ.め, き.まる
+poles, settlement, conclusion, end, highest rank, electric poles, very, extremely, most, highly, 10**48
+See more >
+含
+ガン, ふく.む, ふく.める
+contain, include, hold in the mouth, bear in mind, understand, cherish
+See more >
+蔵
+ゾウ, ソウ, くら, おさ.める, かく.れる
+storehouse, hide, own, have, possess
+See more >
+量
+リョウ, はか.る
+quantity, measure, weight, amount, consider, estimate, surmise
+See more >
+型
+ケイ, かた, -がた
+mould, type, model
+See more >
+況
+キョウ, まし.て, いわ.んや, おもむき
+condition, situation
+See more >
+針
+シン, はり
+needle, pin, staple, stinger
+See more >
+専
+セン, もっぱ.ら
+specialty, exclusive, mainly, solely
+See more >
+谷
+コク, たに, きわ.まる
+valley
+See more >
+史
+シ
+history, chronicle
+See more >
+階
+カイ, きざはし
+storey, stair, counter for storeys of a building
+See more >
+管
+カン, くだ
+pipe, tube, wind instrument, drunken talk, control, jurisdiction
+See more >
+兵
+ヘイ, ヒョウ, つわもの
+soldier, private, troops, army, warfare, strategy, tactics
+See more >
+接
+セツ, ショウ, つ.ぐ
+touch, contact, adjoin, piece together
+See more >
+細
+サイ, ほそ.い, ほそ.る, こま.か, こま.かい
+dainty, get thin, taper, slender, narrow, detailed, precise
+See more >
+効
+コウ, き.く, ききめ, なら.う
+merit, efficacy, efficiency, benefit
+See more >
+丸
+ガン, まる, まる.める, まる.い
+round, full (month), perfection, -ship, pills, make round, roll up, curl up, seduce, explain away
+See more >
+湾
+ワン, いりえ
+gulf, bay, inlet
+See more >
+録
+ロク, しる.す, と.る
+record
+See more >
+省
+セイ, ショウ, かえり.みる, はぶ.く
+government ministry, conserve, omit
+See more >
+旧
+キュウ, ふる.い, もと
+old times, old things, old friend, former, ex-
+See more >
+橋
+キョウ, はし
+bridge
+See more >
+岸
+ガン, きし
+beach
+See more >
+周
+シュウ, まわ.り
+circumference, circuit, lap
+See more >
+材
+ザイ
+lumber, log, timber, wood, materials, ingredients, talent
+See more >
+戸
+コ, と
+door, counter for houses, door radical (no. 63)
+See more >
+央
+オウ
+center, middle
+See more >
+券
+ケン
+ticket
+See more >
+編
+ヘン, あ.む, -あ.み
+compilation, knit, plait, braid, twist, editing, completed poem, part of a book
+See more >
+捜
+ソウ, シュ, シュウ, さが.す
+search, look for, locate
+See more >
+竹
+チク, たけ
+bamboo
+See more >
+超
+チョウ, こ.える, こ.す
+transcend, super-, ultra-
+See more >
+並
+ヘイ, ホウ, な.み, なみ, なら.べる, なら.ぶ, なら.びに
+row, and, besides, as well as, line up, rank with, rival, equal
+See more >
+療
+リョウ
+heal, cure
+See more >
+採
+サイ, と.る
+pick, take, fetch, take up
+See more >
+森
+シン, もり
+forest, woods
+See more >
+競
+キョウ, ケイ, きそ.う, せ.る, くら.べる
+emulate, compete with, bid, sell at auction, bout, contest, race
+See more >
+介
+カイ
+jammed in, shellfish, mediate, concern oneself with
+See more >
+根
+コン, ね, -ね
+root, radical, head (pimple)
+See more >
+販
+ハン
+marketing, sell, trade
+See more >
+歴
+レキ, レッキ
+curriculum, continuation, passage of time
+See more >
+将
+ショウ, ソウ, まさ.に, はた, まさ, ひきい.る, もって
+leader, commander, general, admiral, or, and again, soon, from now on, just about
+See more >
+幅
+フク, はば
+hanging scroll, width
+See more >
+般
+ハン
+carrier, carry, all, general, sort, kind
+See more >
+貿
+ボウ
+trade, exchange
+See more >
+講
+コウ
+lecture, club, association
+See more >
+林
+リン, はやし
+grove, forest
+See more >
+Page 1 2 3 4 5 6 7 8
+		Subscribe to create vocabulary lists or sync with your phone.
+Kanjis
+門ON: モン KUN: かど, と
+gate, counter for cannons
+
+Stroke: 8 Grade: 2 JLPT: N3 SKIP: 1-4-4 FC: 7777.7
+
+       
+TAKOBOTO
+go light | downloadManage
+Japanese dictionary & Nihongo study tool.
+dictionary lists grammar apps
+Ready-made Contributed
+
+Kanji N2 (almost there)
+Page 1 2 3 4 5 6 7 8
+装
+ソウ, ショウ, よそお.う, よそお.い
+attire, dress, pretend, disguise, profess
+See more >
+諸
+ショ, もろ
+various, many, several, together
+See more >
+劇
+ゲキ
+drama, play
+See more >
+河
+カ, かわ
+river
+See more >
+航
+コウ
+navigate, sail, cruise, fly
+See more >
+鉄
+テツ, くろがね
+iron
+See more >
+児
+ジ, ニ, ゲイ, こ, -こ, -っこ
+newborn babe, child, young of animals
+See more >
+禁
+キン
+prohibition, ban, forbid
+See more >
+印
+イン, しるし, -じるし, しる.す
+stamp, seal, mark, imprint, symbol, emblem, trademark, evidence, souvenir, India
+See more >
+逆
+ギャク, ゲキ, さか, さか.さ, さか.らう
+inverted, reverse, opposite, wicked
+See more >
+換
+カン, か.える, -か.える, か.わる
+interchange, period, change, convert, replace, renew
+See more >
+久
+キュウ, ク, ひさ.しい
+long time, old story
+See more >
+短
+タン, みじか.い
+short, brevity, fault, defect, weak point
+See more >
+油
+ユ, ユウ, あぶら
+oil, fat
+See more >
+暴
+ボウ, バク, あば.く, あば.れる
+outburst, rave, fret, force, violence, cruelty, outrage
+See more >
+輪
+リン, わ
+wheel, ring, circle, link, loop, counter for wheels and flowers
+See more >
+占
+セン, し.める, うらな.う
+fortune-telling, divining, forecasting, occupy, hold, have, get, take
+See more >
+植
+ショク, う.える, う.わる
+plant
+See more >
+清
+セイ, ショウ, シン, きよ.い, きよ.まる, きよ.める
+pure, purify, cleanse, exorcise, Manchu dynasty
+See more >
+倍
+バイ
+double, twice, times, fold
+See more >
+均
+キン, なら.す
+level, average
+See more >
+億
+オク
+hundred million, 10**8
+See more >
+圧
+アツ, エン, オウ, お.す, へ.す, おさ.える, お.さえる
+pressure, push, overwhelm, oppress, dominate
+See more >
+芸
+ゲイ, ウン, う.える, のり, わざ
+technique, art, craft, performance, acting, trick, stunt
+See more >
+署
+ショ
+signature, govt office, police station
+See more >
+伸
+シン, の.びる, の.ばす, の.べる, の.す
+expand, stretch, extend, lengthen, increase
+See more >
+停
+テイ, と.める, と.まる
+halt, stopping
+See more >
+爆
+バク, は.ぜる
+bomb, burst open, pop, split
+See more >
+陸
+リク, ロク, おか
+land, six
+See more >
+玉
+ギョク, たま, たま-, -だま
+jewel, ball
+See more >
+波
+ハ, なみ
+waves, billows, Poland
+See more >
+帯
+タイ, お.びる, おび
+sash, belt, obi, zone, region
+See more >
+延
+エン, の.びる, の.べる, の.べ, の.ばす
+prolong, stretching
+See more >
+羽
+ウ, は, わ, はね
+feathers, counter for birds, rabbits
+See more >
+固
+コ, かた.める, かた.まる, かた.まり, かた.い
+harden, set, clot, curdle
+See more >
+則
+ソク, のっと.る, のり, すなわち
+rule, law, follow, based on, model after
+See more >
+乱
+ラン, ロン, みだ.れる, みだ.る, みだ.す, みだ, おさ.める, わた.る
+riot, war, disorder, disturb
+See more >
+普
+フ, あまね.く, あまねし
+universal, wide(ly), generally, Prussia
+See more >
+測
+ソク, はか.る
+fathom, plan, scheme, measure
+See more >
+豊
+ホウ, ブ, ゆた.か, とよ
+bountiful, excellent, rich
+See more >
+厚
+コウ, あつ.い, あか
+thick, heavy, rich, kind, cordial, brazen, shameless
+See more >
+齢
+レイ, よわい, とし
+age
+See more >
+囲
+イ, かこ.む, かこ.う, かこ.い
+surround, besiege, store, paling, enclosure, encircle, preserve, keep
+See more >
+卒
+ソツ, シュツ, そっ.する, お.える, お.わる, ついに, にわか
+graduate, soldier, private, die
+See more >
+略
+リャク, ほぼ, はぶ.く, おか.す, おさ.める, はかりごと, はか.る
+abbreviation, omission, outline, shorten, capture, plunder
+See more >
+承
+ショウ, ジョウ, うけたまわ.る, う.ける
+acquiesce, hear, listen to, be informed, receive
+See more >
+順
+ジュン
+obey, order, turn, right, docility, occasion
+See more >
+岩
+ガン, いわ
+boulder, rock, cliff
+See more >
+練
+レン, ね.る, ね.り
+practice, gloss, train, drill, polish, refine
+See more >
+軽
+ケイ, キョウ, キン, かる.い, かろ.やか, かろ.んじる
+lightly, trifling, unimportant
+See more >
+Page 1 2 3 4 5 6 7 8
+		Subscribe to create vocabulary lists or sync with your phone.
+Kanjis
+装ON: ソウ, ショウ KUN: よそお.う, よそお.い
+attire, dress, pretend, disguise, profess
+
+Stroke: 12 Grade: 6 JLPT: N2 SKIP: 2-6-6 FC: 3473.3
+
+       
+TAKOBOTO
+go light | downloadManage
+Japanese dictionary & Nihongo study tool.
+dictionary lists grammar apps
+Ready-made Contributed
+
+Kanji N2 (almost there)
+Page 1 2 3 4 5 6 7 8
+了
+リョウ
+complete, finish
+See more >
+庁
+チョウ, テイ, やくしょ
+government office
+See more >
+城
+ジョウ, セイ, しろ
+castle
+See more >
+患
+カン, わずら.う
+afflicted, disease, suffer from, be ill
+See more >
+層
+ソウ
+stratum, social class, layer, story, floor
+See more >
+版
+ハン
+printing block, printing plate, edition, impression, label
+See more >
+令
+レイ
+orders, laws, command, decree, good
+See more >
+角
+カク, かど, つの
+angle, corner, square, horn, antlers
+See more >
+絡
+ラク, から.む, から.まる
+entwine, coil around, get caught in
+See more >
+損
+ソン, そこ.なう, そこな.う, -そこ.なう, そこ.ねる, -そこ.ねる
+damage, loss, disadvantage, hurt, injure
+See more >
+募
+ボ, つの.る
+recruit, campaign, gather (contributions), enlist, grow violent
+See more >
+裏
+リ, うら
+back, amidst, in, reverse, inside, palm, sole, rear, lining, wrong side
+See more >
+仏
+ブツ, フツ, ほとけ
+Buddha, the dead, France
+See more >
+績
+セキ
+exploits, achievements, unreeling cocoons
+See more >
+築
+チク, きず.く
+fabricate, build, construct
+See more >
+貨
+カ, たから
+freight, goods, property
+See more >
+混
+コン, ま.じる, -ま.じり, ま.ざる, ま.ぜる, こ.む
+mix, blend, confuse
+See more >
+昇
+ショウ, のぼ.る
+rise up
+See more >
+池
+チ, いけ
+pond, cistern, pool, reservoir
+See more >
+血
+ケツ, ち
+blood
+See more >
+温
+オン, あたた.か, あたた.かい, あたた.まる, あたた.める, ぬく
+warm
+See more >
+季
+キ
+seasons
+See more >
+星
+セイ, ショウ, ほし, -ぼし
+star, spot, dot, mark
+See more >
+永
+エイ, なが.い
+eternity, long, lengthy
+See more >
+著
+チョ, チャク, あらわ.す, いちじる.しい
+renowned, publish, write, remarkable, phenomenal, put on, don, wear, arrival, finish (race), counter for suits of clothing, literary work
+See more >
+誌
+シ
+document, records
+See more >
+庫
+コ, ク, くら
+warehouse, storehouse
+See more >
+刊
+カン
+publish, carve, engrave
+See more >
+像
+ゾウ
+statue, picture, image, figure, portrait
+See more >
+香
+コウ, キョウ, か, かお.り, かお.る
+incense, smell, perfume
+See more >
+坂
+ハン, さか
+slope, incline, hill
+See more >
+底
+テイ, そこ
+bottom, sole, depth, bottom price, base, kind, sort
+See more >
+布
+フ, ホ, ぬの, し.く, きれ
+linen, cloth, spread, distribute
+See more >
+寺
+ジ, てら
+Buddhist temple
+See more >
+宇
+ウ
+eaves, roof, house, heaven
+See more >
+巨
+キョ
+gigantic, big, large, great
+See more >
+震
+シン, ふる.う, ふる.える, ふる.わせる, ふる.わす
+quake, shake, tremble, quiver, shiver
+See more >
+希
+キ, ケ, まれ, こいねが.う
+hope, beg, request, pray, beseech, Greece, dilute (acid), rare, few, phenomenal
+See more >
+触
+ショク, ふ.れる, さわ.る, さわ
+contact, touch, feel, hit, proclaim, announce, conflict
+See more >
+依
+イ, エ, よ.る
+reliant, depend on, consequently, therefore, due to
+See more >
+籍
+セキ
+enroll, domiciliary register, membership
+See more >
+汚
+オ, けが.す, けが.れる, けが.らわしい, よご.す, よご.れる, きたな.い
+dirty, pollute, disgrace, rape, defile
+See more >
+枚
+マイ, バイ
+sheet of..., counter for flat thin objects or sheets
+See more >
+複
+フク
+duplicate, double, compound, multiple
+See more >
+郵
+ユウ
+mail, stagecoach stop
+See more >
+仲
+チュウ, なか
+go-between, relationship
+See more >
+栄
+エイ, ヨウ, さか.える, は.え, -ば.え, は.える, え
+flourish, prosperity, honor, glory, splendor
+See more >
+札
+サツ, ふだ
+tag, paper money, counter for bonds, placard, bid
+See more >
+板
+ハン, バン, いた
+plank, board, plate, stage
+See more >
+骨
+コツ, ほね
+skeleton, bone, remains, frame
+See more >
+Page 1 2 3 4 5 6 7 8
+		Subscribe to create vocabulary lists or sync with your phone.
+Kanjis
+了ON: リョウ
+complete, finish
+
+Stroke: 2 JLPT: N2 SKIP: 4-2-1 FC: 1720.0
+
+     
+TAKOBOTO
+go light | downloadManage
+Japanese dictionary & Nihongo study tool.
+dictionary lists grammar apps
+Ready-made Contributed
+
+Kanji N2 (almost there)
+Page 1 2 3 4 5 6 7 8
+傾
+ケイ, かたむ.く, かたむ.ける, かたぶ.く, かた.げる, かし.げる
+lean, incline, tilt, trend, wane, sink, ruin, bias
+See more >
+届
+カイ, とど.ける, -とど.け, とど.く
+deliver, reach, arrive, report, notify, forward
+See more >
+巻
+カン, ケン, ま.く, まき, ま.き
+scroll, volume, book, part, roll up, wind up, tie, coil, counter for texts (or book scrolls)
+See more >
+燃
+ネン, も.える, も.やす, も.す
+burn, blaze, glow
+See more >
+跡
+セキ, あと
+tracks, mark, print, impression
+See more >
+包
+ホウ, つつ.む, くる.む
+wrap, pack up, cover, conceal
+See more >
+駐
+チュウ
+stop-over, reside in, resident
+See more >
+弱
+ジャク, よわ.い, よわ.る, よわ.まる, よわ.める
+weak, frail
+See more >
+紹
+ショウ
+introduce, inherit, help
+See more >
+雇
+コ, やと.う
+employ, hire
+See more >
+替
+タイ, か.える, か.え-, か.わる
+exchange, spare, substitute, per-
+See more >
+預
+ヨ, あず.ける, あず.かる
+deposit, custody, leave with, entrust to
+See more >
+焼
+ショウ, や.く, や.き, や.き-, -や.き, や.ける
+bake, burning
+See more >
+簡
+カン, ケン, えら.ぶ, ふだ
+simplicity, brevity
+See more >
+章
+ショウ
+badge, chapter, composition, poem, design
+See more >
+臓
+ゾウ, はらわた
+entrails, viscera, bowels
+See more >
+律
+リツ, リチ, レツ
+rhythm, law, regulation, gauge, control
+See more >
+贈
+ゾウ, ソウ, おく.る
+presents, send, give to, award to, confer on, presenting something
+See more >
+照
+ショウ, て.る, て.らす, て.れる
+illuminate, shine, compare, bashful
+See more >
+薄
+ハク, うす.い, うす-, -うす, うす.める, うす.まる, うす.らぐ, うす.ら-, うす.れる, すすき
+dilute, thin, weak (tea), pampas grass
+See more >
+群
+グン, む.れる, む.れ, むら, むら.がる
+flock, group, crowd, herd, swarm, cluster
+See more >
+秒
+ビョウ
+second (1/60 minute)
+See more >
+奥
+オウ, おく, おく.まる, くま
+heart, interior
+See more >
+詰
+キツ, キチ, つ.める, つ.め, -づ.め, つ.まる, つ.む
+packed, close, pressed, reprove, rebuke, blame
+See more >
+双
+ソウ, ふた, たぐい, ならぶ, ふたつ
+pair, set, comparison, counter for pairs
+See more >
+刺
+シ, さ.す, さ.さる, さ.し, さし, とげ
+thorn, pierce, stab, prick, sting, calling card
+See more >
+純
+ジュン
+genuine, purity, innocence, net (profit)
+See more >
+翌
+ヨク
+the following, next
+See more >
+快
+カイ, こころよ.い
+cheerful, pleasant, agreeable, comfortable
+See more >
+片
+ヘン, かた-, かた
+one-sided, leaf, sheet, right-side kata radical (no. 91)
+See more >
+敬
+ケイ, キョウ, うやま.う
+awe, respect, honor, revere
+See more >
+悩
+ノウ, なや.む, なや.ます, なや.ましい, なやみ
+trouble, worry, in pain, distress, illness
+See more >
+泉
+セン, いずみ
+spring, fountain
+See more >
+皮
+ヒ, かわ
+pelt, skin, hide, leather, skin radical (no. 107)
+See more >
+漁
+ギョ, リョウ, あさ.る
+fishing, fishery
+See more >
+荒
+コウ, あ.らす, あ.れる, あら.い, すさ.ぶ, すさ.む, あ.らし
+laid waste, rough, rude, wild
+See more >
+貯
+チョ, た.める, たくわ.える
+savings, store, lay in, keep, wear mustache
+See more >
+硬
+コウ, かた.い
+stiff, hard
+See more >
+埋
+マイ, う.める, う.まる, う.もれる, うず.める, うず.まる, い.ける
+bury, be filled up, embedded
+See more >
+柱
+チュウ, はしら
+pillar, post, cylinder, support
+See more >
+祭
+サイ, まつ.る, まつ.り, まつり
+ritual, offer prayers, celebrate, deify, enshrine, worship
+See more >
+袋
+タイ, ダイ, ふくろ
+sack, bag, pouch
+See more >
+筆
+ヒツ, ふで
+writing brush, writing, painting brush, handwriting
+See more >
+訓
+クン, キン, おし.える, よ.む, くん.ずる
+instruction, Japanese character reading, explanation, read
+See more >
+浴
+ヨク, あ.びる, あ.びせる
+bathe, be favored with, bask in
+See more >
+童
+ドウ, わらべ
+juvenile, child
+See more >
+宝
+ホウ, たから
+treasure, wealth, valuables
+See more >
+封
+フウ, ホウ
+seal, closing
+See more >
+胸
+キョウ, むね, むな-
+bosom, breast, chest, heart, feelings
+See more >
+砂
+サ, シャ, すな
+sand
+See more >
+Page 1 2 3 4 5 6 7 8
+		Subscribe to create vocabulary lists or sync with your phone.
+Kanjis
+傾ON: ケイ KUN: かたむ.く, かたむ.ける, かたぶ.く, かた.げる, かし.げる
+lean, incline, tilt, trend, wane, sink, ruin, bias
+
+Stroke: 13 JLPT: N2 SKIP: 1-2-11 FC: 2128.8
+
+            
+TAKOBOTO
+go light | downloadManage
+Japanese dictionary & Nihongo study tool.
+dictionary lists grammar apps
+Ready-made Contributed
+
+Kanji N2 (almost there)
+Page 1 2 3 4 5 6 7 8
+塩
+エン, しお
+salt
+See more >
+賢
+ケン, かしこ.い
+intelligent, wise, wisdom, cleverness
+See more >
+腕
+ワン, うで
+arm, ability, talent
+See more >
+兆
+チョウ, きざ.す, きざ.し
+portent, 10**12, trillion, sign, omen, symptoms
+See more >
+床
+ショウ, とこ, ゆか
+bed, counter for beds, floor, padding, tatami
+See more >
+毛
+モウ, け
+fur, hair, feather, down
+See more >
+緑
+リョク, ロク, みどり
+green
+See more >
+尊
+ソン, たっと.い, とうと.い, たっと.ぶ, とうと.ぶ
+revered, valuable, precious, noble, exalted
+See more >
+祝
+シュク, シュウ, いわ.う
+celebrate, congratulate
+See more >
+柔
+ジュウ, ニュウ, やわ.らか, やわ.らかい, やわ, やわ.ら
+tender, weakness, gentleness, softness
+See more >
+殿
+デン, テン, との, -どの
+Mr., hall, mansion, palace, temple, lord
+See more >
+濃
+ノウ, こ.い
+concentrated, thick, dark, undiluted
+See more >
+液
+エキ
+fluid, liquid, juice, sap, secretion
+See more >
+衣
+イ, エ, ころも, きぬ, -ぎ
+garment, clothes, dressing
+See more >
+肩
+ケン, かた
+shoulder
+See more >
+零
+レイ, ぜろ, こぼ.す, こぼ.れる
+zero, spill, overflow, nothing, cipher
+See more >
+幼
+ヨウ, おさな.い
+infancy, childhood
+See more >
+荷
+カ, に
+baggage, shoulder-pole load, bear (a burden), shoulder (a gun), load, cargo, freight
+See more >
+泊
+ハク, と.まる, と.める
+overnight stay, put up at, ride at anchor
+See more >
+黄
+コウ, オウ, き, こ-
+yellow
+See more >
+甘
+カン, あま.い, あま.える, あま.やかす, うま.い
+sweet, coax, pamper, be content, sugary
+See more >
+臣
+シン, ジン
+retainer, subject
+See more >
+浅
+セン, あさ.い
+shallow, superficial, frivolous, wretched, shameful
+See more >
+掃
+ソウ, シュ, は.く
+sweep, brush
+See more >
+雲
+ウン, くも, -ぐも
+cloud
+See more >
+掘
+クツ, ほ.る
+dig, delve, excavate
+See more >
+捨
+シャ, す.てる
+discard, throw away, abandon, resign, reject, sacrifice
+See more >
+軟
+ナン, やわ.らか, やわ.らかい
+soft
+See more >
+沈
+チン, ジン, しず.む, しず.める
+sink, be submerged, subside, be depressed, aloes
+See more >
+凍
+トウ, こお.る, こご.える, こご.る, い.てる, し.みる
+frozen, congeal, refrigerate
+See more >
+乳
+ニュウ, ちち, ち
+milk, breasts
+See more >
+恋
+レン, こ.う, こい, こい.しい
+romance, in love, yearn for, miss, darling
+See more >
+紅
+コウ, ク, べに, くれない, あか.い
+crimson, deep red
+See more >
+郊
+コウ
+outskirts, suburbs, rural area
+See more >
+腰
+ヨウ, こし
+loins, hips, waist, low wainscoting
+See more >
+炭
+タン, すみ
+charcoal, coal
+See more >
+踊
+ヨウ, おど.る
+jump, dance, leap, skip
+See more >
+冊
+サツ, サク, ふみ
+tome, counter for books, volume
+See more >
+勇
+ユウ, いさ.む
+courage, cheer up, be in high spirits, bravery, heroism
+See more >
+械
+カイ, かせ
+contraption, fetter, machine, instrument
+See more >
+菜
+サイ, な
+vegetable, side dish, greens
+See more >
+珍
+チン, めずら.しい, たから
+rare, curious, strange
+See more >
+卵
+ラン, たまご
+egg, ovum, spawn, roe
+See more >
+湖
+コ, みずうみ
+lake
+See more >
+喫
+キツ, の.む
+consume, eat, drink, smoke, receive (a blow)
+See more >
+干
+カン, ほ.す, ほ.し-, -ぼ.し, ひ.る
+dry, parch, ebb, recede, interfere, intercede
+See more >
+虫
+チュウ, キ, むし
+insect, bug, temper
+See more >
+刷
+サツ, す.る, -ず.り, -ずり, は.く
+printing, print, brush
+See more >
+湯
+トウ, ゆ
+hot water, bath, hot spring
+See more >
+溶
+ヨウ, と.ける, と.かす, と.く
+melt, dissolve, thaw
+See more >
+Page 1 2 3 4 5 6 7 8
+		Subscribe to create vocabulary lists or sync with your phone.
+Kanjis
+塩ON: エン KUN: しお
+salt
+
+Stroke: 13 Grade: 4 JLPT: N2 SKIP: 1-3-10 FC: 4811.1
+
+            
+TAKOBOTO
+go light | downloadManage
+Japanese dictionary & Nihongo study tool.
+dictionary lists grammar apps
+Ready-made Contributed
+
+Kanji N2 (almost there)
+Page 1 2 3 4 5 6 7 8
+鉱
+コウ, あらがね
+mineral, ore
+See more >
+涙
+ルイ, レイ, なみだ
+tears, sympathy
+See more >
+匹
+ヒツ, ひき
+equal, head, counter for small animals, roll of cloth
+See more >
+孫
+ソン, まご
+grandchild, descendants
+See more >
+鋭
+エイ, するど.い
+pointed, sharpness, edge, weapon, sharp, violent
+See more >
+枝
+シ, えだ
+bough, branch, twig, limb, counter for branches
+See more >
+塗
+ト, ぬ.る, ぬ.り, まみ.れる
+paint, plaster, daub, smear, coating
+See more >
+軒
+ケン, のき
+flats, counter for houses, eaves
+See more >
+毒
+ドク
+poison, virus, venom, germ, harm, injury, spite
+See more >
+叫
+キョウ, さけ.ぶ
+shout, exclaim, yell
+See more >
+拝
+ハイ, おが.む, おろが.む
+worship, adore, pray to
+See more >
+氷
+ヒョウ, こおり, ひ, こお.る
+icicle, ice, hail, freeze, congeal
+See more >
+乾
+カン, ケン, かわ.く, かわ.かす, ほ.す, ひ.る, いぬい
+drought, dry, dessicate, drink up, heaven, emperor
+See more >
+棒
+ボウ
+rod, stick, cane, pole, club, line
+See more >
+祈
+キ, いの.る
+pray, wish
+See more >
+拾
+シュウ, ジュウ, ひろ.う
+pick up, gather, find, go on foot, ten
+See more >
+粉
+フン, デシメートル, こ, こな
+flour, powder, dust
+See more >
+糸
+シ, いと
+thread
+See more >
+綿
+メン, わた
+cotton
+See more >
+汗
+カン, あせ
+sweat, perspire
+See more >
+銅
+ドウ, あかがね
+copper
+See more >
+湿
+シツ, シュウ, しめ.る, しめ.す, うるお.う, うるお.す
+damp, wet, moist
+See more >
+瓶
+ビン, かめ, へい
+bottle, vial, jar, jug, vat, urn
+See more >
+咲
+ショウ, さ.く, -ざき
+blossom, bloom
+See more >
+召
+ショウ, め.す
+seduce, call, send for, wear, put on, ride in, buy, eat, drink, catch (cold)
+See more >
+缶
+カン, かま
+tin can, container, jar radical (no. 121)
+See more >
+隻
+セキ
+vessels, counter for ships, fish, birds, arrows, one of a pair
+See more >
+脂
+シ, あぶら
+fat, grease, tallow, lard, rosin, gum, tar
+See more >
+蒸
+ジョウ, セイ, む.す, む.れる, む.らす
+steam, heat, sultry, foment, get musty
+See more >
+肌
+キ, はだ
+texture, skin, body, grain
+See more >
+耕
+コウ, たがや.す
+till, plow, cultivate
+See more >
+鈍
+ドン, にぶ.い, にぶ.る, にぶ-, なま.る, なまく.ら
+dull, slow, foolish, blunt
+See more >
+泥
+デイ, ナイ, デ, ニ, どろ, なず.む
+mud, mire, adhere to, be attached to
+See more >
+隅
+グウ, すみ
+corner, nook
+See more >
+灯
+トウ, ひ, ほ-, ともしび, とも.す, あかり
+lamp, a light, light, counter for lights
+See more >
+辛
+シン, から.い, つら.い, -づら.い, かのと
+spicy, bitter, hot, acrid
+See more >
+磨
+マ, みが.く, す.る
+grind, polish, scour, improve, brush (teeth)
+See more >
+麦
+バク, むぎ
+barley, wheat
+See more >
+姓
+セイ, ショウ
+surname
+See more >
+筒
+トウ, つつ
+cylinder, pipe, tube, gun barrel, sleeve
+See more >
+鼻
+ビ, はな
+nose, snout
+See more >
+粒
+リュウ, つぶ
+grains, drop, counter for tiny particles
+See more >
+詞
+シ, ことば
+part of speech, words, poetry
+See more >
+胃
+イ
+stomach, paunch, crop, craw
+See more >
+畳
+ジョウ, チョウ, たた.む, たたみ, かさ.なる
+tatami mat, counter for tatami mats, fold, shut up, do away with
+See more >
+机
+キ, つくえ
+desk, table
+See more >
+膚
+フ, はだ
+skin, body, grain, texture, disposition
+See more >
+濯
+タク, すす.ぐ, ゆす.ぐ
+laundry, wash, pour on, rinse
+See more >
+塔
+トウ
+pagoda, tower, steeple
+See more >
+沸
+フツ, わ.く, わ.かす
+seethe, boil, ferment, uproar, breed
+See more >
+Page 1 2 3 4 5 6 7 8
+		Subscribe to create vocabulary lists or sync with your phone.
+Kanjis
+鉱ON: コウ KUN: あらがね
+mineral, ore
+
+Stroke: 13 Grade: 5 JLPT: N2 SKIP: 1-8-5 FC: 8013.3
+
+    
+TAKOBOTO
+go light | downloadManage
+Japanese dictionary & Nihongo study tool.
+dictionary lists grammar apps
+Ready-made Contributed
+
+Kanji N2 (almost there)
+Page 1 2 3 … 6 7 8
+灰
+カイ, はい
+ashes, puckery juice, cremate
+See more >
+菓
+カ
+candy, cakes, fruit
+See more >
+帽
+ボウ, モウ, ずきん, おお.う
+cap, headgear
+See more >
+枯
+コ, か.れる, か.らす
+wither, die, dry up, be seasoned
+See more >
+涼
+リョウ, すず.しい, すず.む, すず.やか, うす.い, ひや.す, まことに
+refreshing, nice and cool
+See more >
+舟
+シュウ, ふね, ふな-, -ぶね
+boat, ship
+See more >
+貝
+バイ, かい
+shellfish
+See more >
+符
+フ
+token, sign, mark, tally, charm
+See more >
+憎
+ゾウ, にく.む, にく.い, にく.らしい, にく.しみ
+hate, detest
+See more >
+皿
+ベイ, さら
+dish, a helping, plate
+See more >
+肯
+コウ, がえんじ.る
+agreement, consent, comply with
+See more >
+燥
+ソウ, はしゃ.ぐ
+parch, dry up
+See more >
+畜
+チク
+livestock, domestic fowl and animals
+See more >
+挟
+キョウ, ショウ, はさ.む, はさ.まる, わきばさ.む, さしはさ.む
+pinch, between
+See more >
+曇
+ドン, くも.る
+cloudy weather, cloud up
+See more >
+滴
+テキ, しずく, したた.る
+drip, drop
+See more >
+伺
+シ, うかが.う
+pay respects, visit, ask, inquire, question, implore
+See more >
+Page 1 2 3 … 6 7 8
+		Subscribe to create vocabulary lists or sync with your phone.
+Kanjis
+灰ON: カイ KUN: はい
+ashes, puckery juice, cremate
+
+Stroke: 6 Grade: 6 JLPT: N2 SKIP: 3-2-4 FC: 7128.8
+
+             
