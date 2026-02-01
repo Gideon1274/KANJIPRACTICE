@@ -34,6 +34,52 @@
         .marugothic-font {
             font-family: 'marugothic', sans-serif;
         }
+        /* Left history sidebar */
+        #sidebar {
+            display: none; /* shown after start */
+            width: 360px;
+            box-sizing: border-box;
+            padding: 10px;
+        }
+        /* Fixed vocab panel on the far right of the page */
+        #vocab-panel {
+            display: none; /* hidden until a difficulty is picked */
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 300px;
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            padding: 10px;
+            box-sizing: border-box;
+            overflow: auto;
+            z-index: 999;
+        }
+        #vocab-panel h3 { margin-top: 0; }
+        #vocab-panel input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 8px;
+        }
+        #vocab-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: calc(100vh - 120px);
+            overflow: auto;
+        }
+        #vocab-list li {
+            padding: 4px 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        /* visually dim unchecked items but keep them visible in the checklist */
+        #vocab-list li.disabled { opacity: 0.45; }
+
+        /* when vocab panel is open, add right padding so top controls don't get overlapped */
+        .vocab-open { padding-right: 300px; }
         
         
         
@@ -74,6 +120,13 @@
             <span id="remaining-count">All: 0</span>
         </div>
         <ul id="history-list"></ul>
+    </div>
+
+    <!-- Fixed panel on the far right for the vocab/kanji checklist -->
+    <div id="vocab-panel" aria-label="Vocab Checklist">
+        <h3>Vocab / Kanji (Checklist)</h3>
+        <input type="text" id="vocab-range-input" placeholder="Enter ranges, e.g. 1-25,40-50 and press Enter">
+        <ul id="vocab-list"></ul>
     </div>
     <div id="main-content">
         <div id="difficulty-switcher">
@@ -374,9 +427,77 @@
             return list;
         }
 
-        function resetQuiz() {
+        // Build the checklist on the right side showing only the kanji/vocab (no readings/meanings)
+        function buildVocabList() {
+            const listContainer = document.getElementById('vocab-list');
+            listContainer.innerHTML = '';
+            const base = getKanjiDataForLevel(currentLevel) || [];
+            base.forEach((item, idx) => {
+                const li = document.createElement('li');
+                const number = idx + 1;
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.id = `vocab-checkbox-${number}`;
+                cb.checked = true;
+                cb.dataset.idx = idx;
+                cb.addEventListener('change', (e) => {
+                    if (cb.checked) li.classList.remove('disabled');
+                    else li.classList.add('disabled');
+                });
+                const label = document.createElement('label');
+                label.htmlFor = cb.id;
+                label.textContent = `${number}. ${item.kanji}`;
+                li.appendChild(cb);
+                li.appendChild(label);
+                listContainer.appendChild(li);
+            });
+        }
+
+        // Parse range string like "1-25,40-50" into a Set of 1-based indices
+        function parseRanges(rangeStr, max) {
+            const out = new Set();
+            if (!rangeStr) return out;
+            const parts = rangeStr.split(',').map(p => p.trim()).filter(Boolean);
+            parts.forEach(part => {
+                if (part.includes('-')) {
+                    const [a,b] = part.split('-').map(x => parseInt(x.trim(),10));
+                    if (!isNaN(a) && !isNaN(b)) {
+                        const start = Math.max(1, Math.min(a,b));
+                        const end = Math.min(max, Math.max(a,b));
+                        for (let i = start; i <= end; i++) out.add(i);
+                    }
+                } else {
+                    const n = parseInt(part,10);
+                    if (!isNaN(n) && n >= 1 && n <= max) out.add(n);
+                }
+            });
+            return out;
+        }
+
+        // Apply range filter: check only numbers in the set, uncheck others (keep all visible)
+        function applyRangeFilter(rangeStr) {
+            const base = getKanjiDataForLevel(currentLevel) || [];
+            const max = base.length;
+            const selected = parseRanges(rangeStr, max);
+            for (let i = 1; i <= max; i++) {
+                const cb = document.getElementById(`vocab-checkbox-${i}`);
+                if (!cb) continue;
+                const shouldBeChecked = selected.size === 0 ? true : selected.has(i);
+                cb.checked = shouldBeChecked;
+                const li = cb.parentElement;
+                if (cb.checked) li.classList.remove('disabled'); else li.classList.add('disabled');
+            }
+        }
+
+        function resetQuiz(useOriginalOrder = false) {
             console.log('Resetting quiz');
-            currentKanjiList = shuffle([...getKanjiDataForLevel(currentLevel)]);
+            const base = getKanjiDataForLevel(currentLevel) || [];
+            let filtered = base.filter((item, idx) => {
+                const cb = document.getElementById(`vocab-checkbox-${idx+1}`);
+                return cb ? cb.checked : true;
+            });
+            if (!useOriginalOrder) filtered = shuffle([...filtered]);
+            currentKanjiList = filtered;
             currentKanjiIndex = 0;
             lastEndlessOrderKey = getOrderKey(currentKanjiList);
             answerHistory = [];
@@ -404,18 +525,17 @@
             document.getElementById("speak-now-btn").style.display = isVoiceInputEnabled ? "inline-block" : "none";
             document.getElementById("font-switch").style.display = "inline-block";
             document.getElementById("font-size-control").style.display = "block";
-            currentKanjiList = shuffle([...getKanjiDataForLevel(level)]);
-            currentKanjiIndex = 0;
-            lastEndlessOrderKey = getOrderKey(currentKanjiList);
-            answerHistory = [];
-            correctCount = 0;
-            totalCount = 0;
-            correctlyAnswered.clear();
-            updateHistory();
-            updateStats();
+            // build checklist UI and use its checked state for the quiz
+            buildVocabList();
+            // Reset quiz using default behavior (shuffle)
+            resetQuiz(false);
             document.getElementById("level-selector").style.display = "none";
             document.getElementById("main-content").style.display = "flex";
             document.getElementById("sidebar").style.display = "block";
+            // show the vocab panel on the far right and add page padding to avoid overlap
+            const vp = document.getElementById('vocab-panel');
+            if (vp) vp.style.display = 'block';
+            document.body.classList.add('vocab-open');
             document.getElementById("difficulty-switch").value = level;
             document.getElementById("mode-switch").value = mode;
             resetTimer();
@@ -574,6 +694,18 @@
             const selectedMode = document.getElementById("quiz-mode").value;
             console.log('Start button clicked, level:', selectedLevel, 'mode:', selectedMode);
             startQuiz(selectedLevel, selectedMode);
+        });
+
+        // Hook range input Enter to apply filter and reset quiz using original order
+        document.getElementById('vocab-range-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const val = this.value.trim();
+                applyRangeFilter(val);
+                resetQuiz(false);
+                const vp = document.getElementById('vocab-panel');
+                if (vp) { vp.style.display = 'block'; document.body.classList.add('vocab-open'); }
+            }
         });
 
         document.getElementById("answer-input").addEventListener("keypress", function(event) {

@@ -34,6 +34,67 @@
         .marugothic-font {
             font-family: 'marugothic', sans-serif;
         }
+        /* Left history sidebar */
+        #sidebar {
+            display: none; /* shown after start */
+            width: 360px;
+            box-sizing: border-box;
+            padding: 10px;
+        }
+        /* Fixed vocab panel on the far right of the page */
+        #vocab-panel {
+            display: none; /* hidden until a difficulty is picked */
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 300px;
+            background: #333333;
+            color: #fff;
+            padding: 10px;
+            box-sizing: border-box;
+            overflow: auto;
+            z-index: 999;
+        }
+        #vocab-panel h3 { margin-top: 0; }
+        #vocab-panel input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 8px;
+        }
+        #vocab-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: calc(100vh - 120px);
+            overflow: auto;
+        }
+        #vocab-list li {
+            padding: 4px 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #vocab-range-input {
+            width: 100%;
+            height: 50px;
+            font-size: 40px;
+            box-sizing: border-box;
+            margin-bottom: 8px;
+        }
+        /* clickable number in the checklist */
+        .vocab-number {
+            cursor: pointer;
+            color: #9ecbff;
+            font-weight: bold;
+            margin-right: 8px;
+            user-select: none;
+        }
+        /* visually dim unchecked items but keep them visible in the checklist */
+        #vocab-list li.disabled { opacity: 0.45; }
+
+        /* when vocab panel is open, add right padding so top controls don't get overlapped */
+        .vocab-open { padding-right: 300px; }
         
         
         
@@ -74,6 +135,16 @@
             <span id="remaining-count">All: 0</span>
         </div>
         <ul id="history-list"></ul>
+    </div>
+
+    <!-- Fixed panel on the far right for the vocab/kanji checklist -->
+    <div id="vocab-panel" aria-label="Vocab Checklist">
+        <h3>Vocab / Kanji</h3>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <input type="text" id="vocab-range-input" placeholder="Range: e.g. 1-25,40-50">
+            <button id="vocab-range-enter">Enter</button>
+        </div>
+        <ul id="vocab-list"></ul>
     </div>
     <div id="main-content">
         <div id="difficulty-switcher">
@@ -378,9 +449,156 @@
             return list;
         }
 
-        function resetQuiz() {
+        // Build the checklist on the right side showing only the kanji/vocab (no readings/meanings)
+        function buildVocabList() {
+            const listContainer = document.getElementById('vocab-list');
+            listContainer.innerHTML = '';
+            const base = getKanjiDataForLevel(currentLevel) || [];
+            base.forEach((item, idx) => {
+                const li = document.createElement('li');
+                const number = idx + 1;
+
+                // clickable number span (for putting numbers into the range input / shift-select)
+                const numSpan = document.createElement('span');
+                numSpan.className = 'vocab-number';
+                numSpan.textContent = number;
+                numSpan.dataset.number = number;
+
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.id = `vocab-checkbox-${number}`;
+                cb.checked = true;
+                cb.dataset.idx = idx;
+                cb.addEventListener('change', (e) => {
+                    if (cb.checked) li.classList.remove('disabled');
+                    else li.classList.add('disabled');
+                });
+
+                const label = document.createElement('label');
+                label.htmlFor = cb.id;
+                label.textContent = ` ${item.kanji}`;
+
+                // clicking a number span: toggle checkbox and update range input; shift-click selects range
+                numSpan.addEventListener('click', function(e) {
+                    const num = parseInt(this.dataset.number, 10);
+                    if (e.shiftKey && lastClickedNumber !== null) {
+                        // check the range between lastClickedNumber and num
+                        checkRange(lastClickedNumber, num, true);
+                    } else {
+                        // toggle this checkbox
+                        cb.checked = !cb.checked;
+                        const liEl = cb.parentElement;
+                        if (cb.checked) liEl.classList.remove('disabled'); else liEl.classList.add('disabled');
+                    }
+                    // update last clicked and update the range text to reflect current checked set
+                    lastClickedNumber = num;
+                    const rangeStr = buildRangeStringFromChecked();
+                    document.getElementById('vocab-range-input').value = rangeStr;
+                });
+
+                li.appendChild(numSpan);
+                li.appendChild(cb);
+                li.appendChild(label);
+                listContainer.appendChild(li);
+            });
+        }
+
+        // Parse range string like "1-25,40-50" into a Set of 1-based indices
+        function parseRanges(rangeStr, max) {
+            const out = new Set();
+            if (!rangeStr) return out;
+            const parts = rangeStr.split(',').map(p => p.trim()).filter(Boolean);
+            parts.forEach(part => {
+                if (part.includes('-')) {
+                    const [a,b] = part.split('-').map(x => parseInt(x.trim(),10));
+                    if (!isNaN(a) && !isNaN(b)) {
+                        const start = Math.max(1, Math.min(a,b));
+                        const end = Math.min(max, Math.max(a,b));
+                        for (let i = start; i <= end; i++) out.add(i);
+                    }
+                } else {
+                    const n = parseInt(part,10);
+                    if (!isNaN(n) && n >= 1 && n <= max) out.add(n);
+                }
+            });
+            return out;
+        }
+
+        // Helper: build a compact range string like "1-3,5,7-9" from a sorted array of ints
+        function buildRangeStringFromArray(arr) {
+            if (!arr || arr.length === 0) return '';
+            arr.sort((a,b) => a - b);
+            const parts = [];
+            let start = arr[0], end = arr[0];
+            for (let i = 1; i < arr.length; i++) {
+                const n = arr[i];
+                if (n === end + 1) {
+                    end = n;
+                } else {
+                    parts.push(start === end ? `${start}` : `${start}-${end}`);
+                    start = end = n;
+                }
+            }
+            parts.push(start === end ? `${start}` : `${start}-${end}`);
+            return parts.join(',');
+        }
+
+        function getCheckboxByIndex(i) {
+            return document.getElementById(`vocab-checkbox-${i}`);
+        }
+
+        // Build a range string from currently checked checkboxes and return it
+        function buildRangeStringFromChecked() {
+            const base = getKanjiDataForLevel(currentLevel) || [];
+            const selected = [];
+            for (let i = 1; i <= base.length; i++) {
+                const cb = getCheckboxByIndex(i);
+                if (cb && cb.checked) selected.push(i);
+            }
+            return buildRangeStringFromArray(selected);
+        }
+
+        // Update checkboxes between start..end (inclusive) to checked=true and update visual state
+        function checkRange(start, end, value = true) {
+            const s = Math.max(1, Math.min(start, end));
+            const e = Math.max(1, Math.max(start, end));
+            for (let i = s; i <= e; i++) {
+                const cb = getCheckboxByIndex(i);
+                if (!cb) continue;
+                cb.checked = value;
+                const li = cb.parentElement;
+                if (cb.checked) li.classList.remove('disabled'); else li.classList.add('disabled');
+            }
+        }
+
+        // Apply range filter: check only numbers in the set, uncheck others (keep all visible)
+        function applyRangeFilter(rangeStr) {
+            const base = getKanjiDataForLevel(currentLevel) || [];
+            const max = base.length;
+            const selected = parseRanges(rangeStr, max);
+            for (let i = 1; i <= max; i++) {
+                const cb = document.getElementById(`vocab-checkbox-${i}`);
+                if (!cb) continue;
+                const shouldBeChecked = selected.size === 0 ? true : selected.has(i);
+                cb.checked = shouldBeChecked;
+                const li = cb.parentElement;
+                // visually dim unchecked items but keep them listed
+                if (cb.checked) li.classList.remove('disabled'); else li.classList.add('disabled');
+            }
+        }
+
+        let lastClickedNumber = null; // for shift-select behavior in checklist
+
+        function resetQuiz(useOriginalOrder = false) {
             console.log('Resetting quiz');
-            currentKanjiList = shuffle([...getKanjiDataForLevel(currentLevel)]);
+            // Build filtered list from checkboxes if available
+            const base = getKanjiDataForLevel(currentLevel) || [];
+            let filtered = base.filter((item, idx) => {
+                const cb = document.getElementById(`vocab-checkbox-${idx+1}`);
+                return cb ? cb.checked : true;
+            });
+            if (!useOriginalOrder) filtered = shuffle([...filtered]);
+            currentKanjiList = filtered;
             currentKanjiIndex = 0;
             lastEndlessOrderKey = getOrderKey(currentKanjiList);
             answerHistory = [];
@@ -408,18 +626,17 @@
             document.getElementById("speak-now-btn").style.display = isVoiceInputEnabled ? "inline-block" : "none";
             document.getElementById("font-switch").style.display = "inline-block";
             document.getElementById("font-size-control").style.display = "block";
-            currentKanjiList = shuffle([...getKanjiDataForLevel(level)]);
-            currentKanjiIndex = 0;
-            lastEndlessOrderKey = getOrderKey(currentKanjiList);
-            answerHistory = [];
-            correctCount = 0;
-            totalCount = 0;
-            correctlyAnswered.clear();
-            updateHistory();
-            updateStats();
+            // build checklist UI and use its checked state for the quiz
+            buildVocabList();
+            // Reset quiz using default behavior (shuffle)
+            resetQuiz(false);
             document.getElementById("level-selector").style.display = "none";
             document.getElementById("main-content").style.display = "flex";
             document.getElementById("sidebar").style.display = "block";
+            // show the vocab panel on the far right and add page padding to avoid overlap
+            const vp = document.getElementById('vocab-panel');
+            if (vp) vp.style.display = 'block';
+            document.body.classList.add('vocab-open');
             document.getElementById("difficulty-switch").value = level;
             document.getElementById("mode-switch").value = mode;
             resetTimer();
@@ -578,6 +795,38 @@
             const selectedMode = document.getElementById("quiz-mode").value;
             console.log('Start button clicked, level:', selectedLevel, 'mode:', selectedMode);
             startQuiz(selectedLevel, selectedMode);
+        });
+
+        // Build vocab list and hook up range input Enter behavior
+        document.getElementById('vocab-range-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const val = this.value.trim();
+                applyRangeFilter(val);
+                // Reset quiz and keep original order for filtered selection (start-to-finish)
+                resetQuiz(false);
+                // ensure panel remains visible (in case called before start)
+                const vp = document.getElementById('vocab-panel');
+                if (vp) { vp.style.display = 'block'; document.body.classList.add('vocab-open'); }
+            }
+        });
+
+        // Enter button click: behave same as pressing Enter in the input.
+        document.getElementById('vocab-range-enter').addEventListener('click', function() {
+            const inputEl = document.getElementById('vocab-range-input');
+            const val = inputEl.value.trim();
+            if (val) {
+                applyRangeFilter(val);
+                resetQuiz(false);
+            } else {
+                // If no text provided, build the range from currently checked boxes
+                const rangeStr = buildRangeStringFromChecked();
+                inputEl.value = rangeStr;
+                applyRangeFilter(rangeStr);
+                resetQuiz(false);
+            }
+            const vp = document.getElementById('vocab-panel');
+            if (vp) { vp.style.display = 'block'; document.body.classList.add('vocab-open'); }
         });
 
         document.getElementById("answer-input").addEventListener("keypress", function(event) {
