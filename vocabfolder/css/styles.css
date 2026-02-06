@@ -3,7 +3,7 @@ body {
     display: flex;
     height: 100vh;
     margin: 0;
-    font-size: 19px;
+    font-size: 15px;
     background-color: #f4f4f4;
     color: #333;
     transition: background-color 0.3s, color 0.3s;
@@ -15,7 +15,7 @@ body.dark-mode {
 }
 
 #sidebar {
-    width: 480px;
+    width: 25%;
     padding: 20px;
     background-color: #e8ecef;
     overflow-y: auto;
@@ -92,6 +92,7 @@ body.dark-mode .incorrect {
     align-items: center;
     justify-content: center;
     position: relative;
+    
 }
 
 #difficulty-switcher {
@@ -136,7 +137,7 @@ body.dark-mode #difficulty-switcher select {
 }
 
 #kanji-display {
-    font-size: 150px;
+    font-size: 100px;
     margin-bottom: 20px;
 }
 
