@@ -77,8 +77,8 @@
         }
         #vocab-range-input {
             width: 100%;
-            height: 50px;
-            font-size: 40px;
+            height: 30px;
+            font-size: 20px;
             box-sizing: border-box;
             margin-bottom: 8px;
         }
@@ -110,8 +110,8 @@
         <div>
             <h2>Select Kana Level</h2>
             <select id="jlpt-level">
-                <!-- <option value="N5">N5 KANJI VOCABULARY</option> -->
-                <!-- <option value="N4">N4 KANJI VOCABULARY</option> -->
+                <option value="N5">N5 KANJI VOCABULARY</option>
+                <option value="N4">N4 KANJI VOCABULARY</option>
                 <option value="N3">N3 KANJI VOCABULARY</option>
                 <option value="N2">N2 KANJI VOCABULARY</option>
                 <option value="N1">N1 KANJI VOCABULARY</option>
@@ -449,6 +449,9 @@
             return list;
         }
 
+        // Temporary selection for number clicks (reflects in the range input but not applied until Enter)
+        let tempSelectedNumbers = new Set();
+
         // Build the checklist on the right side showing only the kanji/vocab (no readings/meanings)
         function buildVocabList() {
             const listContainer = document.getElementById('vocab-list');
@@ -478,22 +481,50 @@
                 label.htmlFor = cb.id;
                 label.textContent = ` ${item.kanji}`;
 
-                // clicking a number span: toggle checkbox and update range input; shift-click selects range
+                // clicking a number span implements file-explorer-like selection:
+                //  - SHIFT+click (with an anchor set): check the range between anchor and clicked
+                //  - CTRL+click: toggle the clicked checkbox and set anchor to that item
+                //  - plain click: clear all checks and check only the clicked item (set anchor)
+                //  - plain click without modifiers also clears any temp selection
                 numSpan.addEventListener('click', function(e) {
                     const num = parseInt(this.dataset.number, 10);
-                    if (e.shiftKey && lastClickedNumber !== null) {
-                        // check the range between lastClickedNumber and num
-                        checkRange(lastClickedNumber, num, true);
+
+                    if (e.shiftKey) {
+                        // SHIFT: extend selection from anchor (if available) to this click
+                        const anchor = lastAnchorNumber !== null ? lastAnchorNumber : lastClickedNumber;
+                        if (anchor === null) {
+                            checkRange(num, num, true);
+                            lastAnchorNumber = num;
+                        } else {
+                            checkRange(anchor, num, true);
+                        }
+                        // reflect actual checked state into the input (display full-width)
+                        document.getElementById('vocab-range-input').value = toFullWidth(buildRangeStringFromChecked());
+                        tempSelectedNumbers.clear();
+                    } else if (e.ctrlKey) {
+                        // CTRL: toggle the actual checkbox for this item and set anchor
+                        const cbEl = getCheckboxByIndex(num);
+                        if (cbEl) {
+                            cbEl.checked = !cbEl.checked;
+                            const liEl = cbEl.parentElement;
+                            if (cbEl.checked) liEl.classList.remove('disabled'); else liEl.classList.add('disabled');
+                        }
+                        lastAnchorNumber = num;
+                        // update the range input to reflect actual checked set (display full-width)
+                        document.getElementById('vocab-range-input').value = toFullWidth(buildRangeStringFromChecked());
+                        tempSelectedNumbers.clear();
                     } else {
-                        // toggle this checkbox
-                        cb.checked = !cb.checked;
-                        const liEl = cb.parentElement;
-                        if (cb.checked) liEl.classList.remove('disabled'); else liEl.classList.add('disabled');
+                        // plain click: clear all checks and check only this one
+                        clearAllChecks();
+                        checkRange(num, num, true);
+                        lastAnchorNumber = num;
+                        // reset temp selection and update the input (display full-width)
+                        tempSelectedNumbers.clear();
+                        document.getElementById('vocab-range-input').value = toFullWidth(buildRangeStringFromChecked());
                     }
-                    // update last clicked and update the range text to reflect current checked set
+
+                    // update last clicked for next-shift operations
                     lastClickedNumber = num;
-                    const rangeStr = buildRangeStringFromChecked();
-                    document.getElementById('vocab-range-input').value = rangeStr;
                 });
 
                 li.appendChild(numSpan);
@@ -507,6 +538,8 @@
         function parseRanges(rangeStr, max) {
             const out = new Set();
             if (!rangeStr) return out;
+            // Accept full-width digits/punctuation by converting to half-width first
+            rangeStr = toHalfWidth(rangeStr);
             const parts = rangeStr.split(',').map(p => p.trim()).filter(Boolean);
             parts.forEach(part => {
                 if (part.includes('-')) {
@@ -541,6 +574,26 @@
             }
             parts.push(start === end ? `${start}` : `${start}-${end}`);
             return parts.join(',');
+        }
+
+        // Convert full-width digits/punctuation to ASCII (half-width) for parsing
+        function toHalfWidth(s) {
+            if (!s) return s || '';
+            return s
+                .replace(/[０-９]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFF10 + 48))
+                .replace(/，/g, ',')
+                .replace(/－/g, '-')
+                .replace(/、/g, ',')
+                .replace(/[　]/g, ' ');
+        }
+
+        // Convert ASCII digits/punctuation to full-width for display
+        function toFullWidth(s) {
+            if (!s) return s || '';
+            return String(s)
+                .replace(/[0-9]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 48 + 0xFF10))
+                .replace(/,/g, '，')
+                .replace(/-/g, '－');
         }
 
         function getCheckboxByIndex(i) {
@@ -588,6 +641,18 @@
         }
 
         let lastClickedNumber = null; // for shift-select behavior in checklist
+        let lastAnchorNumber = null; // anchor used for shift selections (set by ctrl or plain click)
+
+        function clearAllChecks() {
+            const base = getKanjiDataForLevel(currentLevel) || [];
+            for (let i = 1; i <= base.length; i++) {
+                const cb = getCheckboxByIndex(i);
+                if (!cb) continue;
+                cb.checked = false;
+                const li = cb.parentElement;
+                li.classList.add('disabled');
+            }
+        }
 
         function resetQuiz(useOriginalOrder = false) {
             console.log('Resetting quiz');
@@ -803,6 +868,8 @@
                 e.preventDefault();
                 const val = this.value.trim();
                 applyRangeFilter(val);
+                // normalize display to full-width digits
+                this.value = toFullWidth(val);
                 // Reset quiz and keep original order for filtered selection (start-to-finish)
                 resetQuiz(false);
                 // ensure panel remains visible (in case called before start)
@@ -816,12 +883,15 @@
             const inputEl = document.getElementById('vocab-range-input');
             const val = inputEl.value.trim();
             if (val) {
+                // accept full-width input; applyRangeFilter will parse it
                 applyRangeFilter(val);
+                // normalize display to full-width
+                inputEl.value = toFullWidth(val);
                 resetQuiz(false);
             } else {
                 // If no text provided, build the range from currently checked boxes
                 const rangeStr = buildRangeStringFromChecked();
-                inputEl.value = rangeStr;
+                inputEl.value = toFullWidth(rangeStr);
                 applyRangeFilter(rangeStr);
                 resetQuiz(false);
             }
@@ -886,8 +956,16 @@
                     recognition.stop();
                     console.log('Voice input stopped due to Ctrl+Enter reset');
                 }
+                // Also trigger the vocab panel Enter button so Ctrl+Enter will apply the range
+                // Use a short timeout to allow IME compositionend to finish before reading input value
+                const enterBtn = document.getElementById('vocab-range-enter');
+                if (enterBtn) {
+                    setTimeout(() => {
+                        try { enterBtn.click(); } catch (e) { console.error('Error clicking vocab Enter:', e); }
+                    }, 10);
+                }
                 resetQuiz();
-                console.log('Quiz reset via Ctrl+Enter');
+                console.log('Quiz reset via Ctrl+Enter (and vocab Enter triggered)');
                 return;
             }
             if (event.key === "Enter" && quizMode === 'normal' && currentKanjiList.length === 0) {
