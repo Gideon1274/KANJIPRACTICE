@@ -143,6 +143,7 @@
         <div style="display:flex;gap:8px;align-items:center;">
             <input type="text" id="vocab-range-input" placeholder="Range: e.g. 1-25,40-50">
             <button id="vocab-range-enter">Enter</button>
+            <button id="vocab-paste-selection" title="Paste selection into range (Ctrl+Shift+B / Alt+Shift+B / F2)">Paste Sel</button>
         </div>
         <ul id="vocab-list"></ul>
     </div>
@@ -899,6 +900,40 @@
             if (vp) { vp.style.display = 'block'; document.body.classList.add('vocab-open'); }
         });
 
+        // Helper: paste the user's current selection (or active input selection) into the vocab input
+        function pasteSelectionToVocabInput() {
+            try {
+                const vocabInput = document.getElementById('vocab-range-input');
+                if (!vocabInput) return;
+                let sel = '';
+                const active = document.activeElement;
+                if (active && (active.tagName === 'TEXTAREA' || (active.tagName === 'INPUT' && /text|search|tel|url|password/i.test(active.type)))) {
+                    try { sel = active.value.substring(active.selectionStart, active.selectionEnd); } catch (e) { sel = active.value || ''; }
+                }
+                if (!sel) {
+                    try { sel = (window.getSelection && window.getSelection().toString()) || ''; } catch (err) { sel = ''; }
+                }
+                sel = (sel || '').trim();
+                if (!sel) return;
+                const out = (typeof toFullWidth === 'function') ? toFullWidth(sel) : sel;
+                vocabInput.value = out;
+                vocabInput.dispatchEvent(new Event('input', { bubbles: true }));
+                vocabInput.dispatchEvent(new Event('change', { bubbles: true }));
+            } catch (err) {
+                console.error('pasteSelectionToVocabInput error', err);
+            }
+        }
+
+        // Hook up the new Paste Sel button and double-click on input
+        document.getElementById('vocab-paste-selection').addEventListener('click', function(e) {
+            e.preventDefault();
+            pasteSelectionToVocabInput();
+        });
+        document.getElementById('vocab-range-input').addEventListener('dblclick', function(e) {
+            e.preventDefault();
+            pasteSelectionToVocabInput();
+        });
+
         document.getElementById("answer-input").addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 if (event.ctrlKey) {
@@ -950,6 +985,20 @@
         });
         
         document.addEventListener("keydown", function(event) {
+            // Shortcuts to paste current selection into vocab input:
+            // - Ctrl+Shift+B, Ctrl+B, Alt+Shift+B, F2
+            try {
+                const k = event.key ? event.key.toString() : '';
+                if (k.toLowerCase() === 'b' && (event.ctrlKey || event.altKey) && (event.shiftKey || event.ctrlKey) || k === 'F2') {
+                    // Prevent interfering with browser shortcuts when possible
+                    event.preventDefault();
+                    pasteSelectionToVocabInput();
+                    return;
+                }
+            } catch (e) {
+                // ignore
+            }
+
             if (event.key === "Enter" && event.ctrlKey) {
                 event.preventDefault();
                 if (isVoiceInputEnabled && recognition) {
