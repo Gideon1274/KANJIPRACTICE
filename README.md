@@ -18,12 +18,10 @@
 - Shift+Click (with an anchor) will check the entire anchor..clicked range (like a file explorer).
 - Click numbers (no modifier) will update the range input to reflect the shown selection.
 
-**Paste Selection / Shortcuts**
-- Use the `Paste Sel` button beside `Enter` to paste the current text selection into the range input.
-- Double-click the range input to paste selection.
-- Accesskey: the `Paste Sel` button has `accesskey="b"` (browser varies; on Windows this often maps to Alt+Shift+B).
-- Alt+B also pastes the selection (fallback for Ctrl+B).
-- Ctrl+Enter now triggers the vocab-panel `Enter` action (with a short delay to allow IME commits) and also preserves the quiz reset behavior.
+**Shortcuts**
+- Ctrl+Enter: triggers the vocab-panel `Enter` action (with a short delay to allow IME commits) and also preserves the quiz reset behavior. This is the primary shortcut for applying the range input regardless of focus.
+
+Note: Previous versions included a "Paste Sel" helper (keyboard fallbacks and a Paste button) to copy page selection into the range input. That helper was removed; only the Ctrl+Enter behavior remains.
 
 **Data**
 - Vocabulary lists are under `vocabfolder/Data/vocab/` (e.g. `n1.js`, `n2.js`, `n3.js`).
