@@ -7,10 +7,11 @@ N2: node [build_n2_from_dump.js](http://_vscodecontentref_/1) --input .\tools\n2
 N1: node [build_n1_from_dump.js](http://_vscodecontentref_/2) --input .\tools\n1_dump.txt
 
 If you want to run them without specifying --input, these also work (they default to the right dump file):
-
-
-node .\vocabfolder\tools\build_n4_from_dump.js
 node .\vocabfolder\tools\build_n3_from_dump.js
+
+node .\vocabfolder\tools\build_n5_from_dump.js
+node .\vocabfolder\tools\build_n4_from_dump.js
+
 node .\vocabfolder\tools\build_n2_from_dump.js
 node .\vocabfolder\tools\build_n1_from_dump.js
 

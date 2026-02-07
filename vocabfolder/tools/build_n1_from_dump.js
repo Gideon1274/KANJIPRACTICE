@@ -241,6 +241,21 @@ function loadKeysFromDataFile(jsPath) {
   return keys;
 }
 
+const PRIORITY = ['N3', 'N5', 'N4', 'N2', 'N1'];
+
+function loadBaselineKeysFor(level) {
+  const idx = PRIORITY.indexOf(level);
+  if (idx <= 0) return new Set();
+  const levels = PRIORITY.slice(0, idx);
+  const combined = new Set();
+  for (const L of levels) {
+    const p = path.resolve(ROOT, `Data/vocab/${L.toLowerCase()}.js`);
+    const s = loadKeysFromDataFile(p);
+    for (const k of s) combined.add(k);
+  }
+  return combined;
+}
+
 function isLikelyHeaderLine(line) {
   if (!line) return false;
   const s = line.trim();
@@ -386,16 +401,14 @@ function main() {
     process.exit(1);
   }
 
-  const overlapKeys = new Set();
-  for (const k of loadKeysFromDataFile(n2Path)) overlapKeys.add(k);
-  for (const k of loadKeysFromDataFile(n3Path)) overlapKeys.add(k);
+  const baselineKeys = loadBaselineKeysFor('N1');
 
   const raw = fs.readFileSync(inputPath, 'utf8');
   const parsed = parseDump(raw);
 
   const deduped = parsed.filter(e => {
     const keyCandidates = [e.kanji, ...(e.readings || [])].map(normalizeKey).filter(Boolean);
-    return !keyCandidates.some(k => overlapKeys.has(k));
+    return !keyCandidates.some(k => baselineKeys.has(k));
   });
 
   writeN1(deduped);

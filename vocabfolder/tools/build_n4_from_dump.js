@@ -26,8 +26,9 @@ function getArg(name) {
 
 const ROOT = path.resolve(__dirname, '..');
 const inputPath = path.resolve(ROOT, getArg('--input') || 'tools/n4_dump.txt');
-const n3Path = path.resolve(ROOT, 'Data/vocab/n3.js');
 const outPath = path.resolve(ROOT, 'Data/vocab/n4.js');
+
+const PRIORITY = ['N3', 'N5', 'N4', 'N2', 'N1'];
 
 function hasJapanese(text) {
   return /[\u3040-\u30FF\u3400-\u9FFF]/.test(text);
@@ -203,10 +204,9 @@ function buildReadingsWithRomaji(kanaReadings) {
   return out;
 }
 
-function loadN3Keys() {
-  const srcRaw = fs.readFileSync(n3Path, 'utf8');
-
-  // Remove block comments, then ignore whole-line comments.
+function loadKeysFromDataFile(jsPath) {
+  if (!fs.existsSync(jsPath)) return new Set();
+  const srcRaw = fs.readFileSync(jsPath, 'utf8');
   const noBlock = srcRaw.replace(/\/\*[\s\S]*?\*\//g, '');
   const src = noBlock
     .split(/\r?\n/)
@@ -225,7 +225,6 @@ function loadN3Keys() {
   const readingsBlockRegex = /\breadings\s*:\s*\[([\s\S]*?)\]/g;
   while ((m = readingsBlockRegex.exec(src))) {
     const inner = m[1];
-
     const strDouble = /"((?:\\.|[^"\\])*)"/g;
     const strSingle = /'((?:\\.|[^'\\])*)'/g;
     let s;
@@ -235,6 +234,19 @@ function loadN3Keys() {
 
   keys.delete('');
   return keys;
+}
+
+function loadBaselineKeysFor(level) {
+  const idx = PRIORITY.indexOf(level);
+  if (idx <= 0) return new Set();
+  const levels = PRIORITY.slice(0, idx);
+  const combined = new Set();
+  for (const L of levels) {
+    const p = path.resolve(ROOT, `Data/vocab/${L.toLowerCase()}.js`);
+    const s = loadKeysFromDataFile(p);
+    for (const k of s) combined.add(k);
+  }
+  return combined;
 }
 
 function isLikelyHeaderLine(line) {
@@ -379,13 +391,12 @@ function main() {
     process.exit(1);
   }
 
-  const n3Keys = loadN3Keys();
+  const baselineKeys = loadBaselineKeysFor('N4');
   const raw = fs.readFileSync(inputPath, 'utf8');
   const parsed = parseDump(raw);
-
   const deduped = parsed.filter(e => {
     const keyCandidates = [e.kanji, ...(e.readings || [])].map(normalizeKey).filter(Boolean);
-    return !keyCandidates.some(k => n3Keys.has(k));
+    return !keyCandidates.some(k => baselineKeys.has(k));
   });
 
   writeN4(deduped);
