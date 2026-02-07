@@ -21,7 +21,6 @@
 **Shortcuts**
 - Ctrl+Enter: triggers the vocab-panel `Enter` action (with a short delay to allow IME commits) and also preserves the quiz reset behavior. This is the primary shortcut for applying the range input regardless of focus.
 
-Note: Previous versions included a "Paste Sel" helper (keyboard fallbacks and a Paste button) to copy page selection into the range input. That helper was removed; only the Ctrl+Enter behavior remains.
 
 **Data**
 - Vocabulary lists are under `vocabfolder/Data/vocab/` (e.g. `n1.js`, `n2.js`, `n3.js`).
@@ -35,11 +34,3 @@ Note: Previous versions included a "Paste Sel" helper (keyboard fallbacks and a 
 - No build step required. Open `vocabfolder/VOCAB.html` in a browser.
 - For live reload during edits, use a simple static server (e.g., `live-server` or `python -m http.server`).
 
-**Contributing**
-- Edit/add vocab data in `vocabfolder/Data/vocab/`.
-- Keep the `window.kanjiData` structure consistent: each level key maps to an array of `{ kanji, readings, meanings }` objects.
-
-**License / Notes**
-- This repo is a personal study tool. Before publishing or redistributing content, verify source licenses for any bundled fonts or audio.
-
-If you want, I can also add a short GIF showing number selection and Ctrl+Enter behavior to the README.
