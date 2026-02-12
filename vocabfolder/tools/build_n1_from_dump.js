@@ -305,6 +305,52 @@ function cleanMeaningLine(line) {
   // Must contain some English letters to be a meaning.
   if (!/[A-Za-z]/.test(s)) return null;
 
+  // Strip leading POS/metadata tags like "Godan verb, Intransitive, ..."
+  function stripPosTags(str) {
+    const parts = String(str).split(',').map(p => p.trim()).filter(Boolean);
+    if (parts.length === 0) return str;
+
+    // Heuristic: drop leading comma-separated segments that look like
+    // part-of-speech or metadata (contain words like 'verb', 'transitive',
+    // 'Godan', 'Ichidan', 'usu.', 'esp.', 'colloquial', etc.). Stop at the
+    // first segment that doesn't match these indicators.
+    const posIndicator = /\b(?:verb|adjectiv|adverb|noun|transitive|intransitive|suffix|prefix|counter|auxiliary|expression|conjugation|godan|ichidan|irregular|na-adjective|i-adjective|na adjective|i adjective|usu|esp|often|colloquial|slang|archaic|archaicism|formal|informal|polite|familiar)\b/i;
+
+    let i = 0;
+    while (i < parts.length) {
+      const seg = parts[i];
+      // drop abbreviations like "esp." or short metadata markers
+      if (posIndicator.test(seg) || /^\w{1,4}\.$/.test(seg)) {
+        i++;
+        continue;
+      }
+      break;
+    }
+
+    const remaining = parts.slice(i);
+    if (remaining.length === 0) return parts.join(', ');
+    return remaining.join(', ');
+  }
+
+  s = stripPosTags(s);
+
+  // Limit long comma-separated gloss lists to a concise subset (1-2 items).
+  (function limitFragments() {
+    const parts = String(s).split(',').map(p => p.trim()).filter(Boolean);
+    if (parts.length <= 2) return;
+
+    // Remove clearly parenthetical or example fragments.
+    let candidates = parts.filter(p => !/[()（）]|\be\.g\b|\beg\b/i.test(p));
+
+    // Prefer shorter fragments (avoid long explanatory phrases).
+    const short = candidates.filter(p => p.length <= 40);
+    if (short.length > 0) candidates = short;
+
+    if (candidates.length === 0) candidates = parts;
+
+    s = candidates.slice(0, 2).join(', ');
+  })();
+
   return s;
 }
 

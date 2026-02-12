@@ -291,11 +291,47 @@ function cleanMeaningLine(line) {
   // Strip numbering.
   s = s.replace(/^\d+\.?\s*/, '');
 
+  // Strip leading POS/metadata tags like "Godan verb, Intransitive, ..."
+  function stripPosTags(str) {
+    const parts = String(str).split(',').map(p => p.trim()).filter(Boolean);
+    if (parts.length === 0) return str;
+
+    const posIndicator = /\b(?:verb|adjectiv|adverb|noun|transitive|intransitive|suffix|prefix|counter|auxiliary|expression|conjugation|godan|ichidan|irregular|na-adjective|i-adjective|na adjective|i adjective|usu|esp|often|colloquial|slang|archaic|archaicism|formal|informal|polite|familiar|suru)\b/i;
+
+    let i = 0;
+    while (i < parts.length) {
+      const seg = parts[i];
+      if (posIndicator.test(seg) || /^\w{1,4}\.$/.test(seg)) {
+        i++;
+        continue;
+      }
+      break;
+    }
+
+    const remaining = parts.slice(i);
+    if (remaining.length === 0) return parts.join(', ');
+    return remaining.join(', ');
+  }
+
+  s = stripPosTags(s);
+
   // Meaning/definition lines should be English only.
   if (hasJapanese(s)) return null;
 
   // Must contain some English letters.
   if (!/[A-Za-z]/.test(s)) return null;
+
+  // Limit long comma-separated gloss lists to a concise subset (1-2 items).
+  (function limitFragments() {
+    const parts = String(s).split(',').map(p => p.trim()).filter(Boolean);
+    if (parts.length <= 2) return;
+
+    let candidates = parts.filter(p => !/[()（）]|\be\.g\b|\beg\b/i.test(p));
+    const short = candidates.filter(p => p.length <= 40);
+    if (short.length > 0) candidates = short;
+    if (candidates.length === 0) candidates = parts;
+    s = candidates.slice(0, 2).join(', ');
+  })();
 
   return s;
 }

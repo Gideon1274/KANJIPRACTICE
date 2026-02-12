@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANKI</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        @font-face {
+            font-family: 'Tegaki';
+            src: url('font/tegaki.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        .tegaki-font {
+            font-family: 'Tegaki', sans-serif;
+        }
+
+        @font-face {
+            font-family: 'mincho';
+            src: url('font/mincho.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        .mincho-font {
+            font-family: 'mincho', serif;
+        }
+        @font-face {
+            font-family: 'marugothic';
+            src: url('font/marugothic.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        .marugothic-font {
+            font-family: 'marugothic', sans-serif;
+        }
+        
+        #sidebar {
+            display: none; 
+            width: 360px;
+            box-sizing: border-box;
+            padding: 10px;
+        }
+        
+        #vocab-panel {
+            display: none; 
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 17%;
+            background: #333333;
+            color: #fff;
+            padding: 10px;
+            box-sizing: border-box;
+            overflow: auto;
+            z-index: 999;
+        }
+        #vocab-panel h3 { margin-top: 0; }
+        #vocab-panel input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 8px;
+        }
+        #vocab-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: calc(100vh - 120px);
+            overflow: auto;
+        }
+        #vocab-list li {
+            padding: 4px 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #vocab-range-input {
+            width: 100%;
+            height: 30px;
+            font-size: 17px;
+            box-sizing: border-box;
+            margin-bottom: 8px;
+        }
+        /* clickable number in the checklist */
+        .vocab-number {
+            cursor: pointer;
+            color: #9ecbff;
+            font-weight: bold;
+            margin-right: 8px;
+            user-select: none;
+        }
+        /* visually dim unchecked items but keep them visible in the checklist */
+        #vocab-list li.disabled { opacity: 0.45; }
+
+        /* when vocab panel is open, add right padding so top controls don't get overlapped */
+        .vocab-open { padding-right: 300px; }
+        
+        
+        
+    </style>
+</head>
+<body class="dark-mode">
+    <button id="theme-toggle">Toggle Light Mode</button>
+    <div id="volume-control">
+        <button id="volume-toggle">Mute</button>
+        <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="1">
+    </div>
+    <div id="level-selector">
+        <div>
+            <h2>ANKI Vocabulary</h2>
+            <h2>Select Mode</h2>
+            <select id="quiz-mode">
+                <option value="normal">Normal (Complete All)</option>
+                <option value="endless">Endless (Repeat)</option>
+            </select>
+            <h2>Voice Input</h2>
+            <label><input type="checkbox" id="voice-input-toggle-start"> Enable Voice Input (Japanese)</label>
+            <br>
+            <button id="start-btn">Start Quiz</button>
+        </div>
+    </div>
+    <div id="sidebar">
+        <h3>Previous 5 Attempts (History)</h3>
+        <div id="stats-container">
+            <span id="current-mode">Mode: </span>
+            <span id="correct-count">Correct: 0</span>
+            <span id="remaining-count">All: 0</span>
+        </div>
+        <ul id="history-list"></ul>
+    </div>
+
+    <!-- Fixed panel on the far right for the vocab/kanji checklist -->
+    <div id="vocab-panel" aria-label="Vocab Checklist">
+        <h3>Vocab / Kanji</h3>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <input type="text" id="vocab-range-input" placeholder="Range: e.g. 1-25,40-50">
+            <button id="vocab-range-enter">Enter</button>
+        </div>
+        <ul id="vocab-list"></ul>
+    </div>
+    <div id="main-content">
+        <div id="difficulty-switcher">
+            <span id="timer">Time: 00:00</span>
+            <select id="difficulty-switch">
+                <option value="ANKI" selected>ANKI Vocabulary</option>
+            </select>
+
+            <select id="mode-switch">
+                <option value="normal">Normal (Complete All)</option>
+                <option value="endless">Endless (Repeat)</option>
+            </select>
+            <label><input type="checkbox" id="voice-input-toggle"> Voice Input (Japanese)</label>
+            <button id="speak-now-btn">Speak Now</button>
+            <select id="font-switch">
+                <option value="mincho" selected>Mincho Font</option>
+                <option value="default">Default Font</option>
+                <option value="marugothic">Maru Gothic Font</option>
+                <option value="tegaki">Tegaki Font</option>
+                
+            </select>
+        </div>
+        <button id="reset-button">Reset Quiz</button>
+        <div id="kanji-display" class="mincho-font"></div>
+        <input type="text" id="answer-input" placeholder="Type character or romaji">
+        <div id="feedback"></div>
+        <div id="font-size-control">
+            <button id="decrease-font">-</button>
+            <button id="increase-font">+</button>
+        </div>
+    </div>
+    <audio id="correct-sound" src="soundeffects/correct.mp3"></audio>
+    <audio id="wrong-sound" src="soundeffects/wrong.mp3"></audio>
+
+    
+    <script src="Data/vocab/anki.js"></script>
+    
+    
+    <script>
+        let currentLevel = 'ANKI';
+        let currentKanjiList = [];
+        let currentKanjiIndex = 0;
+        let answerHistory = [];
+        let correctCount = 0;
+        let totalCount = 0;
+        let correctlyAnswered = new Set();
+        let timerInterval = null;
+        let elapsedTime = 0;
+        let isMuted = false;
+        let quizMode = 'normal';
+        let isVoiceInputEnabled = false;
+        let fontSize = 72; 
+
+        // Endless mode: track the last completed cycle order so the next shuffle
+        // can't repeat the exact same sequence.
+        let lastEndlessOrderKey = null;
+
+        const correctSound = document.getElementById('correct-sound');
+        const wrongSound = document.getElementById('wrong-sound');
+
+        // Voice recognition setup
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ja-JP'; // Set to Japanese
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            console.log('SpeechRecognition initialized with lang: ja-JP');
+        } else {
+            document.getElementById('voice-input-toggle-start').disabled = true;
+            document.getElementById('voice-input-toggle-start').title = 'Voice input not supported in this browser';
+            document.getElementById('voice-input-toggle').disabled = true;
+            document.getElementById('voice-input-toggle').title = 'Voice input not supported in this browser';
+            document.getElementById('speak-now-btn').disabled = true;
+            document.getElementById('speak-now-btn').title = 'Voice input not supported in this browser';
+            console.log('SpeechRecognition not supported in this browser');
+        }
+
+        function shuffle(array) {
+            console.log('Shuffling array of length:', array.length);
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function getOrderKey(list) {
+            return (list || []).map(item => item && item.kanji ? item.kanji : '').join('|');
+        }
+
+        function reshuffleEndlessCycle() {
+            const base = getKanjiDataForLevel(currentLevel);
+            if (base.length === 0) {
+                currentKanjiList = [];
+                currentKanjiIndex = 0;
+                lastEndlessOrderKey = null;
+                correctlyAnswered.clear();
+                return;
+            }
+
+            const maxAttempts = 30;
+            let nextList = null;
+            let nextKey = null;
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                const candidate = shuffle([...base]);
+                const candidateKey = getOrderKey(candidate);
+                if (base.length <= 1 || candidateKey !== lastEndlessOrderKey) {
+                    nextList = candidate;
+                    nextKey = candidateKey;
+                    break;
+                }
+            }
+
+            // Fallback (very small chance): accept the last candidate.
+            if (!nextList) {
+                nextList = shuffle([...base]);
+                nextKey = getOrderKey(nextList);
+            }
+
+            currentKanjiList = nextList;
+            currentKanjiIndex = 0;
+            correctlyAnswered.clear();
+            lastEndlessOrderKey = nextKey;
+            console.log('Endless mode: New cycle reshuffled');
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const secs = (seconds % 60).toString().padStart(2, '0');
+            return `${mins}:${secs}`;
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                elapsedTime++;
+                document.getElementById('timer').textContent = `Time: ${formatTime(elapsedTime)}`;
+            }, 1000);
+            console.log('Timer started');
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            console.log('Timer stopped');
+        }
+
+        function resetTimer() {
+            stopTimer();
+            elapsedTime = 0;
+            document.getElementById('timer').textContent = `Time: ${formatTime(elapsedTime)}`;
+            console.log('Timer reset');
+        }
+
+        function playSound(type) {
+            console.log(`Attempting to play ${type} sound, muted: ${isMuted}`);
+            if (!isMuted) {
+                const sound = type === 'correct' ? correctSound : wrongSound;
+                sound.currentTime = 0;
+                sound.play().catch(error => console.error('Error playing sound:', error));
+            }
+        }
+
+        function displayKanji() {
+            console.log('Displaying kanji, quizMode:', quizMode, 'kanjiList length:', currentKanjiList.length);
+            if (quizMode === 'normal' && currentKanjiList.length === 0) {
+                const percentage = totalCount > 0 ? (correctCount / totalCount * 100).toFixed(0) : 0.00;
+                document.getElementById("kanji-display").textContent = `${percentage}%`;
+                document.getElementById("answer-input").style.display = "none";
+                document.getElementById("voice-input-toggle").style.display = "none";
+                document.getElementById("speak-now-btn").style.display = "none";
+                document.getElementById("font-switch").style.display = "none";
+                document.getElementById("font-size-control").style.display = "none";
+                document.getElementById("feedback").textContent = "Quiz completed!";
+                stopTimer();
+                if (recognition && isVoiceInputEnabled) {
+                    recognition.stop();
+                }
+                return;
+            }
+            if (quizMode === 'endless' && currentKanjiList.length === 0) {
+                reshuffleEndlessCycle();
+                console.log('Endless mode: Reset kanji list');
+            }
+            const kanji = currentKanjiList[currentKanjiIndex];
+            document.getElementById("kanji-display").textContent = kanji.kanji;
+            document.getElementById("kanji-display").style.fontSize = `${fontSize}px`;
+            document.getElementById("answer-input").value = "";
+            document.getElementById("feedback").textContent = "";
+            document.getElementById("answer-input").focus();
+            document.getElementById("speak-now-btn").style.display = isVoiceInputEnabled ? "inline-block" : "none";
+            document.getElementById("font-switch").style.display = "inline-block";
+            document.getElementById("font-size-control").style.display = "block";
+        }
+
+        function updateHistory() {
+            console.log('Updating history, answerHistory length:', answerHistory.length);
+            const historyList = document.getElementById("history-list");
+            historyList.innerHTML = "";
+            answerHistory.slice(-6).forEach(entry => {
+                const li = document.createElement("li");
+                li.innerHTML = `
+                    <span class="kanji">${entry.kanji}</span>
+                    <span class="details">
+                        Input: ${entry.answer}<br>
+                        Meaning: ${entry.meanings.filter(m => m).join(", ") || "None"}<br>
+                        Readings: ${entry.readings.join(", ")}
+                    </span>`;
+                li.className = entry.result === "Correct" ? "correct" : "incorrect";
+                historyList.appendChild(li);
+            });
+            historyList.scrollTop = historyList.scrollHeight;
+        }
+
+        function updateStats() {
+            document.getElementById("current-mode").textContent = `Current Mode: ${quizMode}`;
+            document.getElementById("correct-count").textContent = `Correct: ${correctCount}`;
+            document.getElementById("remaining-count").textContent = `All: ${currentKanjiList.length}`;
+            console.log('Stats updated: Mode:', quizMode, 'Correct:', correctCount, 'Remaining:', currentKanjiList.length);
+        }
+
+        function normalizeInput(input) {
+            return input.replace(/[\s.,!?;:'"()、。・？]/g, '').trim();
+        }
+
+        function checkAnswer(userAnswer, isVoiceInput = false) {
+            console.log('Checking answer:', userAnswer, 'isVoiceInput:', isVoiceInput);
+            const kanji = currentKanjiList[currentKanjiIndex];
+            const correctReadings = kanji.readings.map(normalizeInput);
+            const correctMeanings = kanji.meanings.map(normalizeInput);
+            const correctKanji = normalizeInput(kanji.kanji);
+            const normalizedUserAnswer = normalizeInput(userAnswer);
+
+            let result;
+            const isCorrect = isVoiceInput 
+                ? (normalizedUserAnswer === correctKanji || correctReadings.includes(normalizedUserAnswer))
+                : (normalizedUserAnswer === correctKanji || correctReadings.includes(normalizedUserAnswer) || correctMeanings.includes(normalizedUserAnswer));
+            
+            if (isCorrect) {
+                result = "Correct";
+                document.getElementById("feedback").textContent = "Correct!";
+                document.getElementById("feedback").style.color = "green";
+                correctCount++;
+                correctlyAnswered.add(kanji.kanji);
+                if (quizMode === 'normal') {
+                    currentKanjiList.splice(currentKanjiIndex, 1);
+                    if (currentKanjiIndex >= currentKanjiList.length) {
+                        currentKanjiIndex = 0;
+                    }
+                } else {
+                    const totalInLevel = getKanjiDataForLevel(currentLevel).length;
+                    if (totalInLevel > 0 && correctlyAnswered.size >= totalInLevel) {
+                        reshuffleEndlessCycle();
+                    } else {
+                        currentKanjiIndex = (currentKanjiIndex + 1) % currentKanjiList.length;
+                    }
+                }
+                playSound('correct');
+            } else {
+                result = "Incorrect";
+                document.getElementById("feedback").textContent = 
+                    `Incorrect. Character: ${correctKanji}, Readings: ${correctReadings.join(", ")}, Meanings: ${correctMeanings.join(", ")}`;
+                document.getElementById("feedback").style.color = "red";
+                currentKanjiIndex = (currentKanjiIndex + 1) % currentKanjiList.length;
+                playSound('wrong');
+            }
+
+            totalCount++;
+            answerHistory.push({
+                kanji: kanji.kanji,
+                answer: userAnswer || "(empty)",
+                meanings: kanji.meanings,
+                readings: kanji.readings,
+                result: result
+            });
+
+            updateHistory();
+            updateStats();
+
+            setTimeout(displayKanji, 1);
+        }
+
+        function getKanjiDataForLevel() {
+            const data = window.kanjiData || {};
+            const list = data.ANKI;
+            if (!Array.isArray(list)) {
+                console.warn('No ANKI data found.');
+                return [];
+            }
+            return list;
+        }
+
+
+        // Temporary selection for number clicks (reflects in the range input but not applied until Enter)
+        let tempSelectedNumbers = new Set();
+
+        // Build the checklist on the right side showing only the kanji/vocab (no readings/meanings)
+        function buildVocabList() {
+            const listContainer = document.getElementById('vocab-list');
+            listContainer.innerHTML = '';
+            const base = getKanjiDataForLevel(currentLevel) || [];
+            base.forEach((item, idx) => {
+                const li = document.createElement('li');
+                const number = idx + 1;
+
+                // clickable number span (for putting numbers into the range input / shift-select)
+                const numSpan = document.createElement('span');
+                numSpan.className = 'vocab-number';
+                numSpan.textContent = number;
+                numSpan.dataset.number = number;
+
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.id = `vocab-checkbox-${number}`;
+                cb.checked = true;
+                cb.dataset.idx = idx;
+                cb.addEventListener('change', (e) => {
+                    if (cb.checked) li.classList.remove('disabled');
+                    else li.classList.add('disabled');
+                });
+
+                const label = document.createElement('label');
+                label.htmlFor = cb.id;
+                label.textContent = ` ${item.kanji}`;
+
+                // clicking a number span implements file-explorer-like selection:
+                //  - SHIFT+click (with an anchor set): check the range between anchor and clicked
+                //  - CTRL+click: toggle the clicked checkbox and set anchor to that item
+                //  - plain click: clear all checks and check only the clicked item (set anchor)
+                //  - plain click without modifiers also clears any temp selection
+                numSpan.addEventListener('click', function(e) {
+                    const num = parseInt(this.dataset.number, 10);
+
+                    if (e.shiftKey) {
+                        // SHIFT: extend selection from anchor (if available) to this click
+                        const anchor = lastAnchorNumber !== null ? lastAnchorNumber : lastClickedNumber;
+                        if (anchor === null) {
+                            checkRange(num, num, true);
+                            lastAnchorNumber = num;
+                        } else {
+                            checkRange(anchor, num, true);
+                        }
+                        // reflect actual checked state into the input (display full-width)
+                        document.getElementById('vocab-range-input').value = toFullWidth(buildRangeStringFromChecked());
+                        tempSelectedNumbers.clear();
+                    } else if (e.ctrlKey) {
+                        // CTRL: toggle the actual checkbox for this item and set anchor
+                        const cbEl = getCheckboxByIndex(num);
+                        if (cbEl) {
+                            cbEl.checked = !cbEl.checked;
+                            const liEl = cbEl.parentElement;
+                            if (cbEl.checked) liEl.classList.remove('disabled'); else liEl.classList.add('disabled');
+                        }
+                        lastAnchorNumber = num;
+                        // update the range input to reflect actual checked set (display full-width)
+                        document.getElementById('vocab-range-input').value = toFullWidth(buildRangeStringFromChecked());
+                        tempSelectedNumbers.clear();
+                    } else {
+                        // plain click: clear all checks and check only this one
+                        clearAllChecks();
+                        checkRange(num, num, true);
+                        lastAnchorNumber = num;
+                        // reset temp selection and update the input (display full-width)
+                        tempSelectedNumbers.clear();
+                        document.getElementById('vocab-range-input').value = toFullWidth(buildRangeStringFromChecked());
+                    }
+
+                    // update last clicked for next-shift operations
+                    lastClickedNumber = num;
+                });
+
+                li.appendChild(numSpan);
+                li.appendChild(cb);
+                li.appendChild(label);
+                listContainer.appendChild(li);
+            });
+        }
+
+        // Parse range string like "1-25,40-50" into a Set of 1-based indices
+        function parseRanges(rangeStr, max) {
+            const out = new Set();
+            if (!rangeStr) return out;
+            // Accept full-width digits/punctuation by converting to half-width first
+            rangeStr = toHalfWidth(rangeStr);
+            const parts = rangeStr.split(',').map(p => p.trim()).filter(Boolean);
+            parts.forEach(part => {
+                if (part.includes('-')) {
+                    const [a,b] = part.split('-').map(x => parseInt(x.trim(),10));
+                    if (!isNaN(a) && !isNaN(b)) {
+                        const start = Math.max(1, Math.min(a,b));
+                        const end = Math.min(max, Math.max(a,b));
+                        for (let i = start; i <= end; i++) out.add(i);
+                    }
+                } else {
+                    const n = parseInt(part,10);
+                    if (!isNaN(n) && n >= 1 && n <= max) out.add(n);
+                }
+            });
+            return out;
+        }
+
+        // Helper: build a compact range string like "1-3,5,7-9" from a sorted array of ints
+        function buildRangeStringFromArray(arr) {
+            if (!arr || arr.length === 0) return '';
+            arr.sort((a,b) => a - b);
+            const parts = [];
+            let start = arr[0], end = arr[0];
+            for (let i = 1; i < arr.length; i++) {
+                const n = arr[i];
+                if (n === end + 1) {
+                    end = n;
+                } else {
+                    parts.push(start === end ? `${start}` : `${start}-${end}`);
+                    start = end = n;
+                }
+            }
+            parts.push(start === end ? `${start}` : `${start}-${end}`);
+            return parts.join(',');
+        }
+
+        // Convert full-width digits/punctuation to ASCII (half-width) for parsing
+        function toHalfWidth(s) {
+            if (!s) return s || '';
+            return s
+                .replace(/[０-９]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFF10 + 48))
+                .replace(/，/g, ',')
+                .replace(/－/g, '-')
+                .replace(/、/g, ',')
+                .replace(/[　]/g, ' ');
+        }
+
+        // Convert ASCII digits/punctuation to full-width for display
+        function toFullWidth(s) {
+            if (!s) return s || '';
+            return String(s)
+                .replace(/[0-9]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 48 + 0xFF10))
+                .replace(/,/g, '，')
+                .replace(/-/g, '－');
+        }
+
+        function getCheckboxByIndex(i) {
+            return document.getElementById(`vocab-checkbox-${i}`);
+        }
+
+        // Build a range string from currently checked checkboxes and return it
+        function buildRangeStringFromChecked() {
+            const base = getKanjiDataForLevel(currentLevel) || [];
+            const selected = [];
+            for (let i = 1; i <= base.length; i++) {
+                const cb = getCheckboxByIndex(i);
+                if (cb && cb.checked) selected.push(i);
+            }
+            return buildRangeStringFromArray(selected);
+        }
+
+        // Update checkboxes between start..end (inclusive) to checked=true and update visual state
+        function checkRange(start, end, value = true) {
+            const s = Math.max(1, Math.min(start, end));
+            const e = Math.max(1, Math.max(start, end));
+            for (let i = s; i <= e; i++) {
+                const cb = getCheckboxByIndex(i);
+                if (!cb) continue;
+                cb.checked = value;
+                const li = cb.parentElement;
+                if (cb.checked) li.classList.remove('disabled'); else li.classList.add('disabled');
+            }
+        }
+
+        // Apply range filter: check only numbers in the set, uncheck others (keep all visible)
+        function applyRangeFilter(rangeStr) {
+            const base = getKanjiDataForLevel(currentLevel) || [];
+            const max = base.length;
+            const selected = parseRanges(rangeStr, max);
+            for (let i = 1; i <= max; i++) {
+                const cb = document.getElementById(`vocab-checkbox-${i}`);
+                if (!cb) continue;
+                const shouldBeChecked = selected.size === 0 ? true : selected.has(i);
+                cb.checked = shouldBeChecked;
+                const li = cb.parentElement;
+                // visually dim unchecked items but keep them listed
+                if (cb.checked) li.classList.remove('disabled'); else li.classList.add('disabled');
+            }
+        }
+
+        let lastClickedNumber = null; // for shift-select behavior in checklist
+        let lastAnchorNumber = null; // anchor used for shift selections (set by ctrl or plain click)
+
+        function clearAllChecks() {
+            const base = getKanjiDataForLevel(currentLevel) || [];
+            for (let i = 1; i <= base.length; i++) {
+                const cb = getCheckboxByIndex(i);
+                if (!cb) continue;
+                cb.checked = false;
+                const li = cb.parentElement;
+                li.classList.add('disabled');
+            }
+        }
+
+        function resetQuiz(useOriginalOrder = false) {
+            console.log('Resetting quiz');
+            // Build filtered list from checkboxes if available
+            const base = getKanjiDataForLevel(currentLevel) || [];
+            let filtered = base.filter((item, idx) => {
+                const cb = document.getElementById(`vocab-checkbox-${idx+1}`);
+                return cb ? cb.checked : true;
+            });
+            if (!useOriginalOrder) filtered = shuffle([...filtered]);
+            currentKanjiList = filtered;
+            currentKanjiIndex = 0;
+            lastEndlessOrderKey = getOrderKey(currentKanjiList);
+            answerHistory = [];
+            correctCount = 0;
+            totalCount = 0;
+            correctlyAnswered.clear();
+            updateHistory();
+            updateStats();
+            document.getElementById("answer-input").style.display = "block";
+            document.getElementById("voice-input-toggle").style.display = "inline-block";
+            document.getElementById("speak-now-btn").style.display = isVoiceInputEnabled ? "inline-block" : "none";
+            document.getElementById("font-switch").style.display = "inline-block";
+            document.getElementById("font-size-control").style.display = "block";
+            resetTimer();
+            startTimer();
+            displayKanji();
+        }
+
+        function startQuiz(level, mode) {
+            console.log('Starting quiz with level:', level, 'mode:', mode);
+            currentLevel = level;
+            quizMode = mode;
+            isVoiceInputEnabled = document.getElementById("voice-input-toggle-start").checked;
+            document.getElementById("voice-input-toggle").checked = isVoiceInputEnabled;
+            document.getElementById("speak-now-btn").style.display = isVoiceInputEnabled ? "inline-block" : "none";
+            document.getElementById("font-switch").style.display = "inline-block";
+            document.getElementById("font-size-control").style.display = "block";
+            // build checklist UI and use its checked state for the quiz
+            buildVocabList();
+            // Reset quiz using default behavior (shuffle)
+            resetQuiz(false);
+            document.getElementById("level-selector").style.display = "none";
+            document.getElementById("main-content").style.display = "flex";
+            document.getElementById("sidebar").style.display = "block";
+            // show the vocab panel on the far right and add page padding to avoid overlap
+            const vp = document.getElementById('vocab-panel');
+            if (vp) vp.style.display = 'block';
+            document.body.classList.add('vocab-open');
+            document.getElementById("difficulty-switch").value = level;
+            document.getElementById("mode-switch").value = mode;
+            resetTimer();
+            startTimer();
+            displayKanji();
+        }
+
+        // Font switch handling
+        document.getElementById("font-switch").addEventListener("change", function() {
+            const selectedFont = this.value;
+            
+            console.log('Font changed to:', selectedFont);
+            const kanjiDisplay = document.getElementById("kanji-display");
+            kanjiDisplay.classList.remove('marugothic-font', 'mincho-font', 'tegaki-font');
+            if (selectedFont === 'marugothic') {
+                kanjiDisplay.classList.add('marugothic-font');
+            } else if (selectedFont === 'mincho') {
+                kanjiDisplay.classList.add('mincho-font');
+            } else if (selectedFont === 'tegaki') {
+                kanjiDisplay.classList.add('tegaki-font');
+            }
+        });
+
+        // Apply default font (Mincho) on load.
+        document.getElementById("font-switch").dispatchEvent(new Event('change'));
+
+        // Font size control handling
+        document.getElementById("increase-font").addEventListener("click", function() {
+            fontSize += 4;
+            document.getElementById("kanji-display").style.fontSize = `${fontSize}px`;
+            console.log('Font size increased to:', fontSize);
+        });
+
+        document.getElementById("decrease-font").addEventListener("click", function() {
+            fontSize = Math.max(16, fontSize - 4); // Prevent font size from going too small
+            document.getElementById("kanji-display").style.fontSize = `${fontSize}px`;
+            console.log('Font size decreased to:', fontSize);
+        });
+
+        // Voice input handling
+        if (recognition) {
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript.trim();
+                console.log('Voice input received:', transcript);
+                document.getElementById("answer-input").value = transcript;
+                document.getElementById("feedback").textContent = "";
+                checkAnswer(transcript, true);
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Voice input error:', event.error);
+                document.getElementById("feedback").textContent = "Voice input error: " + event.error;
+                document.getElementById("feedback").style.color = "red";
+                if (isVoiceInputEnabled) {
+                    setTimeout(() => {
+                        try {
+                            recognition.start();
+                            document.getElementById("feedback").textContent = "Listening for Japanese...";
+                            document.getElementById("feedback").style.color = "blue";
+                        } catch (error) {
+                            console.error('Error restarting voice recognition:', error);
+                        }
+                    }, 500);
+                }
+            };
+
+            recognition.onend = function() {
+                console.log('Voice recognition ended');
+                document.getElementById("feedback").textContent = "";
+                if (isVoiceInputEnabled && currentKanjiList.length > 0) {
+                    setTimeout(() => {
+                        try {
+                            recognition.start();
+                            document.getElementById("feedback").textContent = "Listening for Japanese...";
+                            document.getElementById("feedback").style.color = "blue";
+                        } catch (error) {
+                            console.error('Error restarting voice recognition:', error);
+                        }
+                    }, 500);
+                }
+            };
+
+            document.getElementById("voice-input-toggle").addEventListener("change", function() {
+                isVoiceInputEnabled = this.checked;
+                console.log('Voice input toggle changed:', isVoiceInputEnabled);
+                document.getElementById("speak-now-btn").style.display = isVoiceInputEnabled ? "inline-block" : "none";
+                if (!isVoiceInputEnabled && recognition) {
+                    recognition.stop();
+                    document.getElementById("feedback").textContent = "";
+                } else if (isVoiceInputEnabled && recognition && currentKanjiList.length > 0) {
+                    try {
+                        recognition.start();
+                        document.getElementById("feedback").textContent = "Listening for Japanese...";
+                        document.getElementById("feedback").style.color = "blue";
+                    } catch (error) {
+                        console.error('Error starting voice recognition:', error);
+                    }
+                }
+            });
+
+            document.getElementById("voice-input-toggle-start").addEventListener("change", function() {
+                isVoiceInputEnabled = this.checked;
+                console.log('Voice input toggle (start) changed:', isVoiceInputEnabled);
+            });
+
+            document.getElementById("speak-now-btn").addEventListener("click", function() {
+                if (isVoiceInputEnabled && recognition && currentKanjiList.length > 0) {
+                    try {
+                        recognition.start();
+                        document.getElementById("feedback").textContent = "Listening for Japanese...";
+                        document.getElementById("feedback").style.color = "blue";
+                        console.log('Manual voice recognition started');
+                    } catch (error) {
+                        console.error('Error starting voice recognition:', error);
+                        document.getElementById("feedback").textContent = "Voice input error: " + error.message;
+                        document.getElementById("feedback").style.color = "red";
+                    }
+                }
+            });
+        }
+
+        document.getElementById("difficulty-switch").addEventListener("change", function() {
+            startQuiz("ANKI", quizMode);
+        });
+
+
+        document.getElementById("mode-switch").addEventListener("change", function() {
+            quizMode = this.value;
+            console.log('Mode changed to:', quizMode);
+            if (quizMode === 'endless' && currentKanjiList.length === 0) {
+                reshuffleEndlessCycle();
+                document.getElementById("answer-input").style.display = "block";
+                document.getElementById("voice-input-toggle").style.display = "inline-block";
+                document.getElementById("speak-now-btn").style.display = isVoiceInputEnabled ? "inline-block" : "none";
+                document.getElementById("font-switch").style.display = "inline-block";
+                document.getElementById("font-size-control").style.display = "block";
+                document.getElementById("feedback").textContent = "";
+                startTimer();
+                displayKanji();
+            } else if (quizMode === 'normal' && currentKanjiList.length === 0) {
+                const percentage = totalCount > 0 ? (correctCount / totalCount * 100).toFixed(0) : 0.00;
+                document.getElementById("kanji-display").textContent = `${percentage}%`;
+                document.getElementById("answer-input").style.display = "none";
+                document.getElementById("voice-input-toggle").style.display = "none";
+                document.getElementById("speak-now-btn").style.display = "none";
+                document.getElementById("font-switch").style.display = "none";
+                document.getElementById("font-size-control").style.display = "none";
+                document.getElementById("feedback").textContent = "Quiz completed!";
+                stopTimer();
+            }
+        });
+
+        document.getElementById("start-btn").addEventListener("click", function() {
+            const selectedMode = document.getElementById("quiz-mode").value;
+            startQuiz("ANKI", selectedMode);
+        });
+
+
+        // Build vocab list and hook up range input Enter behavior
+        document.getElementById('vocab-range-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const val = this.value.trim();
+                applyRangeFilter(val);
+                // normalize display to full-width digits
+                this.value = toFullWidth(val);
+                // Reset quiz and keep original order for filtered selection (start-to-finish)
+                resetQuiz(false);
+                // ensure panel remains visible (in case called before start)
+                const vp = document.getElementById('vocab-panel');
+                if (vp) { vp.style.display = 'block'; document.body.classList.add('vocab-open'); }
+            }
+        });
+
+        // Enter button click: behave same as pressing Enter in the input.
+        document.getElementById('vocab-range-enter').addEventListener('click', function() {
+            const inputEl = document.getElementById('vocab-range-input');
+            const val = inputEl.value.trim();
+            if (val) {
+                // accept full-width input; applyRangeFilter will parse it
+                applyRangeFilter(val);
+                // normalize display to full-width
+                inputEl.value = toFullWidth(val);
+                resetQuiz(false);
+            } else {
+                // If no text provided, build the range from currently checked boxes
+                const rangeStr = buildRangeStringFromChecked();
+                inputEl.value = toFullWidth(rangeStr);
+                applyRangeFilter(rangeStr);
+                resetQuiz(false);
+            }
+            const vp = document.getElementById('vocab-panel');
+            if (vp) { vp.style.display = 'block'; document.body.classList.add('vocab-open'); }
+        });
+
+        
+
+        document.getElementById("answer-input").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                if (event.ctrlKey) {
+                    event.preventDefault();
+                    if (isVoiceInputEnabled && recognition) {
+                        recognition.stop();
+                        console.log('Voice input stopped due to Ctrl+Enter reset');
+                    }
+                    resetQuiz();
+                    console.log('Quiz reset via Ctrl+Enter (input)');
+                    return;
+                }
+                if (isVoiceInputEnabled && recognition) {
+                    recognition.stop();
+                    console.log('Voice input stopped due to text input');
+                }
+                checkAnswer(this.value.trim(), false);
+            }
+        });
+
+        document.getElementById("theme-toggle").addEventListener("click", function() {
+            document.body.classList.toggle("dark-mode");
+            this.textContent = document.body.classList.contains("dark-mode") ? 
+                "Toggle Light Mode" : "Toggle Dark Mode";
+            console.log('Theme toggled, dark-mode:', document.body.classList.contains("dark-mode"));
+        });
+
+        document.getElementById("reset-button").addEventListener("click", function() {
+            if (isVoiceInputEnabled && recognition) {
+                recognition.stop();
+                console.log('Voice input stopped due to reset');
+            }
+            resetQuiz();
+        });
+
+        document.getElementById("volume-toggle").addEventListener("click", function() {
+            isMuted = !isMuted;
+            this.textContent = isMuted ? "Unmute" : "Mute";
+            correctSound.volume = isMuted ? 0 : document.getElementById("volume-slider").value;
+            wrongSound.volume = isMuted ? 0 : document.getElementById("volume-slider").value;
+            console.log('Volume toggle changed, muted:', isMuted);
+        });
+
+        document.getElementById("volume-slider").addEventListener("input", function() {
+            const volume = this.value;
+            correctSound.volume = isMuted ? 0 : volume;
+            wrongSound.volume = isMuted ? 0 : volume;
+            console.log('Volume slider changed:', volume);
+        });
+        
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "Enter" && event.ctrlKey) {
+                event.preventDefault();
+                if (isVoiceInputEnabled && recognition) {
+                    recognition.stop();
+                    console.log('Voice input stopped due to Ctrl+Enter reset');
+                }
+                // Also trigger the vocab panel Enter button so Ctrl+Enter will apply the range
+                // Use a short timeout to allow IME compositionend to finish before reading input value
+                const enterBtn = document.getElementById('vocab-range-enter');
+                if (enterBtn) {
+                    setTimeout(() => {
+                        try { enterBtn.click(); } catch (e) { console.error('Error clicking vocab Enter:', e); }
+                    }, 10);
+                }
+                resetQuiz();
+                console.log('Quiz reset via Ctrl+Enter (and vocab Enter triggered)');
+                return;
+            }
+            if (event.key === "Enter" && quizMode === 'normal' && currentKanjiList.length === 0) {
+                resetQuiz();
+                console.log('Quiz reset via Enter key');
+            }
+        }, true);
+
+        document.getElementById("main-content").style.display = "none";
+        document.getElementById("sidebar").style.display = "none";
+
+        // Basic sanity check so a missing data file fails loudly in console.
+        if (!(window.kanjiData && window.kanjiData.ANKI)) {
+            console.warn('window.kanjiData is missing or empty. Check Data/vocab/anki.js path.');
+        }
+    </script>
+</body>
+</html>

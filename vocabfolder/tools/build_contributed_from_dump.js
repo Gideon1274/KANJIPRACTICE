@@ -246,6 +246,18 @@ function cleanMeaningLine(line) {
   // Must contain some English letters.
   if (!/[A-Za-z]/.test(s)) return null;
 
+  // Limit long comma-separated gloss lists to a concise subset (1-2 items).
+  (function limitFragments() {
+    const parts = String(s).split(',').map(p => p.trim()).filter(Boolean);
+    if (parts.length <= 2) return;
+
+    let candidates = parts.filter(p => !/[()（）]|\be\.g\b|\beg\b/i.test(p));
+    const short = candidates.filter(p => p.length <= 40);
+    if (short.length > 0) candidates = short;
+    if (candidates.length === 0) candidates = parts;
+    s = candidates.slice(0, 2).join(', ');
+  })();
+
   return s;
 }
 

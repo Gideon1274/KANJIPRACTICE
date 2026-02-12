@@ -16,6 +16,11 @@ node .\vocabfolder\tools\build_n2_from_dump.js
 node .\vocabfolder\tools\build_n1_from_dump.js
 
 
+for .apkg
+npm install adm-zip sqlite3
+node tools/build_from_apkg_or_tsv.js --input deck.apkg --out Data/vocab/anki.js --kanji-index 0 --reading-index 1 --sort-index 2
 
-node .\vocabfolder\tools4kanjionly\build_Nkanji2_from_dump.js
-node .\vocabfolder\tools4kanjionly\build_Nkanji3_from_dump.js
+
+for TSV
+cd "c:/Users/gideo/Desktop/MAIN FOR KANJI/KANJIPRACTICE/vocabfolder"
+node tools/build_from_apkg_or_tsv.js --input tools/anki_export.tsv --out Data/vocab/anki.js --kanji-field Kanji --reading-field Readings --sort-field Sort

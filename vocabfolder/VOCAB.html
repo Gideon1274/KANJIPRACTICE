@@ -78,7 +78,7 @@
         #vocab-range-input {
             width: 100%;
             height: 30px;
-            font-size: 20px;
+            font-size: 17px;
             box-sizing: border-box;
             margin-bottom: 8px;
         }
@@ -128,7 +128,7 @@
         </div>
     </div>
     <div id="sidebar">
-        <h3>Previous 6 Attempts (History)</h3>
+        <h3>Previous 5 Attempts (History)</h3>
         <div id="stats-container">
             <span id="current-mode">Mode: </span>
             <span id="correct-count">Correct: 0</span>
@@ -730,7 +730,7 @@
 
         // Font size control handling
         document.getElementById("increase-font").addEventListener("click", function() {
-            fontSize += 20;
+            fontSize += 4;
             document.getElementById("kanji-display").style.fontSize = `${fontSize}px`;
             console.log('Font size increased to:', fontSize);
         });
