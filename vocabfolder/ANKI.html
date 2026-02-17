@@ -173,7 +173,7 @@
     <audio id="wrong-sound" src="soundeffects/wrong.mp3"></audio>
 
     
-    <script src="Data/vocab/anki.js"></script>
+    <script src="Data/vocab/core2000.js"></script>
     
     
     <script>
@@ -341,7 +341,7 @@
             console.log('Updating history, answerHistory length:', answerHistory.length);
             const historyList = document.getElementById("history-list");
             historyList.innerHTML = "";
-            answerHistory.slice(-6).forEach(entry => {
+            answerHistory.slice(-3).forEach(entry => {
                 const li = document.createElement("li");
                 li.innerHTML = `
                     <span class="kanji">${entry.kanji}</span>

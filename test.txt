@@ -24,3 +24,8 @@ node tools/build_from_apkg_or_tsv.js --input deck.apkg --out Data/vocab/anki.js 
 for TSV
 cd "c:/Users/gideo/Desktop/MAIN FOR KANJI/KANJIPRACTICE/vocabfolder"
 node tools/build_from_apkg_or_tsv.js --input tools/anki_export.tsv --out Data/vocab/anki.js --kanji-field Kanji --reading-field Readings --sort-field Sort
+
+
+for anki converter 2000 CORE
+npm install adm-zip sqlite3
+node anki_converter.js --input "Core2000.apkg" --out "Data/vocab/core2000.js"
