@@ -7,6 +7,8 @@
 - Select a level and mode, then click `Start Quiz`.
 - The main quiz shows a kanji; type the reading/meaning or use voice input (if supported).
 
+
+
 **Vocab Checklist / Range Input**
 - The right-side panel (`vocab-panel`) contains the checklist and a range input (`vocab-range-input`).
 - Enter a range like `1-25,40-50` and press Enter or click `Enter` to apply the filter.
@@ -21,6 +23,13 @@
 **Shortcuts**
 - Ctrl+Enter: triggers the vocab-panel `Enter` action (with a short delay to allow IME commits) and also preserves the quiz reset behavior. This is the primary shortcut for applying the range input regardless of focus.
 
+Action,Shortcut
+Mute/Unmute Audio,Ctrl + M
+Submit Answer,Enter
+Reset Quiz,Ctrl + Enter
+Confirm Reset,Shift + 1
+Cancel Reset,Shift + 2
+
 
 **Data**
 - Vocabulary lists are under `vocabfolder/Data/vocab/` (e.g. `n1.js`, `n2.js`, `n3.js`).
@@ -34,3 +43,16 @@
 - No build step required. Open `vocabfolder/VOCAB.html` in a browser.
 - For live reload during edits, use a simple static server (e.g., `live-server` or `python -m http.server`).
 
+
+**For 2000 Core and other Anki Sentence**
+### 1. Prerequisites
+Ensure you have [Node.js](https://nodejs.org/) installed on your computer.
+
+### 2. Setup the Backend
+1. Open your terminal in the `KANJIPRACTICE` folder.
+2. Install the required packages:
+   ```bash
+   npm install express sqlite3 cors
+3. Start the relay server:
+    Bash
+    node server.js

@@ -92,7 +92,7 @@ body.dark-mode .incorrect {
     align-items: center;
     justify-content: center;
     position: relative;
-    
+
 }
 
 #difficulty-switcher {
@@ -343,4 +343,47 @@ body.dark-mode #font-size-control button {
     border: 1px solid #555;
     background-color: #333;
     color: #ddd;
+}
+
+#history-list li .kanji {
+    font-size: 0.9em;
+    color: #cccccc;
+    /* Dimmer grey for the label */
+    opacity: 1;
+}
+
+#history-list li .target-text {
+    color: #ffffff;
+    /* Bright white for the actual Japanese sentence */
+    font-weight: normal;
+}
+
+#history-list li .details {
+    font-size: 1.4em;
+    color: #ffffff;
+    display: block;
+    margin-top: 6px;
+    font-weight: bold;
+}
+
+.diff-highlight {
+    font-weight: 900;
+    color: #effa89;
+    font-size: 1.6em;
+    /* Bright red/pink for high visibility in dark mode */
+    text-decoration: underline;
+    background-color: rgba(255, 107, 107, 0.1);
+}
+
+#history-list li.incorrect {
+    background-color: #7b0000;
+    border-left: 6px solid #ff4d4d;
+    padding: 12px;
+    /* font-size: 1.3em; */
+}
+
+#history-list li.correct {
+    background-color: #0e331a;
+    border-left: 6px solid #2ecc71;
+    padding: 12px;
 }

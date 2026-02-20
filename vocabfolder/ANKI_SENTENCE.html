@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ANKI</title>
     <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         @font-face {
             font-family: 'Tegaki';
@@ -178,6 +179,14 @@
     
     
     <script>
+
+       
+        let isConfirmingReset = false;
+        let sessionFirstIterationMissed = []; 
+        let firstIterationSeen = new Set(); // Tracks which items were seen in the first pass
+        let sessionFirstIterationMissedIndices = []; // Stores numbers like 5, 7, 8
+    
+
         let currentLevel = 'ANKI';
         let currentKanjiList = [];
         let currentKanjiIndex = 0;
@@ -199,6 +208,7 @@
         const correctSound = document.getElementById('correct-sound');
         const wrongSound = document.getElementById('wrong-sound');
         
+       
 
         // Voice recognition setup
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -226,6 +236,14 @@
                 [array[i], array[j]] = [array[j], array[i]];
             }
             return array;
+        }
+        function performReset() {
+            isConfirmingReset = false;
+            sessionFirstIterationMissed = []; 
+            firstIterationSeen.clear();
+            resetQuiz();
+            document.getElementById("feedback").textContent = "Quiz Reset.";
+            document.getElementById("feedback").style.color = "white";
         }
 
         function getOrderKey(list) {
@@ -274,6 +292,7 @@
             return `${mins}:${secs}`;
         }
 
+
         function startTimer() {
             if (timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(() => {
@@ -307,6 +326,7 @@
             }
         }
 
+        
         function displayKanji() {
             console.log('Displaying kanji, quizMode:', quizMode, 'kanjiList length:', currentKanjiList.length);
             if (quizMode === 'normal' && currentKanjiList.length === 0) {
@@ -318,6 +338,7 @@
                 document.getElementById("font-switch").style.display = "none";
                 document.getElementById("font-size-control").style.display = "none";
                 document.getElementById("feedback").textContent = "Quiz completed!";
+                saveSessionToDB();
                 stopTimer();
                 if (recognition && isVoiceInputEnabled) {
                     recognition.stop();
@@ -345,36 +366,43 @@
         function updateHistory() {
             const historyList = document.getElementById("history-list");
             historyList.innerHTML = "";
-            answerHistory.slice(-3).forEach(entry => { // Increased to 5 as per your sidebar header
+            
+            answerHistory.slice(-3).forEach(entry => { 
                 const li = document.createElement("li");
                 li.className = entry.result === "Correct" ? "correct" : "incorrect";
+                li.style.position = "relative";
 
-                // Create audio button for history if audio exists
-                const audioBtn = entry.audio ? 
-                    `<button onclick="playHistoryAudio('${entry.audio}')" style="margin-left:5px; padding:2px 5px; cursor:pointer;">🔊</button>` : '';
-                
                 if (entry.audio) {
                     li.style.cursor = "pointer";
-                    li.title = "Click to replay audio";
                     li.onclick = () => playHistoryAudio(entry.audio);
                 }
 
+                let sentenceDisplay = entry.kanji;
+                if (entry.result === "Incorrect") {
+                    sentenceDisplay = getHighlightedDiff(entry.kanji, entry.answer);
+                }
+
                 li.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; width:100%;">
-                        <span class="kanji">${entry.kanji}</span>
-                        ${entry.audio ? '<span>🔊</span>' : ''}
+                    <div style="display:flex; flex-direction:column; width:92%;">
+                        <span class="kanji">
+                            Target: <span class="target-text">${sentenceDisplay}</span>
+                        </span>
+                        <span class="details">
+                            Input: ${entry.answer}
+                        </span>
+                        <div style="font-size:0.85em; margin-top:8px; border-top: 1px solid rgba(255,255,255,0.2); padding-top:5px; line-height:1.4;">
+                            <span style="color: #ffd700; font-weight:bold;">Reading:</span> ${entry.meanings.join(", ")}<br>
+                            <span style="color: #4db8ff; font-weight:bold;">English:</span> ${entry.readings.join(", ")}
+                        </div>
                     </div>
-                    <span class="details">
-                        Input: ${entry.answer}<br>
-                        Meaning: ${entry.meanings.filter(m => m).join(", ") || "None"}<br>
-                        Readings: ${entry.readings.join(", ")}
-                    </span>`;
+                    ${entry.audio ? '<span style="position:absolute; right:10px; top:15px; font-size:1.3em; opacity:0.8;">🔊</span>' : ''}
+                `;
                 historyList.appendChild(li);
             });
             historyList.scrollTop = historyList.scrollHeight;
         }
         function playHistoryAudio(filename) {
-            sentenceAudio.src = `Data/audio/sentence/${filename}`;
+            sentenceAudio.src = `Data/audio/core2000/${filename}`;
             sentenceAudio.play();
         }
         function updateStats() {
@@ -387,10 +415,27 @@
         function normalizeInput(input) {
             return input.replace(/[\s.,!?;:'"()、。・？]/g, '').trim();
         }
+        function getHighlightedDiff(correct, input) {
+            let highlighted = "";
+            let i = 0, j = 0;
+            while (i < correct.length) {
+                if (j < input.length && correct[i] === input[j]) {
+                    highlighted += correct[i];
+                    j++;
+                } else {
+                    highlighted += `<span class="diff-highlight">${correct[i]}</span>`;
+                }
+                i++;
+            }
+            return highlighted;
+        }
 
         function checkAnswer(userAnswer, isVoiceInput = false) {
-            console.log('Checking answer:', userAnswer, 'isVoiceInput:', isVoiceInput);
             const kanji = currentKanjiList[currentKanjiIndex];
+            // Find the original 1-based index from the base data for recording
+            const baseData = getKanjiDataForLevel();
+            const originalIndex = baseData.findIndex(item => item.kanji === kanji.kanji) + 1;
+
             const correctReadings = kanji.readings.map(normalizeInput);
             const correctMeanings = kanji.meanings.map(normalizeInput);
             const correctKanji = normalizeInput(kanji.kanji);
@@ -401,60 +446,33 @@
                 ? (normalizedUserAnswer === correctKanji || correctReadings.includes(normalizedUserAnswer))
                 : (normalizedUserAnswer === correctKanji || correctReadings.includes(normalizedUserAnswer) || correctMeanings.includes(normalizedUserAnswer));
             
-            const inputField = document.getElementById("answer-input");
-            if (inputField) {
-                inputField.value = ""; 
-            }
+            totalCount++;
+
             if (isCorrect) {
                 result = "Correct";
-                document.getElementById("feedback").textContent = "Correct!";
-                document.getElementById("feedback").style.color = "green";
                 correctCount++;
                 correctlyAnswered.add(kanji.kanji);
+                
                 if (quizMode === 'normal') {
                     currentKanjiList.splice(currentKanjiIndex, 1);
-                    if (currentKanjiIndex >= currentKanjiList.length) {
-                        currentKanjiIndex = 0;
-                    }
+                    if (currentKanjiIndex >= currentKanjiList.length) currentKanjiIndex = 0;
                 } else {
-                    const totalInLevel = getKanjiDataForLevel(currentLevel).length;
-                    if (totalInLevel > 0 && correctlyAnswered.size >= totalInLevel) {
-                        reshuffleEndlessCycle();
-                    } else {
-                        currentKanjiIndex = (currentKanjiIndex + 1) % currentKanjiList.length;
-                    }
+                    currentKanjiIndex = (currentKanjiIndex + 1) % currentKanjiList.length;
                 }
-                result = "Correct";
                 playSound('correct');
             } else {
-                // result = "Incorrect";
-                // document.getElementById("feedback").textContent = 
-                //     `Incorrect. Character: ${correctKanji}, Readings: ${correctReadings.join(", ")}, Meanings: ${correctMeanings.join(", ")}`;
-                // document.getElementById("feedback").style.color = "red";
-                currentKanjiIndex = (currentKanjiIndex + 1) % currentKanjiList.length;
                 result = "Incorrect";
+                // RECORD INDEX ONLY: If first time seeing this item, record its number (e.g., 5)
+                if (!firstIterationSeen.has(kanji.kanji)) {
+                    sessionFirstIterationMissedIndices.push(originalIndex);
+                }
+                currentKanjiIndex = (currentKanjiIndex + 1) % currentKanjiList.length;
                 playSound('wrong');
             }
+
+            firstIterationSeen.add(kanji.kanji);
             
-            const sentenceAudio = document.getElementById("sentence-audio");
-            // if (kanji.audio && !isMuted) {
-            //     sentenceAudio.src = `Data/audio/sentence/${kanji.audio}`;
-            //     sentenceAudio.currentTime = 0;
-            //     // Small delay (200ms) so it doesn't overlap harshly with the SFX
-            //     setTimeout(() => {
-            //         sentenceAudio.play().catch(e => console.log("Audio play blocked"));
-            //     }, 200);
-            // }
-            if (kanji.audio && !isMuted) {
-                sentenceAudio.src = `Data/audio/sentence/${kanji.audio}`;
-                sentenceAudio.onended = () => {
-                    setTimeout(displayKanji, 500); // Show next card 0.5s after audio ends
-                };
-                sentenceAudio.play();
-            } else {
-                setTimeout(displayKanji, 1500); // If no audio/muted, wait 1.5s then next card
-            }
-            totalCount++;
+            // Update UI
             answerHistory.push({
                 kanji: kanji.kanji,
                 answer: userAnswer || "(empty)",
@@ -463,22 +481,62 @@
                 result: result,
                 audio: kanji.audio
             });
-
             updateHistory();
             updateStats();
 
+            // Audio handling
             if (kanji.audio && !isMuted) {
-                sentenceAudio.src = `Data/audio/sentence/${kanji.audio}`;
+                sentenceAudio.src = `Data/audio/core2000/${kanji.audio}`;
                 sentenceAudio.onended = () => {
-                    displayKanji(); 
+                    checkCompletionAndMoveOn();
                 };
                 sentenceAudio.play();
             } else {
-                setTimeout(displayKanji, 1000); 
+                setTimeout(checkCompletionAndMoveOn, 1);
             }
-            // setTimeout(displayKanji, 1);
         }
 
+        // FIXED: This function now only calls saveSessionToDB once
+        function checkCompletionAndMoveOn() {
+            if (quizMode === 'normal' && currentKanjiList.length === 0) {
+                // We do NOT call displayKanji() here because displayKanji also calls saveSessionToDB
+                // This was the cause of your double-row recording.
+                displayKanji(); 
+            } else {
+                displayKanji();
+            }
+        }
+
+        function saveSessionToDB() {
+            // 100% calculation
+            const accuracy = totalCount > 0 ? ((correctCount / totalCount) * 100).toFixed(0) + "%" : "0%";
+            
+            const sessionData = {
+                session_range: document.getElementById('vocab-range-input').value || "All",
+                total_answered: totalCount,
+                correct: correctCount,
+                accuracy_rate: accuracy,
+                // Recording the sorted list of missed sentence numbers
+                missed_first_pass: sessionFirstIterationMissedIndices.sort((a,b) => a-b).join(", "),
+                time_taken: document.getElementById('timer').textContent.replace("Time: ", ""),
+                date_completed: new Date().toLocaleString()
+            };
+
+            fetch('http://localhost:3000/save-result', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(sessionData)
+            })
+            .then(() => {
+                console.log("Saved to SQLite");
+                // Clear session tracking after successful save
+                sessionFirstIterationMissedIndices = [];
+                firstIterationSeen.clear();
+            })
+            .catch(err => console.error("Database Save Failed.", err));
+        }
+        // Helper to decide if we save to DB or just show the next card
+        
         function getKanjiDataForLevel() {
             const data = window.kanjiData || {};
             const list = data.ANKI;
@@ -1010,6 +1068,43 @@
         });
         
         document.addEventListener("keydown", function(event) {
+            // 1. Mute/Unmute Shortcut: Ctrl + M
+            if (event.ctrlKey && event.key.toLowerCase() === 'm') {
+                event.preventDefault();
+                document.getElementById("volume-toggle").click();
+                return;
+            }
+
+            const isFinished = (quizMode === 'normal' && currentKanjiList.length === 0);
+
+            // 2. Conditional Reset: Ctrl + Enter
+            if (event.key === "Enter" && event.ctrlKey) {
+                event.preventDefault();
+                
+                if (isFinished) {
+                    // Instant reset if already completed
+                    performReset();
+                } else {
+                    // Show prompt if in progress
+                    isConfirmingReset = true;
+                    document.getElementById("feedback").textContent = "Reset Quiz? [Shift+1] Yes | [Shift+2] No";
+                    document.getElementById("feedback").style.color = "orange";
+                }
+                return;
+            }
+
+            // 3. Prompt Confirmation: Shift+1 (!) or Shift+2 (@)
+            if (isConfirmingReset && !isFinished) {
+                if (event.shiftKey && event.key === "!") { // Yes
+                    event.preventDefault();
+                    performReset();
+                } else if (event.shiftKey && event.key === "@") { // No
+                    event.preventDefault();
+                    isConfirmingReset = false;
+                    document.getElementById("feedback").textContent = "Reset cancelled.";
+                    document.getElementById("feedback").style.color = "white";
+                }
+            }
             if (event.key === "Enter" && event.ctrlKey) {
                 event.preventDefault();
                 if (isVoiceInputEnabled && recognition) {

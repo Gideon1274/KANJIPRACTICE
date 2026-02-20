@@ -1,0 +1,10 @@
+
+anki_results.db
+
+node_modules/
+
+.DS_Store
+Thumbs.db
+
+
+.env
