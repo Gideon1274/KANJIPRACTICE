@@ -144,7 +144,7 @@ body.dark-mode #difficulty-switcher select {
 #answer-input {
     padding: 10px;
     font-size: 40px;
-    width: 350px;
+    width: 70%;
     border-radius: 5px;
     border: 1px solid #ccc;
     background-color: #fff;

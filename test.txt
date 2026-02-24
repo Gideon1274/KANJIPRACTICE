@@ -29,3 +29,10 @@ node tools/build_from_apkg_or_tsv.js --input tools/anki_export.tsv --out Data/vo
 for anki converter 2000 CORE
 npm install adm-zip sqlite3
 node anki_converter.js --input "Core2000.apkg" --out "Data/vocab/core2000.js"
+node 2000ankiconverter.js --input "Core2000.apkg" --out "Data/vocab/core2000.js"
+
+
+
+for anki dictionaries grammar
+node tools/dictionariesgrammar.js
+node tools/dictionariesgrammar.js --input tools/dictionariesgrammar.apkg --out Data/vocab/dictionariesgrammar.js

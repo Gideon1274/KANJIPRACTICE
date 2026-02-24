@@ -144,7 +144,11 @@
         <div id="difficulty-switcher">
             <span id="timer">Time: 00:00</span>
             <select id="difficulty-switch">
-                <option value="ANKI" selected>ANKI Vocabulary</option>
+                <option value="ANKI">Core 2000</option>
+                <option value="BASIC">Grammar: Basic (Clean)</option>
+                <option value="INTERMEDIATE">Grammar: Intermediate (Clean)</option>
+                <option value="ADVANCED">Grammar: Advanced (Clean)</option>
+                <option value="VARIATIONS">Grammar: Variations (Brackets/Dots)</option>
             </select>
 
             <select id="mode-switch">
@@ -176,7 +180,7 @@
 
     
     <script src="Data/vocab/core2000.js"></script>
-    
+    <script src="Data/vocab/dictionariesgrammar.js"></script>
     
     <script>
 
@@ -402,7 +406,9 @@
             historyList.scrollTop = historyList.scrollHeight;
         }
         function playHistoryAudio(filename) {
-            sentenceAudio.src = `Data/audio/core2000/${filename}`;
+    
+            const folder = filename.startsWith('grammar_') ? 'sentence' : 'core2000';
+            sentenceAudio.src = `Data/audio/${folder}/${filename}`;
             sentenceAudio.play();
         }
         function updateStats() {
@@ -486,10 +492,12 @@
 
             // Audio handling
             if (kanji.audio && !isMuted) {
-                sentenceAudio.src = `Data/audio/core2000/${kanji.audio}`;
-                sentenceAudio.onended = () => {
-                    checkCompletionAndMoveOn();
-                };
+                const folder = kanji.audio.startsWith('grammar_') ? 'sentence' : 'core2000';
+                sentenceAudio.src = `Data/audio/${folder}/${kanji.audio}`;
+                // sentenceAudio.onended = () => {
+                //     checkCompletionAndMoveOn();
+                // };
+                setTimeout(checkCompletionAndMoveOn, 1);
                 sentenceAudio.play();
             } else {
                 setTimeout(checkCompletionAndMoveOn, 1);
@@ -537,11 +545,12 @@
         }
         // Helper to decide if we save to DB or just show the next card
         
-        function getKanjiDataForLevel() {
+        function getKanjiDataForLevel(level) {
             const data = window.kanjiData || {};
-            const list = data.ANKI;
+            // Use the level passed in (e.g., 'BASIC'), fallback to 'ANKI' if not found
+            const list = data[level] || data.ANKI; 
             if (!Array.isArray(list)) {
-                console.warn('No ANKI data found.');
+                console.warn(`No data found for level: ${level}`);
                 return [];
             }
             return list;
@@ -923,7 +932,8 @@
         }
 
         document.getElementById("difficulty-switch").addEventListener("change", function() {
-            startQuiz("ANKI", quizMode);
+            const selectedLevel = this.value; 
+            startQuiz(selectedLevel, quizMode);
         });
 
 
