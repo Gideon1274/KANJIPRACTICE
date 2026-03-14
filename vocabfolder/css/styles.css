@@ -20,7 +20,7 @@ body.dark-mode {
     background-color: #e8ecef;
     overflow-y: auto;
     border-right: 2px solid #ccc;
-
+    font-size: 1.1em;
 }
 
 body.dark-mode #sidebar {

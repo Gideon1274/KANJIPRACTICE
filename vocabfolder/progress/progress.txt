@@ -1,0 +1,4 @@
+sqlite3 "progress/ankiResult_3_6.db" "SELECT printf('%d Hours, %d Minutes, %d Seconds',SUM
+(strftime('%s', '00:' || time_taken) - strftime('%s', '00:00:00')) / 3600, (SUM(strftime('
+%s','00:' || time_taken) - strftime('%s', '00:00:00')) % 3600) / 60, SUM(strftime('%s', '0
+0:' || time_taken) - strftime('%s', '00:00:00')) % 60) AS total_learning_time FROM quiz_results;"

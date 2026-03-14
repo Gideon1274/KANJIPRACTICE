@@ -5,24 +5,36 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+
 app.use(cors());
 app.use(express.json());
 
-const progressDir = path.join(__dirname, 'progress');
+// Serve static files from the vocabfolder
+app.use(express.static(path.join(__dirname, 'vocabfolder')));
+
+// Progress directory for the database
+const progressDir = path.join(__dirname, 'vocabfolder', 'progress');
 if (!fs.existsSync(progressDir)) {
-    fs.mkdirSync(progressDir);
+    fs.mkdirSync(progressDir, { recursive: true });
 }
 
+// Database setup
 const now = new Date();
 const month = now.getMonth() + 1;
 const day = now.getDate();
 const dbName = `ankiResult_${month}_${day}.db`;
 const dbPath = path.join(progressDir, dbName);
 
-const db = new sqlite3.Database(dbPath);
-console.log(`Connected to database: ${dbPath}`);
+const db = new sqlite3.Database(dbPath, (err) => {
+    if (err) {
+        console.error('Error connecting to database:', err.message);
+    } else {
+        console.log(`Connected to database: ${dbPath}`);
+    }
+});
 
-// 1. Updated Schema to include "deck_name"
+// Initialize database schema
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS quiz_results (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,10 +49,10 @@ db.serialize(() => {
     )`);
 });
 
-// 2. Updated Endpoint to receive "deck_name"
+// Endpoint to save quiz results
 app.post('/save-result', (req, res) => {
     const {
-        deck_name, // e.g., "Core 2000", "Basic DoJG", etc.
+        deck_name,
         session_range,
         total_answered,
         correct,
@@ -63,9 +75,8 @@ app.post('/save-result', (req, res) => {
     });
 });
 
-// 3. Fixed Route to get total time from the correct table
+// Endpoint to get total time from quiz results
 app.get('/total-time', (req, res) => {
-    // Changed "results" to "quiz_results" to match your initialization
     db.all('SELECT time_taken FROM quiz_results', [], (err, rows) => {
         if (err) {
             return res.status(500).json({ error: err.message });
@@ -92,4 +103,11 @@ app.get('/total-time', (req, res) => {
     });
 });
 
-app.listen(3000, () => console.log("SQLite Server running at http://localhost:3000"));
+// Serve the index.html file for any unknown routes
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.listen(PORT, () => {
+    console.log(`Server is running at http://localhost:${PORT}`);
+});

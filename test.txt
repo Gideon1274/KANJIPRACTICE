@@ -36,3 +36,16 @@ node 2000ankiconverter.js --input "Core2000.apkg" --out "Data/vocab/core2000.js"
 for anki dictionaries grammar
 node tools/dictionariesgrammar.js
 node tools/dictionariesgrammar.js --input tools/dictionariesgrammar.apkg --out Data/vocab/dictionariesgrammar.js
+
+
+
+
+node server.js
+
+DONT FORGET TO CHANGE dictionaries
+sqlite3 "progress/ankiResult_2_25.db" "SELECT printf('%d Hours, %d Minutes, %d Seconds',
+ SUM(strftime('%s', '00:' || time_taken) - strftime('%s', '00:00:00')) / 3600, (SUM(strftime('%s',
+  '00:' || time_taken) - strftime('%s', '00:00:00')) % 3600) / 60, SUM(strftime('%s', '00:' ||
+   time_taken) - strftime('%s', '00:00:00')) % 60) AS total_learning_time FROM quiz_results;"
+
+

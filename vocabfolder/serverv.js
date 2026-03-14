@@ -8,39 +8,39 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const progressDir = path.join(__dirname, 'progress');
+// 1. Ensure the "progress_vocab" folder exists
+const progressDir = path.join(__dirname, 'progress_vocab');
 if (!fs.existsSync(progressDir)) {
     fs.mkdirSync(progressDir);
 }
 
+// 2. Dynamic filename: vocabResult_Month_Day.db
 const now = new Date();
-const month = now.getMonth() + 1;
-const day = now.getDate();
-const dbName = `ankiResult_${month}_${day}.db`;
+const dbName = `vocabResult_${now.getMonth() + 1}_${now.getDate()}.db`;
 const dbPath = path.join(progressDir, dbName);
 
 const db = new sqlite3.Database(dbPath);
-console.log(`Connected to database: ${dbPath}`);
+console.log(`Connected to Vocabulary database: ${dbPath}`);
 
-// 1. Updated Schema to include "deck_name"
+// 3. Initialize the table with "deck_name"
 db.serialize(() => {
-    db.run(`CREATE TABLE IF NOT EXISTS quiz_results (
+    db.run(`CREATE TABLE IF NOT EXISTS vocab_results (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         deck_name TEXT, 
         session_range TEXT,
         total_answered INTEGER,
         correct INTEGER,
         accuracy_rate TEXT,
-        missed_first_pass TEXT,
+        missed_items TEXT,
         time_taken TEXT,
         date_completed TEXT
     )`);
 });
 
-// 2. Updated Endpoint to receive "deck_name"
+// 4. Endpoint to save vocabulary results
 app.post('/save-result', (req, res) => {
     const {
-        deck_name, // e.g., "Core 2000", "Basic DoJG", etc.
+        deck_name,
         session_range,
         total_answered,
         correct,
@@ -50,7 +50,7 @@ app.post('/save-result', (req, res) => {
         date_completed
     } = req.body;
 
-    const sql = `INSERT INTO quiz_results (deck_name, session_range, total_answered, correct, accuracy_rate, missed_first_pass, time_taken, date_completed) 
+    const sql = `INSERT INTO vocab_results (deck_name, session_range, total_answered, correct, accuracy_rate, missed_items, time_taken, date_completed) 
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
     db.run(sql, [deck_name, session_range, total_answered, correct, accuracy_rate, missed_first_pass, time_taken, date_completed], (err) => {
@@ -58,38 +58,35 @@ app.post('/save-result', (req, res) => {
             console.error(err.message);
             return res.status(500).send(err.message);
         }
-        console.log(`Session recorded for [${deck_name}] successfully.`);
+        console.log(`Vocab session recorded for [${deck_name}]`);
         res.send("Success");
     });
 });
 
-// 3. Fixed Route to get total time from the correct table
+// 5. Endpoint to get total time spent on Vocab
 app.get('/total-time', (req, res) => {
-    // Changed "results" to "quiz_results" to match your initialization
-    db.all('SELECT time_taken FROM quiz_results', [], (err, rows) => {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
+    db.all('SELECT time_taken FROM vocab_results', [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
 
         let totalSeconds = 0;
         rows.forEach(row => {
             if (row.time_taken) {
                 const parts = row.time_taken.split(':');
-                const minutes = parseInt(parts[0], 10);
-                const seconds = parseInt(parts[1], 10);
-                totalSeconds += (minutes * 60) + seconds;
+                const m = parseInt(parts[0], 10);
+                const s = parseInt(parts[1], 10);
+                totalSeconds += (m * 60) + s;
             }
         });
 
         const h = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
-        const m = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
-        const s = (totalSeconds % 60).toString().padStart(2, '0');
+        const min = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
+        const sec = (totalSeconds % 60).toString().padStart(2, '0');
 
         res.json({
             total_seconds: totalSeconds,
-            total_formatted: `${h}:${m}:${s}`
+            total_formatted: `${h}:${min}:${sec}`
         });
     });
 });
 
-app.listen(3000, () => console.log("SQLite Server running at http://localhost:3000"));
+app.listen(3001, () => console.log("Vocab Server running at http://localhost:3001"));

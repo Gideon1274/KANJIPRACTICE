@@ -951,30 +951,165 @@
             console.log('Volume slider changed:', volume);
         });
         
-        document.addEventListener("keydown", function(event) {
-            if (event.key === "Enter" && event.ctrlKey) {
-                event.preventDefault();
-                if (isVoiceInputEnabled && recognition) {
-                    recognition.stop();
-                    console.log('Voice input stopped due to Ctrl+Enter reset');
-                }
-                // Also trigger the vocab panel Enter button so Ctrl+Enter will apply the range
-                // Use a short timeout to allow IME compositionend to finish before reading input value
-                const enterBtn = document.getElementById('vocab-range-enter');
-                if (enterBtn) {
-                    setTimeout(() => {
-                        try { enterBtn.click(); } catch (e) { console.error('Error clicking vocab Enter:', e); }
-                    }, 10);
-                }
-                resetQuiz();
-                console.log('Quiz reset via Ctrl+Enter (and vocab Enter triggered)');
-                return;
+
+function saveSessionToDB() {
+    const accuracy = totalCount > 0 ? ((correctCount / totalCount) * 100).toFixed(0) + "%" : "0%";
+    const deckSelect = document.getElementById('difficulty-switch');
+    const selectedDeckName = deckSelect.options[deckSelect.selectedIndex].text;
+
+    const sessionData = {
+        deck_name: selectedDeckName,
+        session_range: document.getElementById('vocab-range-input').value || "All",
+        total_answered: totalCount,
+        correct: correctCount,
+        accuracy_rate: accuracy,
+        missed_first_pass: sessionFirstIterationMissedIndices.sort((a,b) => a-b).join(", "),
+        time_taken: document.getElementById('timer').textContent.replace("Time: ", ""),
+        date_completed: new Date().toLocaleString()
+    };
+
+    // Note the port 3001 here
+    fetch('/save-result', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sessionData)
+    })
+    .then(res => res.text())
+    .then(data => console.log("Vocab Stats Saved:", data))
+    .catch(err => console.error("Vocab Server Error:", err));
+}
+let isConfirmingReset = false; // Ensure this is declared globally
+
+document.addEventListener("keydown", function(event) {
+    // 1. Determine Quiz State
+    const isFinished = (quizMode === 'normal' && currentKanjiList.length === 0);
+
+    // 2. Mute/Unmute: Ctrl + M
+    if (event.ctrlKey && event.key.toLowerCase() === 'm') {
+        event.preventDefault();
+        document.getElementById("volume-toggle").click();
+        return;
+    }
+
+    // 3. Reset Prompt: Ctrl + Enter
+    if (event.key === "Enter" && event.ctrlKey) {
+        event.preventDefault();
+        if (isFinished) {
+            // If already finished, just reset immediately
+            typeof resetQuiz === 'function' ? resetQuiz() : performReset();
+        } else {
+            // If in progress, ask for confirmation
+            isConfirmingReset = true;
+            const feedback = document.getElementById("feedback");
+            feedback.textContent = "Reset Quiz? [Shift+1] Yes | [Shift+2] No";
+            feedback.style.color = "orange";
+        }
+        return;
+    }
+
+    // 4. Handle Reset Confirmation (Blocks other shortcuts)
+    if (isConfirmingReset) {
+        if (event.shiftKey && event.code === "Digit1") {
+            event.preventDefault();
+            isConfirmingReset = false;
+            typeof resetQuiz === 'function' ? resetQuiz() : performReset();
+            return;
+        } else if (event.shiftKey && event.code === "Digit2") {
+            event.preventDefault();
+            isConfirmingReset = false;
+            const feedback = document.getElementById("feedback");
+            feedback.textContent = "Reset cancelled.";
+            feedback.style.color = "white";
+            if (!isFinished) displayKanji();
+            return;
+        }
+    }
+
+    // 5. Auto-Correct / Skip: Shift + Delete
+    if (event.shiftKey && event.code === 'Delete') {
+        event.preventDefault();
+        if (!isFinished) {
+            const currentItem = currentKanjiList[currentKanjiIndex];
+            if (currentItem) {
+                // Support both VOCAB (word/kanji) and ANKI (kanji) formats
+                const answer = currentItem.kanji || currentItem.word;
+                checkAnswer(answer, false);
             }
-            if (event.key === "Enter" && quizMode === 'normal' && currentKanjiList.length === 0) {
-                resetQuiz();
-                console.log('Quiz reset via Enter key');
-            }
-        }, true);
+        } else {
+            typeof resetQuiz === 'function' ? resetQuiz() : performReset();
+        }
+        return;
+    }
+
+    // 6. Range Math Shortcuts: Shift + 1-6
+    if (event.shiftKey && ['Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6'].includes(event.code)) {
+        if (isConfirmingReset) return; // Prevent range changes while reset prompt is up
+
+        event.preventDefault();
+        const rangeInput = document.getElementById('vocab-range-input');
+        
+        // Normalize Full-width Japanese numbers to Half-width for math
+        let val = rangeInput.value.trim()
+            .replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0))
+            .replace('－', '-');
+            
+        const parts = val.split('-');
+        if (parts.length !== 2) return;
+
+        let start = parseInt(parts[0]);
+        let end = parseInt(parts[1]);
+        if (isNaN(start) || isNaN(end)) return;
+
+        // Perform Math Logic
+        if (event.code === 'Digit1') { // Slide Back 2
+            rangeInput.value = toFullWidth(`${start - 2}-${end - 2}`);
+        } else if (event.code === 'Digit2') { // Slide Back 5
+            rangeInput.value = toFullWidth(`${start - 5}-${end - 5}`);
+        } else if (event.code === 'Digit3') { // Forward 2
+            rangeInput.value = toFullWidth(`${end + 1}-${end + 2}`);
+        } else if (event.code === 'Digit4') { // Forward 5
+            rangeInput.value = toFullWidth(`${end + 1}-${end + 5}`);
+        } else if (event.code === 'Digit5') { // Expand Back 50
+            rangeInput.value = toFullWidth(`${end - 49}-${end}`);
+        } else if (event.code === 'Digit6') { // Shrink End by 1
+            const newEnd = end - 1;
+            rangeInput.value = toFullWidth(`${start}-${newEnd >= start ? newEnd : start}`);
+        }
+
+        // Apply and Restart UI
+        const finalVal = rangeInput.value.trim();
+        if (typeof applyRangeFilter === 'function') applyRangeFilter(finalVal);
+        
+        // Reset and Force Show Input (in case it was hidden by "Completed" state)
+        typeof resetQuiz === 'function' ? resetQuiz() : performReset();
+        document.getElementById("answer-input").style.display = "block";
+        document.getElementById("feedback").textContent = "";
+        displayKanji();
+        
+        return;
+    }
+
+    // 7. Toggle Input Focus: Shift + ~
+    if (event.shiftKey && event.code === 'Backquote') {
+        event.preventDefault();
+        const answerInput = document.getElementById('answer-input');
+        const rangeInput = document.getElementById('vocab-range-input');
+        const vocabPanel = document.getElementById('vocab-panel');
+
+        if (document.activeElement === answerInput) {
+            rangeInput.value += (rangeInput.value ? " " : "") + answerInput.value;
+            answerInput.value = "";
+            vocabPanel.style.display = 'block';
+            rangeInput.focus();
+        } else {
+            answerInput.value += (answerInput.value ? " " : "") + rangeInput.value;
+            rangeInput.value = "";
+            answerInput.focus();
+        }
+        return;
+    }
+}, true);
+ 
 
         document.getElementById("main-content").style.display = "none";
         document.getElementById("sidebar").style.display = "none";
