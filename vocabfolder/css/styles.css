@@ -235,7 +235,7 @@ body.dark-mode #level-selector button {
 body.dark-mode #theme-toggle {
     border: 1px solid #555;
     background-color: #333;
-    color: history-list#ddd;
+    color: #ddd;
 }
 
 #volume-control {
@@ -388,19 +388,43 @@ body.dark-mode #font-size-control button {
         flex-direction: column;
         height: 100vh;
         overflow: hidden;
-        /* Prevent scrolling body on mobile when menu is open */
     }
 
     #main-content {
-        padding: 20px;
+        padding: 15px;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
-        /* Space things out */
-        padding-top: 60px;
-        /* Space for the menu button */
-        height: 100%;
+        height: 100vh;
+        width: 100vw;
         box-sizing: border-box;
+        justify-content: space-between;
+        padding-top: 70px;
+        /* Leave space for Menu button */
+    }
+
+    #kanji-display {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px !important;
+        text-align: center;
+        width: 100%;
+        margin: 0 !important;
+        word-break: break-word;
+        line-height: 1.4;
+        color: #fff;
+    }
+
+    #answer-input {
+        width: 100%;
+        font-size: 24px;
+        padding: 15px;
+        margin-bottom: 20px;
+        box-sizing: border-box;
+        background: #333;
+        color: #fff;
+        border: 1px solid #555;
     }
 
     #sidebar {
@@ -411,9 +435,10 @@ body.dark-mode #font-size-control button {
         width: 100%;
         height: 100%;
         z-index: 2000;
-        background: rgba(0, 0, 0, 0.9);
-        color: white;
+        background: #1a1a1a;
         padding: 20px;
+        padding-top: 80px;
+        /* Space for tabs */
         box-sizing: border-box;
         overflow-y: auto;
     }
@@ -422,112 +447,105 @@ body.dark-mode #font-size-control button {
         display: block;
     }
 
-    #difficulty-switcher {
-        position: static;
-        transform: none;
-        margin-bottom: 20px;
-        flex-direction: column;
+    .mobile-nav-tabs {
+        display: flex !important;
+        position: fixed;
+        top: 0;
+        left: 0;
         width: 100%;
+        z-index: 2100;
         background: #333;
-        padding: 15px;
-        border-radius: 8px;
+        padding: 10px;
         box-sizing: border-box;
+        gap: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
     }
 
-    .mobile-settings-container {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        margin-top: 20px;
-    }
-
-    #difficulty-switcher select,
-    #timer,
-    #difficulty-switcher label,
-    #difficulty-switcher button {
-        width: 100%;
-        max-width: none;
-        margin-bottom: 10px;
-        height: 44px;
+    .mobile-nav-tabs button {
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
 
     #kanji-display {
         flex: 1;
-        /* Take up available space */
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 32px !important;
-        margin: 0 !important;
-        width: 100%;
+        font-size: 40px !important;
+        /* Increased for visibility */
         text-align: center;
-        word-break: break-all;
-        overflow-wrap: break-word;
-        line-height: 1.4;
-    }
-
-    #answer-input {
         width: 100%;
-        font-size: 20px;
-        padding: 15px;
-        margin-top: 20px;
-        margin-bottom: 20px;
-        box-sizing: border-box;
+        margin: 0 !important;
+        word-break: break-word;
+        line-height: 1.4;
+        color: #fff;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     }
 
-    #reset-button {
+    #level-selector div {
+        width: 95%;
+        padding: 20px;
+        background: #222;
+        color: #fff;
+        border: 1px solid #444;
+    }
+
+    #level-selector h2 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+
+    #level-selector select,
+    #level-selector button {
+        width: 100%;
+        height: 50px;
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+
+    #difficulty-switcher {
         position: static;
         transform: none;
-        width: 100%;
-        margin-top: 10px;
-        height: 44px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background: #2a2a2a;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
     }
 
-    #vocab-panel {
-        display: none;
-        position: fixed;
-        top: 0;
-        right: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 2001;
-        background: #222;
-        padding: 20px;
-        box-sizing: border-box;
-    }
-
-    #vocab-panel.active {
-        display: block;
+    #difficulty-switcher select,
+    #difficulty-switcher button,
+    #difficulty-switcher label {
+        width: 100% !important;
+        max-width: none !important;
+        height: 45px;
+        margin: 0;
+        font-size: 16px;
     }
 
     #theme-toggle,
     #volume-control {
-        display: none;
-        /* Hide these or move them to the settings menu on mobile */
+        display: none !important;
     }
 
     #mobile-menu-toggle {
-        display: block;
+        display: block !important;
         position: fixed;
-        top: 10px;
-        left: 10px;
-        z-index: 2100;
-        padding: 10px 15px;
+        top: 15px;
+        left: 15px;
+        z-index: 1500;
+        padding: 10px 20px;
         background: #007bff;
         color: white;
         border: none;
         border-radius: 5px;
-        font-size: 16px;
+        font-weight: bold;
     }
 
-    .menu-card {
-        width: 100% !important;
-        margin-bottom: 10px;
-    }
-
-    .mobile-nav-tabs {
-        display: flex !important;
-        gap: 10px;
-        margin-bottom: 20px;
+    #vocab-panel {
+        display: none;
     }
 }

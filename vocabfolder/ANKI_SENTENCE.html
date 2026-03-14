@@ -703,16 +703,16 @@
 
         function toggleMobileMenu() {
             const isActive = sidebar.classList.toggle('active');
-            if (isActive) {
-                if (window.innerWidth <= 768) {
+            if (window.innerWidth <= 768) {
+                if (isActive) {
                     mobileNavTabs.style.display = 'flex';
                     mobileSettingsContainer.appendChild(difficultySwitcher);
+                    difficultySwitcher.style.display = 'flex';
                     switchTab('settings');
-                }
-            } else {
-                if (window.innerWidth <= 768) {
-                    mainContent.prepend(difficultySwitcher);
+                } else {
                     mobileNavTabs.style.display = 'none';
+                    // Don't prepend back to mainContent on mobile to avoid overlap
+                    difficultySwitcher.style.display = 'none';
                 }
             }
         }
