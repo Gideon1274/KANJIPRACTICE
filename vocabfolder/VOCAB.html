@@ -1007,8 +1007,17 @@
             }
         }
 
-        mobileMenuToggle.addEventListener('click', toggleMobileMenu);
-        closeSidebarBtn.addEventListener('click', toggleMobileMenu);
+        mobileMenuToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleMobileMenu();
+        });
+        closeSidebarBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleMobileMenu();
+        });
+        sidebar.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent clicks inside sidebar from closing it
+        });
         showSettingsBtn.addEventListener('click', () => switchTab('settings'));
         showVocabBtn.addEventListener('click', () => switchTab('vocab'));
 
