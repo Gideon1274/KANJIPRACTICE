@@ -205,13 +205,26 @@
         </div>
     </div>
     <div id="sidebar">
-        <h3>Previous 3 Attempts (History)</h3>
-        <div id="stats-container">
-            <span id="current-mode">Mode: </span>
-            <span id="correct-count">Correct: 0</span>
-            <span id="remaining-count">All: 0</span>
+        <div class="mobile-nav-tabs" style="display:none; margin-bottom: 20px; gap: 10px;">
+            <button id="show-settings" style="flex:1; padding: 10px; background: #4a90e2; color: white; border: none; border-radius: 5px;">Settings</button>
+            <button id="show-vocab" style="flex:1; padding: 10px; background: #2c3e50; color: white; border: none; border-radius: 5px;">Vocab List</button>
+            <button id="close-sidebar-btn" style="padding: 10px; background: #dc3545; color: white; border: none; border-radius: 5px;">✕</button>
         </div>
-        <ul id="history-list"></ul>
+        <div id="sidebar-settings-content">
+            <div class="mobile-settings-container">
+                <!-- Settings will be moved here on mobile -->
+            </div>
+            <h3>Previous 3 Attempts (History)</h3>
+            <div id="stats-container">
+                <span id="current-mode">Mode: </span>
+                <span id="correct-count">Correct: 0</span>
+                <span id="remaining-count">All: 0</span>
+            </div>
+            <ul id="history-list"></ul>
+        </div>
+        <div id="sidebar-vocab-content" style="display:none;">
+            <!-- Vocab Checklist will be moved here on mobile -->
+        </div>
     </div>
 
     <!-- Fixed panel on the far right for the vocab/kanji checklist -->
@@ -678,26 +691,61 @@
         const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
         const sidebar = document.getElementById('sidebar');
         const vocabPanel = document.getElementById('vocab-panel');
+        const mainContent = document.getElementById('main-content');
+        const difficultySwitcher = document.getElementById('difficulty-switcher');
+        const mobileSettingsContainer = document.querySelector('.mobile-settings-container');
+        const mobileNavTabs = document.querySelector('.mobile-nav-tabs');
+        const showSettingsBtn = document.getElementById('show-settings');
+        const showVocabBtn = document.getElementById('show-vocab');
+        const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+        const sidebarSettingsContent = document.getElementById('sidebar-settings-content');
+        const sidebarVocabContent = document.getElementById('sidebar-vocab-content');
 
-        mobileMenuToggle.addEventListener('click', () => {
-            if (sidebar.style.display === 'block') {
-                sidebar.style.display = 'none';
-                vocabPanel.style.display = 'none';
+        function toggleMobileMenu() {
+            const isActive = sidebar.classList.toggle('active');
+            if (isActive) {
+                if (window.innerWidth <= 768) {
+                    mobileNavTabs.style.display = 'flex';
+                    mobileSettingsContainer.appendChild(difficultySwitcher);
+                    switchTab('settings');
+                }
             } else {
-                sidebar.style.display = 'block';
-                vocabPanel.style.display = 'block';
-                sidebar.classList.add('active');
-                vocabPanel.classList.add('active');
+                if (window.innerWidth <= 768) {
+                    mainContent.prepend(difficultySwitcher);
+                    mobileNavTabs.style.display = 'none';
+                }
             }
-        });
+        }
 
-        // Hide menus when clicking main content on mobile
-        document.getElementById('main-content').addEventListener('click', () => {
-            if (window.innerWidth <= 768) {
-                sidebar.style.display = 'none';
-                vocabPanel.style.display = 'none';
-                sidebar.classList.remove('active');
-                vocabPanel.classList.remove('active');
+        function switchTab(tab) {
+            if (tab === 'settings') {
+                sidebarSettingsContent.style.display = 'block';
+                sidebarVocabContent.style.display = 'none';
+                showSettingsBtn.style.background = '#4a90e2';
+                showVocabBtn.style.background = '#2c3e50';
+            } else {
+                sidebarSettingsContent.style.display = 'none';
+                sidebarVocabContent.style.display = 'block';
+                showSettingsBtn.style.background = '#2c3e50';
+                showVocabBtn.style.background = '#4a90e2';
+                // Move vocab panel content into sidebar on mobile
+                sidebarVocabContent.appendChild(vocabPanel);
+                vocabPanel.style.display = 'block';
+                vocabPanel.style.position = 'static';
+                vocabPanel.style.width = '100%';
+                vocabPanel.style.boxShadow = 'none';
+            }
+        }
+
+        mobileMenuToggle.addEventListener('click', toggleMobileMenu);
+        closeSidebarBtn.addEventListener('click', toggleMobileMenu);
+        showSettingsBtn.addEventListener('click', () => switchTab('settings'));
+        showVocabBtn.addEventListener('click', () => switchTab('vocab'));
+
+        // Hide menus when clicking main content on mobile if they are active
+        mainContent.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('active')) {
+                toggleMobileMenu();
             }
         });
 

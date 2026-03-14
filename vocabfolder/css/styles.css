@@ -386,104 +386,148 @@ body.dark-mode #font-size-control button {
 @media (max-width: 768px) {
     body {
         flex-direction: column;
-        height: auto;
+        height: 100vh;
+        overflow: hidden;
+        /* Prevent scrolling body on mobile when menu is open */
+    }
+
+    #main-content {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        /* Space things out */
+        padding-top: 60px;
+        /* Space for the menu button */
+        height: 100%;
+        box-sizing: border-box;
     }
 
     #sidebar {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
         width: 100%;
-        border-right: none;
-        border-bottom: 2px solid #ccc;
-        max-height: 300px;
+        height: 100%;
+        z-index: 2000;
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 20px;
+        box-sizing: border-box;
+        overflow-y: auto;
     }
 
-    #kanji-display {
-        font-size: 60px;
-        margin-top: 80px;
-    }
-
-    #answer-input {
-        width: 90%;
-        font-size: 24px;
-    }
-
-    #theme-toggle,
-    #volume-control {
-        right: 10px;
+    #sidebar.active {
+        display: block;
     }
 
     #difficulty-switcher {
-        width: 100%;
-        justify-content: center;
-        padding: 10px;
-        box-sizing: border-box;
+        position: static;
+        transform: none;
+        margin-bottom: 20px;
         flex-direction: column;
-        top: 50px;
+        width: 100%;
+        background: #333;
+        padding: 15px;
+        border-radius: 8px;
+        box-sizing: border-box;
+    }
+
+    .mobile-settings-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 20px;
     }
 
     #difficulty-switcher select,
     #timer,
-    #difficulty-switcher label {
+    #difficulty-switcher label,
+    #difficulty-switcher button {
         width: 100%;
-        max-width: 300px;
-        font-size: 1rem;
-        margin-bottom: 5px;
-    }
-
-    #reset-button {
-        top: 250px;
-        width: 80%;
+        max-width: none;
+        margin-bottom: 10px;
+        height: 44px;
     }
 
     #kanji-display {
-        font-size: 50px !important;
-        margin-top: 150px;
+        flex: 1;
+        /* Take up available space */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px !important;
+        margin: 0 !important;
+        width: 100%;
+        text-align: center;
+        word-break: break-all;
+        overflow-wrap: break-word;
+        line-height: 1.4;
     }
 
     #answer-input {
-        width: 95%;
+        width: 100%;
         font-size: 20px;
         padding: 15px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        box-sizing: border-box;
     }
 
-    #theme-toggle {
-        top: 10px;
-        right: 10px;
-        padding: 10px;
-    }
-
-    #volume-control {
-        top: 10px;
-        right: 130px;
-        /* Offset from theme toggle */
-    }
-
-    #volume-slider {
-        display: none;
-        /* Hide slider on mobile to save space */
-    }
-
-    .stat-item {
-        font-size: 0.9rem;
-    }
-
-    #level-selector div {
-        width: 90%;
-        padding: 15px;
+    #reset-button {
+        position: static;
+        transform: none;
+        width: 100%;
+        margin-top: 10px;
+        height: 44px;
     }
 
     #vocab-panel {
-        width: 85% !important;
-        z-index: 2000;
-        right: -100%;
-        transition: right 0.3s;
+        display: none;
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 2001;
+        background: #222;
+        padding: 20px;
+        box-sizing: border-box;
     }
 
     #vocab-panel.active {
-        right: 0;
+        display: block;
+    }
+
+    #theme-toggle,
+    #volume-control {
+        display: none;
+        /* Hide these or move them to the settings menu on mobile */
+    }
+
+    #mobile-menu-toggle {
+        display: block;
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 2100;
+        padding: 10px 15px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
     }
 
     .menu-card {
         width: 100% !important;
         margin-bottom: 10px;
+    }
+
+    .mobile-nav-tabs {
+        display: flex !important;
+        gap: 10px;
+        margin-bottom: 20px;
     }
 }
