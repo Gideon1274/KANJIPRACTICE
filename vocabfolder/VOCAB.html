@@ -96,11 +96,93 @@
         /* when vocab panel is open, add right padding so top controls don't get overlapped */
         .vocab-open { padding-right: 300px; }
         
-        
-        
+        /* Mobile Menu Button */
+        #mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 2001;
+            padding: 10px;
+            background: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            #mobile-menu-toggle {
+                display: block;
+            }
+
+            #sidebar {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 80%;
+                height: 100%;
+                z-index: 2000;
+                background: #222;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+            }
+
+            #sidebar.active {
+                display: block;
+            }
+
+            #vocab-panel {
+                width: 85%;
+                right: -100%;
+                transition: right 0.3s;
+            }
+
+            #vocab-panel.active {
+                right: 0;
+                display: block;
+            }
+
+            #difficulty-switcher {
+                flex-wrap: wrap;
+                top: 60px;
+                gap: 5px;
+            }
+
+            #difficulty-switcher select, #difficulty-switcher label, #difficulty-switcher button {
+                font-size: 0.8rem;
+                padding: 5px;
+            }
+
+            #kanji-display {
+                font-size: 60px !important;
+                margin-top: 120px;
+                text-align: center;
+                padding: 0 10px;
+            }
+
+            #answer-input {
+                font-size: 24px;
+                width: 90%;
+            }
+
+            #theme-toggle {
+                top: 10px;
+                right: 10px;
+                font-size: 0.8rem;
+            }
+
+            #volume-control {
+                top: 45px;
+                right: 10px;
+            }
+        }
+
     </style>
 </head>
 <body class="dark-mode">
+    <button id="mobile-menu-toggle">Menu ☰</button>
     <button id="theme-toggle">Toggle Light Mode</button>
     <div id="volume-control">
         <button id="volume-toggle">Mute</button>
@@ -860,6 +942,35 @@
             const selectedMode = document.getElementById("quiz-mode").value;
             console.log('Start button clicked, level:', selectedLevel, 'mode:', selectedMode);
             startQuiz(selectedLevel, selectedMode);
+        });
+
+        // Mobile Menu Toggle Logic
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const vocabPanel = document.getElementById('vocab-panel');
+
+        mobileMenuToggle.addEventListener('click', () => {
+            if (sidebar.style.display === 'block') {
+                sidebar.style.display = 'none';
+                vocabPanel.style.display = 'none';
+                sidebar.classList.remove('active');
+                vocabPanel.classList.remove('active');
+            } else {
+                sidebar.style.display = 'block';
+                vocabPanel.style.display = 'block';
+                sidebar.classList.add('active');
+                vocabPanel.classList.add('active');
+            }
+        });
+
+        // Hide menus when clicking main content on mobile
+        document.getElementById('main-content').addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                sidebar.style.display = 'none';
+                vocabPanel.style.display = 'none';
+                sidebar.classList.remove('active');
+                vocabPanel.classList.remove('active');
+            }
         });
 
         // Build vocab list and hook up range input Enter behavior

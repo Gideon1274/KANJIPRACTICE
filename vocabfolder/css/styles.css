@@ -382,8 +382,108 @@ body.dark-mode #font-size-control button {
     /* font-size: 1.3em; */
 }
 
-#history-list li.correct {
-    background-color: #0e331a;
-    border-left: 6px solid #2ecc71;
-    padding: 12px;
+/* Responsive Base Styles */
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+        height: auto;
+    }
+
+    #sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 2px solid #ccc;
+        max-height: 300px;
+    }
+
+    #kanji-display {
+        font-size: 60px;
+        margin-top: 80px;
+    }
+
+    #answer-input {
+        width: 90%;
+        font-size: 24px;
+    }
+
+    #theme-toggle,
+    #volume-control {
+        right: 10px;
+    }
+
+    #difficulty-switcher {
+        width: 100%;
+        justify-content: center;
+        padding: 10px;
+        box-sizing: border-box;
+        flex-direction: column;
+        top: 50px;
+    }
+
+    #difficulty-switcher select,
+    #timer,
+    #difficulty-switcher label {
+        width: 100%;
+        max-width: 300px;
+        font-size: 1rem;
+        margin-bottom: 5px;
+    }
+
+    #reset-button {
+        top: 250px;
+        width: 80%;
+    }
+
+    #kanji-display {
+        font-size: 50px !important;
+        margin-top: 150px;
+    }
+
+    #answer-input {
+        width: 95%;
+        font-size: 20px;
+        padding: 15px;
+    }
+
+    #theme-toggle {
+        top: 10px;
+        right: 10px;
+        padding: 10px;
+    }
+
+    #volume-control {
+        top: 10px;
+        right: 130px;
+        /* Offset from theme toggle */
+    }
+
+    #volume-slider {
+        display: none;
+        /* Hide slider on mobile to save space */
+    }
+
+    .stat-item {
+        font-size: 0.9rem;
+    }
+
+    #level-selector div {
+        width: 90%;
+        padding: 15px;
+    }
+
+    #vocab-panel {
+        width: 85% !important;
+        z-index: 2000;
+        right: -100%;
+        transition: right 0.3s;
+    }
+
+    #vocab-panel.active {
+        right: 0;
+    }
+
+    .menu-card {
+        width: 100% !important;
+        margin-bottom: 10px;
+    }
 }
