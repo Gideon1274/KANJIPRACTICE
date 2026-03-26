@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korean Anki</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        #sidebar {
+            display: none;
+            width: 360px;
+            box-sizing: border-box;
+            padding: 10px;
+        }
+        #stats-container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        #history-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #history-list li {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.06);
+        }
+        #history-list li.correct { border-left: 5px solid #4caf50; }
+        #history-list li.incorrect { border-left: 5px solid #ff5252; }
+        .diff-highlight { background: rgba(255, 82, 82, 0.35); border-radius: 3px; padding: 0 2px; }
+
+        #vocab-panel {
+            display: none;
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 17%;
+            background: #333333;
+            color: #fff;
+            padding: 10px;
+            box-sizing: border-box;
+            overflow: auto;
+            z-index: 999;
+        }
+        #vocab-panel h3 { margin-top: 0; }
+        #vocab-panel input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 8px;
+        }
+        #vocab-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: calc(100vh - 120px);
+            overflow: auto;
+        }
+        #vocab-list li {
+            padding: 4px 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #vocab-range-input {
+            width: 100%;
+            height: 30px;
+            font-size: 17px;
+            box-sizing: border-box;
+            margin-bottom: 8px;
+        }
+        .vocab-number {
+            cursor: pointer;
+            color: #9ecbff;
+            font-weight: bold;
+            margin-right: 8px;
+            user-select: none;
+        }
+        #vocab-list li.disabled { opacity: 0.45; }
+        .vocab-open { padding-right: 300px; }
+        #card-image {
+            display: none;
+            max-width: min(90vw, 650px);
+            max-height: 300px;
+            margin: 12px auto 0;
+            border-radius: 8px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+        }
+        #font-size-control {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        #font-size-control button {
+            padding: 6px 12px;
+            font-size: 16px;
+        }
+        #difficulty-switcher {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        @media (max-width: 768px) {
+            #vocab-panel { width: 85%; }
+            .vocab-open { padding-right: 0; }
+            #card-image { max-height: 240px; }
+            #sidebar { width: 80%; }
+        }
+    </style>
+</head>
+<body class="dark-mode">
+    <button id="mobile-menu-toggle" style="display:none;">Menu ☰</button>
+    <button id="theme-toggle">Toggle Light Mode</button>
+    <div id="volume-control">
+        <button id="volume-toggle">Mute</button>
+        <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="1">
+    </div>
+
+    <div id="level-selector">
+        <div>
+            <h2>Korean Anki</h2>
+            <h2>Select Deck</h2>
+            <select id="deck-select"></select>
+            <h2>Select Mode</h2>
+            <select id="quiz-mode">
+                <option value="normal">Normal (Complete All)</option>
+                <option value="endless">Endless (Repeat)</option>
+                <option value="audio_first">Audio First (Play Before)</option>
+            </select>
+            <h2>Voice Input</h2>
+            <label><input type="checkbox" id="voice-input-toggle-start"> Enable Voice Input (Korean)</label>
+            <br>
+            <button id="start-btn">Start Quiz</button>
+        </div>
+    </div>
+
+    <div id="sidebar">
+        <h3>Previous 3 Attempts (History)</h3>
+        <div id="stats-container">
+            <span id="current-mode">Current Mode: </span>
+            <span id="correct-count">Correct: 0</span>
+            <span id="remaining-count">All: 0</span>
+        </div>
+        <ul id="history-list"></ul>
+    </div>
+
+    <div id="vocab-panel" aria-label="Vocab Checklist">
+        <h3>Cards</h3>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <input type="text" id="vocab-range-input" placeholder="Range: e.g. 1-25,40-50">
+            <button id="vocab-range-enter">Enter</button>
+        </div>
+        <ul id="vocab-list"></ul>
+    </div>
+
+    <div id="main-content" style="display:none;">
+        <div id="difficulty-switcher">
+            <span id="timer">Time: 00:00</span>
+            <select id="difficulty-switch"></select>
+            <select id="mode-switch">
+                <option value="normal">Normal (Complete All)</option>
+                <option value="endless">Endless (Repeat)</option>
+                <option value="audio_first">Audio First (Play Before)</option>
+            </select>
+            <label><input type="checkbox" id="voice-input-toggle"> Voice Input (Korean)</label>
+            <button id="speak-now-btn" style="display:none;">Speak Now</button>
+            <select id="font-switch">
+                <option value="default" selected>Default Font</option>
+                <option value="serif">Serif</option>
+                <option value="mono">Monospace</option>
+            </select>
+            <button id="reset-button">Reset Quiz</button>
+        </div>
+
+        <div id="kanji-display"></div>
+        <img id="card-image" alt="">
+        <input type="text" id="answer-input" placeholder="Type Korean or meaning">
+        <button id="replay-audio-btn" style="margin-top:10px; display:none;">Replay Audio (Shift+Q)</button>
+        <div id="feedback"></div>
+        <div id="font-size-control">
+            <button id="decrease-font">-</button>
+            <button id="increase-font">+</button>
+        </div>
+    </div>
+
+    <audio id="sentence-audio"></audio>
+    <audio id="correct-sound"></audio>
+    <audio id="wrong-sound"></audio>
+
+    <script src="Data/vocab/korean_decks.js"></script>
+    <script>
+        let currentLevel = null;
+        let currentKanjiList = [];
+        let currentKanjiIndex = 0;
+        let answerHistory = [];
+        let correctCount = 0;
+        let totalCount = 0;
+        let timerInterval = null;
+        let elapsedTime = 0;
+        let isMuted = false;
+        let quizMode = 'normal';
+        let lastEndlessOrderKey = null;
+        let fontSize = 60;
+        let sessionFirstIterationMissedIndices = [];
+        let firstIterationSeen = new Set();
+        let isVoiceInputEnabled = false;
+        let recognition = null;
+
+        const sentenceAudio = document.getElementById('sentence-audio');
+        const correctSound = document.getElementById('correct-sound');
+        const wrongSound = document.getElementById('wrong-sound');
+        const cardImage = document.getElementById('card-image');
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ko-KR';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+        } else {
+            const startToggle = document.getElementById('voice-input-toggle-start');
+            const inQuizToggle = document.getElementById('voice-input-toggle');
+            const speakBtn = document.getElementById('speak-now-btn');
+            if (startToggle) { startToggle.disabled = true; startToggle.title = 'Voice input not supported in this browser'; }
+            if (inQuizToggle) { inQuizToggle.disabled = true; inQuizToggle.title = 'Voice input not supported in this browser'; }
+            if (speakBtn) { speakBtn.disabled = true; speakBtn.title = 'Voice input not supported in this browser'; }
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const secs = (seconds % 60).toString().padStart(2, '0');
+            return `${mins}:${secs}`;
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                elapsedTime++;
+                document.getElementById('timer').textContent = `Time: ${formatTime(elapsedTime)}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = null;
+        }
+
+        function resetTimer() {
+            stopTimer();
+            elapsedTime = 0;
+            document.getElementById('timer').textContent = `Time: ${formatTime(elapsedTime)}`;
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function normalizeInput(text) {
+            return String(text || '')
+                .replace(/[\s.,!?;:'"()、。・？]/g, '')
+                .trim()
+                .toLowerCase();
+        }
+
+        function getDeckData(level) {
+            const data = window.koreanData || {};
+            return Array.isArray(data[level]) ? data[level] : [];
+        }
+
+        function getOrderKey(list) {
+            return (list || []).map(item => item && item.kanji ? item.kanji : '').join('|');
+        }
+
+        function reshuffleEndlessCycle() {
+            const base = getDeckData(currentLevel);
+            if (base.length === 0) {
+                currentKanjiList = [];
+                currentKanjiIndex = 0;
+                lastEndlessOrderKey = null;
+                return;
+            }
+            const maxAttempts = 30;
+            let nextList = null;
+            let nextKey = null;
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                const candidate = shuffle([...base]);
+                const candidateKey = getOrderKey(candidate);
+                if (base.length <= 1 || candidateKey !== lastEndlessOrderKey) {
+                    nextList = candidate;
+                    nextKey = candidateKey;
+                    break;
+                }
+            }
+            if (!nextList) {
+                nextList = shuffle([...base]);
+                nextKey = getOrderKey(nextList);
+            }
+            currentKanjiList = nextList;
+            currentKanjiIndex = 0;
+            lastEndlessOrderKey = nextKey;
+        }
+
+        function updateAudioVolume() {
+            const vol = Number(document.getElementById('volume-slider').value);
+            sentenceAudio.volume = isMuted ? 0 : vol;
+            correctSound.volume = isMuted ? 0 : vol;
+            wrongSound.volume = isMuted ? 0 : vol;
+        }
+
+        document.getElementById('volume-slider').addEventListener('input', updateAudioVolume);
+        document.getElementById('volume-toggle').addEventListener('click', () => {
+            isMuted = !isMuted;
+            document.getElementById('volume-toggle').textContent = isMuted ? 'Unmute' : 'Mute';
+            updateAudioVolume();
+        });
+
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+        });
+
+        function playSound(type) {
+            if (isMuted) return;
+            const sound = type === 'correct' ? correctSound : wrongSound;
+            if (!sound || !sound.src) return;
+            sound.currentTime = 0;
+            sound.play().catch(() => {});
+        }
+
+        function setImageForCard(item) {
+            if (item && item.image) {
+                cardImage.src = `Data/images/korean/${item.deck}/${item.image}`;
+                cardImage.style.display = 'block';
+            } else {
+                cardImage.removeAttribute('src');
+                cardImage.style.display = 'none';
+            }
+        }
+
+        function playCardAudio(item) {
+            if (!item || !item.audio || isMuted) return;
+            sentenceAudio.src = `Data/audio/korean/${item.deck}/${item.audio}`;
+            sentenceAudio.play().catch((e) => console.log('Audio play blocked', e));
+        }
+
+        function playHistoryAudio(entry) {
+            if (!entry || !entry.audio || isMuted) return;
+            sentenceAudio.src = `Data/audio/korean/${entry.deck}/${entry.audio}`;
+            sentenceAudio.play().catch((e) => console.log('Audio play blocked', e));
+        }
+
+        function getHighlightedDiff(correct, input) {
+            let highlighted = "";
+            let i = 0, j = 0;
+            while (i < correct.length) {
+                if (j < input.length && correct[i] === input[j]) {
+                    highlighted += correct[i];
+                    j++;
+                } else {
+                    highlighted += `<span class="diff-highlight">${correct[i]}</span>`;
+                }
+                i++;
+            }
+            return highlighted;
+        }
+
+        function updateHistory() {
+            const historyList = document.getElementById("history-list");
+            historyList.innerHTML = "";
+            answerHistory.slice(-3).forEach(entry => {
+                const li = document.createElement("li");
+                li.className = entry.result === "Correct" ? "correct" : "incorrect";
+                li.style.position = "relative";
+
+                if (entry.audio) {
+                    li.style.cursor = "pointer";
+                    li.onclick = () => playHistoryAudio(entry);
+                }
+
+                let targetDisplay = entry.kanji;
+                if (entry.result === "Incorrect") {
+                    targetDisplay = getHighlightedDiff(entry.kanji, entry.answer || "");
+                }
+
+                const meanings = Array.isArray(entry.meanings) ? entry.meanings : [];
+                const readings = Array.isArray(entry.readings) ? entry.readings : [];
+
+                li.innerHTML = `
+                    <div style="display:flex; flex-direction:column; width:92%;">
+                        <span class="kanji">
+                            Target: <span class="target-text">${targetDisplay}</span>
+                        </span>
+                        <span class="details">Input: ${entry.answer}</span>
+                        <div style="font-size:0.85em; margin-top:8px; border-top: 1px solid rgba(255,255,255,0.2); padding-top:5px; line-height:1.4;">
+                            <span style="color: #4db8ff; font-weight:bold;">Meanings:</span> ${meanings.join(", ")}<br>
+                            <span style="color: #ffd700; font-weight:bold;">Readings:</span> ${readings.join(", ")}
+                        </div>
+                    </div>
+                    ${entry.audio ? '<span style="position:absolute; right:10px; top:15px; font-size:1.3em; opacity:0.8;">🔊</span>' : ''}
+                `;
+                historyList.appendChild(li);
+            });
+            historyList.scrollTop = historyList.scrollHeight;
+        }
+
+        function updateStats() {
+            document.getElementById("current-mode").textContent = `Current Mode: ${quizMode}`;
+            document.getElementById("correct-count").textContent = `Correct: ${correctCount}`;
+            document.getElementById("remaining-count").textContent = `All: ${currentKanjiList.length}`;
+        }
+
+        function saveSessionToDB() {
+            const accuracy = totalCount > 0 ? ((correctCount / totalCount) * 100).toFixed(0) + "%" : "0%";
+            const deckSelect = document.getElementById('difficulty-switch');
+            const selectedDeckName = deckSelect.options[deckSelect.selectedIndex]?.text || currentLevel || "Korean";
+            const sessionData = {
+                deck_name: selectedDeckName,
+                session_range: document.getElementById('vocab-range-input').value || "All",
+                total_answered: totalCount,
+                correct: correctCount,
+                accuracy_rate: accuracy,
+                missed_first_pass: sessionFirstIterationMissedIndices.sort((a,b) => a-b).join(", "),
+                time_taken: document.getElementById('timer').textContent.replace("Time: ", ""),
+                date_completed: new Date().toLocaleString()
+            };
+
+            fetch('/save-result', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(sessionData)
+            })
+            .then(() => {
+                sessionFirstIterationMissedIndices = [];
+                firstIterationSeen.clear();
+            })
+            .catch(() => {
+                try {
+                    const quizResults = JSON.parse(localStorage.getItem('quizResults')) || [];
+                    quizResults.push(sessionData);
+                    localStorage.setItem('quizResults', JSON.stringify(quizResults));
+                } catch (_) {}
+                sessionFirstIterationMissedIndices = [];
+                firstIterationSeen.clear();
+            });
+        }
+
+        function displayCard() {
+            if ((quizMode === 'normal' || quizMode === 'audio_first') && currentKanjiList.length === 0) {
+                const percentage = totalCount > 0 ? (correctCount / totalCount * 100).toFixed(0) : 0;
+                document.getElementById("kanji-display").textContent = `${percentage}%`;
+                document.getElementById("answer-input").style.display = "none";
+                document.getElementById("feedback").textContent = "Quiz completed!";
+                document.getElementById("replay-audio-btn").style.display = "none";
+                document.getElementById("voice-input-toggle").style.display = "none";
+                document.getElementById("speak-now-btn").style.display = "none";
+                setImageForCard(null);
+                saveSessionToDB();
+                stopTimer();
+                if (recognition && isVoiceInputEnabled) recognition.stop();
+                return;
+            }
+            if (quizMode === 'endless' && currentKanjiList.length === 0) reshuffleEndlessCycle();
+            const item = currentKanjiList[currentKanjiIndex];
+            document.getElementById("kanji-display").textContent = item.kanji;
+            document.getElementById("kanji-display").style.fontSize = `${fontSize}px`;
+            document.getElementById("answer-input").value = "";
+            document.getElementById("feedback").textContent = "";
+            document.getElementById("answer-input").style.display = "inline-block";
+            document.getElementById("answer-input").focus();
+            setImageForCard(item);
+
+            const replayBtn = document.getElementById("replay-audio-btn");
+            replayBtn.style.display = (quizMode === 'audio_first') ? "inline-block" : "none";
+            if (quizMode === 'audio_first') playCardAudio(item);
+            updateStats();
+            document.getElementById("speak-now-btn").style.display = isVoiceInputEnabled ? "inline-block" : "none";
+        }
+
+        function resetQuiz(shouldShuffle = true) {
+            const base = getDeckData(currentLevel) || [];
+            currentKanjiList = shouldShuffle ? shuffle([...base]) : [...base];
+            currentKanjiIndex = 0;
+            answerHistory = [];
+            correctCount = 0;
+            totalCount = 0;
+            lastEndlessOrderKey = null;
+            sessionFirstIterationMissedIndices = [];
+            firstIterationSeen = new Set();
+            updateHistory();
+            displayCard();
+        }
+
+        function parseRanges(rangeStr, max) {
+            const out = new Set();
+            if (!rangeStr) return out;
+            const parts = rangeStr.split(',').map(p => p.trim()).filter(Boolean);
+            for (const part of parts) {
+                const m = part.match(/^(\d+)\s*-\s*(\d+)$/);
+                if (m) {
+                    const a = Math.max(1, Math.min(max, parseInt(m[1], 10)));
+                    const b = Math.max(1, Math.min(max, parseInt(m[2], 10)));
+                    const start = Math.min(a, b);
+                    const end = Math.max(a, b);
+                    for (let i = start; i <= end; i++) out.add(i);
+                } else if (/^\d+$/.test(part)) {
+                    const n = Math.max(1, Math.min(max, parseInt(part, 10)));
+                    out.add(n);
+                }
+            }
+            return out;
+        }
+
+        function buildRangeStringFromArray(arr) {
+            const nums = [...arr].sort((a, b) => a - b);
+            const ranges = [];
+            let start = null;
+            let prev = null;
+            for (const n of nums) {
+                if (start === null) { start = n; prev = n; continue; }
+                if (n === prev + 1) { prev = n; continue; }
+                ranges.push(start === prev ? `${start}` : `${start}-${prev}`);
+                start = n;
+                prev = n;
+            }
+            if (start !== null) ranges.push(start === prev ? `${start}` : `${start}-${prev}`);
+            return ranges.join(',');
+        }
+
+        function buildVocabList() {
+            const listContainer = document.getElementById('vocab-list');
+            listContainer.innerHTML = '';
+            const base = getDeckData(currentLevel) || [];
+            base.forEach((item, idx) => {
+                const number = idx + 1;
+                const li = document.createElement('li');
+
+                const numSpan = document.createElement('span');
+                numSpan.className = 'vocab-number';
+                numSpan.textContent = number;
+                numSpan.addEventListener('click', () => {
+                    const input = document.getElementById('vocab-range-input');
+                    input.value = `${number}-${number}`;
+                });
+
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.id = `vocab-checkbox-${number}`;
+
+                const label = document.createElement('label');
+                label.setAttribute('for', cb.id);
+                label.textContent = item.kanji;
+
+                li.appendChild(numSpan);
+                li.appendChild(cb);
+                li.appendChild(label);
+                listContainer.appendChild(li);
+            });
+        }
+
+        function applyRangeFilter(rangeStr) {
+            const base = getDeckData(currentLevel) || [];
+            if (!rangeStr) {
+                currentKanjiList = [...base];
+                currentKanjiIndex = 0;
+                return;
+            }
+            const selected = parseRanges(rangeStr, base.length);
+            currentKanjiList = [...selected].sort((a, b) => a - b).map(i => base[i - 1]).filter(Boolean);
+            currentKanjiIndex = 0;
+        }
+
+        document.getElementById('vocab-range-enter').addEventListener('click', () => {
+            const val = document.getElementById('vocab-range-input').value.trim();
+            applyRangeFilter(val);
+            resetQuiz(false);
+            displayCard();
+        });
+
+        function checkAnswer(userAnswer, isVoiceInput = false) {
+            const item = currentKanjiList[currentKanjiIndex];
+            if (!item) return;
+
+            const baseData = getDeckData(currentLevel) || [];
+            const originalIndex = baseData.findIndex(it => it.kanji === item.kanji) + 1;
+
+            const normalizedUser = normalizeInput(userAnswer);
+            const normalizedKanji = normalizeInput(item.kanji);
+            const normalizedReadings = (item.readings || []).map(normalizeInput);
+            const normalizedMeanings = (item.meanings || []).map(normalizeInput);
+
+            let result;
+            const isCorrect = normalizedUser && (
+                normalizedUser === normalizedKanji ||
+                normalizedReadings.includes(normalizedUser) ||
+                (!isVoiceInput && normalizedMeanings.includes(normalizedUser))
+            );
+            totalCount++;
+
+            if (isCorrect) {
+                result = "Correct";
+                correctCount++;
+                playSound('correct');
+                document.getElementById("feedback").textContent = "Correct";
+                document.getElementById("feedback").style.color = "#4caf50";
+                if (quizMode === 'normal' || quizMode === 'audio_first') {
+                    currentKanjiList.splice(currentKanjiIndex, 1);
+                    if (currentKanjiIndex >= currentKanjiList.length) currentKanjiIndex = 0;
+                } else {
+                    currentKanjiIndex = (currentKanjiIndex + 1) % currentKanjiList.length;
+                }
+            } else {
+                result = "Incorrect";
+                if (!firstIterationSeen.has(item.kanji) && originalIndex > 0) {
+                    sessionFirstIterationMissedIndices.push(originalIndex);
+                }
+                playSound('wrong');
+                document.getElementById("feedback").textContent = `Wrong: ${item.kanji} — ${(item.meanings || []).slice(0, 2).join(' / ')}`;
+                document.getElementById("feedback").style.color = "#ff5252";
+                currentKanjiIndex = (currentKanjiIndex + 1) % currentKanjiList.length;
+            }
+
+            firstIterationSeen.add(item.kanji);
+
+            answerHistory.push({
+                kanji: item.kanji,
+                answer: userAnswer || "(empty)",
+                meanings: item.meanings,
+                readings: item.readings,
+                result,
+                audio: item.audio,
+                deck: item.deck,
+                image: item.image
+            });
+            updateHistory();
+            updateStats();
+
+            if (item.audio && !isMuted && quizMode !== 'audio_first') {
+                playCardAudio(item);
+            }
+
+            setTimeout(displayCard, 1);
+        }
+
+        document.getElementById("answer-input").addEventListener("keypress", function(event) {
+            if (event.key !== "Enter") return;
+            checkAnswer(this.value);
+        });
+
+        document.getElementById("replay-audio-btn").addEventListener('click', () => {
+            const item = currentKanjiList[currentKanjiIndex];
+            playCardAudio(item);
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.shiftKey && event.key.toLowerCase() === 'q') {
+                event.preventDefault();
+                const item = currentKanjiList[currentKanjiIndex];
+                playCardAudio(item);
+            }
+        });
+
+        document.getElementById("reset-button").addEventListener("click", () => {
+            resetQuiz();
+            resetTimer();
+            startTimer();
+            if (recognition && isVoiceInputEnabled) recognition.stop();
+        });
+
+        document.getElementById("decrease-font").addEventListener("click", () => {
+            fontSize = Math.max(20, fontSize - 4);
+            const el = document.getElementById("kanji-display");
+            el.style.fontSize = `${fontSize}px`;
+        });
+        document.getElementById("increase-font").addEventListener("click", () => {
+            fontSize = Math.min(120, fontSize + 4);
+            const el = document.getElementById("kanji-display");
+            el.style.fontSize = `${fontSize}px`;
+        });
+
+        document.getElementById("font-switch").addEventListener("change", function() {
+            const v = this.value;
+            const el = document.getElementById("kanji-display");
+            if (v === 'serif') el.style.fontFamily = 'serif';
+            else if (v === 'mono') el.style.fontFamily = 'monospace';
+            else el.style.fontFamily = '';
+        });
+
+        function populateDeckSelects() {
+            const data = window.koreanData || {};
+            const keys = Object.keys(data);
+            const deckSelect = document.getElementById('deck-select');
+            const difficultySwitch = document.getElementById('difficulty-switch');
+
+            deckSelect.innerHTML = '';
+            difficultySwitch.innerHTML = '';
+
+            for (const key of keys) {
+                const opt1 = document.createElement('option');
+                opt1.value = key;
+                opt1.textContent = key;
+                deckSelect.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = key;
+                opt2.textContent = key;
+                difficultySwitch.appendChild(opt2);
+            }
+
+            if (keys.length > 0) {
+                deckSelect.value = keys[0];
+                difficultySwitch.value = keys[0];
+                currentLevel = keys[0];
+            }
+        }
+
+        document.getElementById('difficulty-switch').addEventListener('change', function() {
+            currentLevel = this.value;
+            document.getElementById('deck-select').value = currentLevel;
+            buildVocabList();
+            document.getElementById('vocab-panel').style.display = 'block';
+            document.body.classList.add('vocab-open');
+            applyRangeFilter(document.getElementById('vocab-range-input').value.trim());
+            resetQuiz(false);
+        });
+
+        document.getElementById('mode-switch').addEventListener('change', function() {
+            quizMode = this.value;
+            resetQuiz();
+            resetTimer();
+            startTimer();
+        });
+
+        function syncVoiceToggles(val) {
+            isVoiceInputEnabled = !!val;
+            const startToggle = document.getElementById('voice-input-toggle-start');
+            const inQuizToggle = document.getElementById('voice-input-toggle');
+            if (startToggle) startToggle.checked = isVoiceInputEnabled;
+            if (inQuizToggle) inQuizToggle.checked = isVoiceInputEnabled;
+            document.getElementById("speak-now-btn").style.display = isVoiceInputEnabled ? "inline-block" : "none";
+        }
+
+        document.getElementById('voice-input-toggle-start').addEventListener('change', function() {
+            syncVoiceToggles(this.checked);
+        });
+        document.getElementById('voice-input-toggle').addEventListener('change', function() {
+            syncVoiceToggles(this.checked);
+            if (recognition && !isVoiceInputEnabled) recognition.stop();
+        });
+
+        document.getElementById('speak-now-btn').addEventListener('click', () => {
+            if (!recognition || !isVoiceInputEnabled) return;
+            try { recognition.stop(); } catch (_) {}
+            recognition.onresult = (event) => {
+                const transcript = event?.results?.[0]?.[0]?.transcript || '';
+                checkAnswer(transcript, true);
+            };
+            recognition.onerror = () => {};
+            recognition.start();
+        });
+
+        document.getElementById('start-btn').addEventListener('click', () => {
+            const deck = document.getElementById('deck-select').value;
+            const mode = document.getElementById('quiz-mode').value;
+            currentLevel = deck;
+            quizMode = mode;
+            document.getElementById('difficulty-switch').value = deck;
+            document.getElementById('mode-switch').value = mode;
+            document.getElementById('level-selector').style.display = 'none';
+            document.getElementById('main-content').style.display = 'flex';
+            document.getElementById('sidebar').style.display = 'block';
+            const vp = document.getElementById('vocab-panel');
+            vp.style.display = 'block';
+            document.body.classList.add('vocab-open');
+            syncVoiceToggles(document.getElementById('voice-input-toggle-start').checked);
+            buildVocabList();
+            resetQuiz();
+            resetTimer();
+            startTimer();
+        });
+
+        populateDeckSelects();
+        updateAudioVolume();
+    </script>
+</body>
+</html>

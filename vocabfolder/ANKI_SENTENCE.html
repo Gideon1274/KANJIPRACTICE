@@ -241,10 +241,10 @@
             <span id="timer">Time: 00:00</span>
             <select id="difficulty-switch">
                 <option value="ANKI">Core 2000</option>
-                <option value="BASIC">Grammar: Basic (Clean)</option>
-                <option value="INTERMEDIATE">Grammar: Intermediate (Clean)</option>
-                <option value="ADVANCED">Grammar: Advanced (Clean)</option>
-                <option value="VARIATIONS">Grammar: Variations (Brackets/Dots)</option>
+                <option value="BASIC">Grammar: Basic</option>
+                <option value="INTERMEDIATE">Grammar: Intermediate</option>
+                <option value="ADVANCED">Grammar: Advanced </option>
+                <!-- <option value="VARIATIONS">Grammar: Variations</option> -->
             </select>
 
             <select id="mode-switch">
@@ -278,7 +278,8 @@
 
     
     <script src="Data/vocab/core2000.js"></script>
-    <script src="Data/vocab/dictionariesgrammar.js"></script>
+    <!-- <script src="Data/vocab/dictionariesgrammar.js"></script> -->
+    <script src="Data/vocab/dictionariesgrammar1.js"></script>
     
     <script>
 
@@ -311,6 +312,8 @@
         const correctSound = document.getElementById('correct-sound');
         const wrongSound = document.getElementById('wrong-sound');
         
+        // Load quiz results from localStorage as fallback
+        let quizResults = JSON.parse(localStorage.getItem('quizResults')) || [];
        
 
         // Voice recognition setup
@@ -658,6 +661,7 @@
                 date_completed: new Date().toLocaleString()
             };
 
+            // Try to save to server first
             fetch('/save-result', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -668,7 +672,15 @@
                 sessionFirstIterationMissedIndices = [];
                 firstIterationSeen.clear();
             })
-            .catch(err => console.error("Database Save Failed.", err));
+            .catch(err => {
+                console.warn("Server save failed, saving locally:", err);
+                // Fallback to localStorage
+                quizResults.push(sessionData);
+                localStorage.setItem('quizResults', JSON.stringify(quizResults));
+                console.log(`Saved locally for deck: ${selectedDeckName}`);
+                sessionFirstIterationMissedIndices = [];
+                firstIterationSeen.clear();
+            });
         }
         
         function getKanjiDataForLevel(level) {

@@ -308,6 +308,9 @@
         const correctSound = document.getElementById('correct-sound');
         const wrongSound = document.getElementById('wrong-sound');
 
+        // Load quiz results from localStorage as fallback
+        let quizResults = JSON.parse(localStorage.getItem('quizResults')) || [];
+
         // Voice recognition setup
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition = null;
@@ -426,6 +429,7 @@
                 document.getElementById("font-switch").style.display = "none";
                 document.getElementById("font-size-control").style.display = "none";
                 document.getElementById("feedback").textContent = "Quiz completed!";
+                saveSessionToDB();
                 stopTimer();
                 if (recognition && isVoiceInputEnabled) {
                     recognition.stop();
@@ -1136,7 +1140,7 @@ function saveSessionToDB() {
         date_completed: new Date().toLocaleString()
     };
 
-    // Note the port 3001 here
+    // Try to save to server first
     fetch('/save-result', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1144,7 +1148,13 @@ function saveSessionToDB() {
     })
     .then(res => res.text())
     .then(data => console.log("Vocab Stats Saved:", data))
-    .catch(err => console.error("Vocab Server Error:", err));
+    .catch(err => {
+        console.warn("Server save failed, saving locally:", err);
+        // Fallback to localStorage
+        quizResults.push(sessionData);
+        localStorage.setItem('quizResults', JSON.stringify(quizResults));
+        console.log(`Saved locally for deck: ${selectedDeckName}`);
+    });
 }
 let isConfirmingReset = false; // Ensure this is declared globally
 

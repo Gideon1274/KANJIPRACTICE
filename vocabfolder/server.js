@@ -8,6 +8,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Serve static files from the current directory (vocabfolder)
+app.use(express.static(__dirname));
+
 const progressDir = path.join(__dirname, 'progress');
 if (!fs.existsSync(progressDir)) {
     fs.mkdirSync(progressDir);
